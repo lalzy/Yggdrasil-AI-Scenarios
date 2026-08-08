@@ -51,7 +51,7 @@ public class ChatService
     ///<param name="connection">The LLM Connection object, which contains APIKey, URL, Model, etc.</param>
     ///<param name="payload">The messages/chatlogs to send to the LLM</param>
     ///<returns>The LLM response</returns>
-    public async Task<ServiceResult<LLMResponse>> Send(LLMConnection connection, LLMPayload payload)
+    public async Task<ServiceResult<LLMResponse>> Send(LLMConnectionRequest connection, LLMPayload payload)
     {
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.APIKey);
 

@@ -110,9 +110,6 @@ public class WorldControllerTests : IClassFixture<WebApplicationFactory<Program>
         var response = await _client.PostAsync($"/api/world/{world.ID}/characters/{character.ID}", null);
 
         var body = await response.Content.ReadAsStringAsync();
-        Console.WriteLine("======= START =====");
-        Console.WriteLine(body);
-        Console.WriteLine("======END!");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }

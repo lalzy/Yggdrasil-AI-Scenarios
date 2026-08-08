@@ -19,5 +19,5 @@ public class FakeHttpHandler : HttpMessageHandler
         var response = new HttpResponseMessage(HttpStatusCode.OK);
         response.Content = new StringContent(Response, Encoding.UTF8, "application/json");
         return Task.FromResult(response);
-    }
+        }
 }

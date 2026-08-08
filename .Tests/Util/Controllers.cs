@@ -58,4 +58,8 @@ public static class ControllerUtil{
     public static Persona CreatePersona(WebApplicationFactory<Program> factory){
         return WithDB(factory, db => PersonaFactory.Create(db));
     }
+
+    public static LLMConnection CreateConnection(WebApplicationFactory<Program> factory, SupportedProviders? provider=null){
+        return WithDB(factory, db => LLMConnectionFactory.Create(db, provider));
+    }
 }

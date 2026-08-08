@@ -49,6 +49,10 @@ public class ChatServiceTests : DatabaseTestBase{
         Reasoning = _faker.Lorem.Lines()
     };
 
+    private LLMConnectionRequest CreateRequest(LLMConnection connection){
+        return connection.ConvertModelToDTO<LLMConnectionRequest>();
+    }
+    
     // Create a mock response of OpenRouter
     private ResponseData OpenRouterMock(ResponseData? data=null){
         data ??= InitData();
@@ -90,7 +94,7 @@ public class ChatServiceTests : DatabaseTestBase{
     [Fact]
     public async Task Send_CorrectReturn(){
         var response = OpenRouterMock();
-        var connection = LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter);
+        var connection = CreateRequest(LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter));
         var payload = LLMPayloadFactory.Create();
 
         var result = (await _service.Send(connection, payload));
@@ -104,7 +108,7 @@ public class ChatServiceTests : DatabaseTestBase{
         var response = OpenRouterMock();
         
 
-        var connection = LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter);
+        var connection = CreateRequest(LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter));
         var payload = LLMPayloadFactory.Create();
 
         var result = (await _service.Send(connection, payload)).Data!;
@@ -129,7 +133,7 @@ public class ChatServiceTests : DatabaseTestBase{
         data.Reasoning = null;
         var response = OpenRouterMock(data);
 
-        var connection = LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter);
+        var connection = CreateRequest(LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter));
         var payload = LLMPayloadFactory.Create();
 
         var result = (await _service.Send(connection, payload)).Data!;
@@ -143,7 +147,7 @@ public class ChatServiceTests : DatabaseTestBase{
         var data = InitData();
         var response = OpenRouterMock(data);
 
-        var connection = LLMConnectionFactory.Create(_fixture, (SupportedProviders)99999);
+        var connection = CreateRequest(LLMConnectionFactory.Create(_fixture, (SupportedProviders)99999));
         var payload = LLMPayloadFactory.Create();
 
         await Assert.ThrowsAsync<NotSupportedException>(()=> _service.Send(connection, payload));
@@ -156,7 +160,7 @@ public class ChatServiceTests : DatabaseTestBase{
             incorrect = "incorrectDataFormat"
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-        var connection = LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter);
+        var connection = CreateRequest(LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter));
         var payload = LLMPayloadFactory.Create();
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.Send(connection, payload));
@@ -165,7 +169,7 @@ public class ChatServiceTests : DatabaseTestBase{
     [Fact]
     public async Task Send_AuthorizationHeader(){
         OpenRouterMock();
-        var connection = LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter);
+        var connection = CreateRequest(LLMConnectionFactory.Create(_fixture, SupportedProviders.OpenRouter));
         var payload = LLMPayloadFactory.Create();
 
         await _service.Send(connection, payload);

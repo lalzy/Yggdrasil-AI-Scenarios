@@ -5,6 +5,6 @@ using Yggdrasil.Models;
 namespace Yggdrasil.DTO;
 
 public class SendRequest{
-    public LLMConnection Connection { get; set; }
+    public LLMConnectionRequest Connection { get; set; }
     public LLMPayload Payload { get; set; }
 }

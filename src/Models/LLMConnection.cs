@@ -16,8 +16,7 @@ public enum SupportedProviders{
 
 public class LLMConnection
 {
-    [JsonIgnore]
-    public  Guid ID { get; set; }
+    public Guid ID { get; set; }
     public required string Name { get; set; }
     public string? APIKey  { get; set; }
     public required string URL  { get; set; }
