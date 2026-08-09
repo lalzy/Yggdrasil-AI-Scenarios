@@ -55,39 +55,21 @@ public class ChatServiceTests : DatabaseTestBase{
     
     // Create a mock response of OpenRouter
     private ResponseData OpenRouterMock(ResponseData? data=null){
-        data ??= InitData();
-        
-        _handler.Response = JsonSerializer.Serialize(new {
-            id = $"gen-{_faker.Random.AlphaNumeric(14)}",
-            choices = new[] {
-                new {
-                    finish_reason = data.FinishReason,
-                    native_finish_reason = data.FinishReason,
-                    message = new {
-                        role = data.Role,
-                        content = data.Content,
-                        refusal = data.Refusal,
-                        reasoning = data.Reasoning,
-                    }
-                }
-            },
-            usage = new {
-                prompt_tokens = data.PromptTokens,
-                completion_tokens = data.CompletionTokens,
-                total_tokens = data.TotalTokens,
-                prompt_tokens_details = new {
-                    cached_tokens = 0
-                },
-                completion_tokens_details = new {
-                    reasoning_tokens = 0
-                },
-                cost = data.Cost
-            },
-            model = data.Model,
-            @object = "chat.completion"
-        }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-
-
+        var json = MockResponses.OpenRouter();
+        _handler.Response = json;
+        var parsed = JsonSerializer.Deserialize<JsonElement>(json);
+        data = new ResponseData {
+            Model = parsed.GetProperty("model").GetString()!,
+            Content = parsed.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString()!,
+            Role = parsed.GetProperty("choices")[0].GetProperty("message").GetProperty("role").GetString()!,
+            FinishReason = parsed.GetProperty("choices")[0].GetProperty("finish_reason").GetString()!,
+            Refusal = parsed.GetProperty("choices")[0].GetProperty("message").GetProperty("refusal").GetString(),
+            Reasoning = parsed.GetProperty("choices")[0].GetProperty("message").GetProperty("reasoning").GetString(),
+            PromptTokens = parsed.GetProperty("usage").GetProperty("prompt_tokens").GetInt32(),
+            CompletionTokens = parsed.GetProperty("usage").GetProperty("completion_tokens").GetInt32(),
+            TotalTokens = parsed.GetProperty("usage").GetProperty("total_tokens").GetInt32(),
+            Cost = parsed.GetProperty("usage").GetProperty("cost").GetDecimal(),
+        };
         return data;
     }
 

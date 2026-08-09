@@ -17,5 +17,5 @@ public class ChatController : ControllerBase
         _service = service;
     }
     [HttpPost("Send")]
-    public async Task<IActionResult> Send([FromBody] SendRequest request) => (await _service.Send(request.Connection, request.Payload)).ToResponse();
+    public async Task<IActionResult> Send([FromBody] SendRequest request) => ServiceResultExtensions.SafeExecute(() => _service.Send(request.Connection, request.Payload).Result);
 }

@@ -29,6 +29,32 @@ public static class ControllerUtil{
         });
     }
 
+    // public static (WebApplicationFactory<Program>, FakeHttpHandler) SetupWithHandler(WebApplicationFactory<Program> factory){
+    //     var handler = new FakeHttpHandler();
+    //     var app = Setup(factory).WithWebHostBuilder(builder =>
+    //     builder.ConfigureServices(services =>
+    //         services.AddSingleton<HttpClient>(new HttpClient(handler))));
+    //     return (app, handler);
+    // }
+public static (WebApplicationFactory<Program>, FakeHttpHandler) SetupWithHandler(WebApplicationFactory<Program> factory, Func<IServiceCollection, IServiceCollection> configureServices){
+    var handler = new FakeHttpHandler();
+    var connection = new SqliteConnection("Data Source=:memory:");
+    connection.Open();
+    var app = factory.WithWebHostBuilder(builder =>
+        builder.ConfigureServices(services =>
+        {
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
+            if (descriptor != null) services.Remove(descriptor);
+            services.AddDbContext<AppDbContext>(options => options.UseSqlite(connection));
+            configureServices(services);
+        }));
+    return (app, handler);
+}
+
+
+
+
+    
     /// <summary>Database wrapper</summary>
     /// <param name="factory">The mock webserver context</param>
     /// <param name="action">The DB Factory call</param>
