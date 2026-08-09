@@ -53,17 +53,26 @@ public class ChatService
     ///<returns>The LLM response</returns>
     public async Task<ServiceResult<LLMResponse>> Send(LLMConnectionRequest connection, LLMPayload payload)
     {
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.APIKey);
-
         var body = ObjectMerger.Merge([payload, connection]);
         body["reasoning"] = JsonSerializer.SerializeToElement(new { enabled = connection.Reasoning });
         body.Remove("name");
+        body.Remove("provider");
         var json = JsonSerializer.Serialize(body, new JsonSerializerOptions{PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        
-        var response = await _client.PostAsync(connection.URL, content);
+
+        Console.WriteLine(body);
+        var request = new HttpRequestMessage(HttpMethod.Post, connection.URL);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", connection.APIKey);
+        request.Content = content;
+    
+        var response = await _client.SendAsync(request);
+
         var result = await response.Content.ReadAsStringAsync();
 
+        if(!response.IsSuccessStatusCode){
+            throw new HttpRequestException(result, null, response.StatusCode);
+        }
+        
         // parse and return an LLM Response
         switch(connection.Provider){
             case SupportedProviders.OpenRouter:

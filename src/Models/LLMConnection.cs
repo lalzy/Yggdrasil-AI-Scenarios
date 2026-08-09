@@ -9,6 +9,7 @@ public enum APIType
     chatCompletion = 0
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SupportedProviders{
     LLamaCPP = 0,
     OpenRouter = 1,

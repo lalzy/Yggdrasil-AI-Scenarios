@@ -20,12 +20,19 @@ public static class ServiceResultExtensions{
             return action().ToResponse();
         }
         catch (ArgumentException ex){
+            Console.WriteLine($"[Error] {ex.Message}");
             return ServiceResult<T>.BadRequest(ex.Message).ToResponse();
         }
         catch (KeyNotFoundException ex){
+            Console.WriteLine($"[Error] {ex.Message}");
             return ServiceResult<T>.NotFound(ex.Message).ToResponse();
         }
+        catch(HttpRequestException ex){
+            Console.WriteLine($"[Error] {ex.Message}");
+            return ServiceResult<T>.Upstream(ex.Message, (int)(ex.StatusCode ?? System.Net.HttpStatusCode.BadRequest)).ToResponse();
+        }
         catch (Exception ex){
+            Console.WriteLine($"[Error] {ex.Message}");
             return ServiceResult<T>.InternalError(ex.Message).ToResponse();
         }
     }
