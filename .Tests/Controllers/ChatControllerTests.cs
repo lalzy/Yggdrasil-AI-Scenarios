@@ -55,6 +55,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
     [InlineData("APIType")]
     [InlineData("URL")]
     [InlineData("Provider")]
+    [InlineData("Messages")]
     public async Task Send_RequiredMembers(string property)
     {
         var connection = createRequest();
@@ -74,4 +75,5 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+    
 }

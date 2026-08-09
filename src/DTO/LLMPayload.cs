@@ -1,5 +1,6 @@
 // LLMPayload.cs
 
+using System.ComponentModel.DataAnnotations;
 namespace Yggdrasil.DTO;
 
 public class Message{
@@ -8,5 +9,6 @@ public class Message{
 }
 
 public class LLMPayload{
+    [Required]
     public List<Message>? Messages { get; set; } = [];
 }
