@@ -1,6 +1,6 @@
 // ServiceResultExtensions.cs
 
-namespace Yggdrasil.Util;
+namespace Yggdrasil.Extensions;
 
 public static class ServiceResultExtensions{
     ///<summary>Wrapper for controllers to get normalized HTTP payloads</summary>

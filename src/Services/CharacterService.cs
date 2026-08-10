@@ -1,6 +1,7 @@
 // CharacterService.cs
 
 using Yggdrasil.Constants;
+using Yggdrasil.Extensions;
 using Yggdrasil.Data;
 using Yggdrasil.DTO;
 using Yggdrasil.Util;

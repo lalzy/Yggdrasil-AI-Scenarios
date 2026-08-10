@@ -1,10 +1,10 @@
-// ChatService.cs
+// ConversationService.cs
 
 using Yggdrasil.Data;
 
 namespace Yggdrasil.Services;
 
-public class ChatService (AppDbContext db)
+public class ConversationService(AppDbContext db)
 {
     private readonly AppDbContext _db = db;
 }

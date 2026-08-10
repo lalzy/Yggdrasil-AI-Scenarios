@@ -1,7 +1,7 @@
 // CharacterController.cs
 
 using Yggdrasil.Services;
-using Yggdrasil.Util;
+using Yggdrasil.Extensions;
 using Yggdrasil.DTO;
 
 namespace Yggdrasil.Controllers;
