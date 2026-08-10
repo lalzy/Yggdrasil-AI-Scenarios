@@ -1,7 +1,7 @@
 // SettingsService.cs
 
 using Yggdrasil.Models;
-using Yggdrasil.Util;
+using Yggdrasil.Extensions;
 using Yggdrasil.Data;
 
 namespace Yggdrasil.Services;

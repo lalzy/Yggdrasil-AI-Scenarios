@@ -2,7 +2,7 @@
 
 using Yggdrasil.DTO;
 using Yggdrasil.Services;
-using Yggdrasil.Util;
+using Yggdrasil.Extensions;
 
 namespace Yggdrasil.Controllers;
 

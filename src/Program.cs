@@ -1,5 +1,6 @@
 // Program.cs
 
+using Yggdrasil.Extensions;
 using Yggdrasil.Data;
 using System.Text.Json.Serialization;
 

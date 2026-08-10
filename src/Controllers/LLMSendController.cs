@@ -1,18 +1,18 @@
-// ChatController.cs
+// LLMSendController.cs
 
 using Yggdrasil.DTO;
 using Yggdrasil.Services;
-using Yggdrasil.Util;
+using Yggdrasil.Extensions;
 
 namespace Yggdrasil.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class ChatController : ControllerBase
+[Route("api/chat")] // Want code separation, but the route to point to chat.
+public class LLMSendController : ControllerBase
 {
-    private readonly ChatService _service;
+    private readonly LLMSendService _service;
 
-    public ChatController(ChatService service)
+    public LLMSendController(LLMSendService service)
     {
         _service = service;
     }

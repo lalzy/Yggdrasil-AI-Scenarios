@@ -5,6 +5,7 @@ using Yggdrasil.Models;
 using Yggdrasil.Util;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Data;
+using Yggdrasil.Extensions;
 
 namespace Yggdrasil.Tests.Services;
 

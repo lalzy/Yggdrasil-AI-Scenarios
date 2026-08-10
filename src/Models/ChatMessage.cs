@@ -10,7 +10,7 @@ public enum RoleType{
 
 public class ChatMessage{
     public Guid ID {get; set;}
-    public Guid Conversation_ID {get; set;}
+    public required Guid Conversation_ID {get; set;}
     public required RoleType Role {get; set;}
     public required string Content {get; set;}
     public DateTime TimeStamp {get; set;} = DateTime.UtcNow;

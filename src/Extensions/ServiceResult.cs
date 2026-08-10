@@ -1,6 +1,6 @@
 // ServiceResult.cs
 
-namespace Yggdrasil.Util;
+namespace Yggdrasil.Extensions;
 
 ///<summary>Empty type for noContent</summary>
 public struct Empty {}

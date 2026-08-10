@@ -3,8 +3,9 @@
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Services;
 using Yggdrasil.Models;
-using Yggdrasil.DTO;
+using Yggdrasil.DTO; 
 using Yggdrasil.Util;
+using Yggdrasil.Extensions;
 
 namespace Yggdrasil.Tests.Services;
 
