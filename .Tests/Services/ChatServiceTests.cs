@@ -5,6 +5,7 @@ using Yggdrasil.Models;
 using Yggdrasil.Services;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Extensions;
+using Yggdrasil.Util;
 
 namespace Yggdrasil.Test.Services;
 
@@ -28,6 +29,12 @@ public class ChatServiceTests : DatabaseTestBase
         return(Enumerable.Range(0, amount).Select(c => ChatMessageFactory.Create(_fixture, conversation_ID)).ToList());
     }
 
+    private ChatMessageRequest CreateMessageRequest(Guid conversation_ID){
+        var request = AutoFaker.Generate<ChatMessageRequest>();
+        request.Conversation_ID = conversation_ID;
+        return request;
+    }
+    
     // Tests
 
     [Theory]
@@ -177,5 +184,30 @@ public class ChatServiceTests : DatabaseTestBase
     [Fact]
     public void GetOne_InvalidGuidThrows(){
         Assert.Throws<KeyNotFoundException>(() => _service.GetOne(_faker.Random.Guid()));
+    }
+
+    [Fact]
+    public void Creates_Success(){
+        var conversation = CreateConversation();
+        var request = CreateMessageRequest(conversation.ID);
+        var message = request.ConvertModelToDTO<ChatMessage>();
+        
+        var fetch = _service.Create(request).Data!;
+
+        var ID = fetch.ID;
+        fetch.ID = Guid.Empty;
+
+        Assert.Equivalent(message, fetch);
+
+        fetch.ID = ID;
+
+        var dbFetch = _fixture.CreateContext().Set<ChatMessage>().FirstOrDefault(c => c.ID == ID);
+        Assert.Equivalent(fetch, dbFetch);
+    }
+
+    [Fact]
+    public void Creates_CorrectReturnType(){
+        var fetch = _service.Create(AutoFaker.Generate<ChatMessageRequest>());
+        Assert.IsType<ServiceResult<ChatMessage>>(fetch);
     }
 }
