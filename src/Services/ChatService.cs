@@ -12,6 +12,10 @@ public class ChatService (AppDbContext db)
 {
     private readonly AppDbContext _db = db;
 
+    /// <summary>Get all chat Messages from a conversation as a SummaryRecord.</summary>
+    /// <param name="count">How many records to fetch</param>
+    /// <returns>ServiceResult with data of list of chatSummaries</returns>
+    /// <exception cref="Argumentexception">Count is less than one</exception>
     public ServiceResult<List<ChatMessageSummary>> GetAll(Guid conversation_ID, int? amount=null){
         var query = _db.Set<ChatMessage>().Where(c => c.Conversation_ID == conversation_ID).OrderByDescending(c => c.TimeStamp).Select(c=> new ChatMessageSummary(c.ID, c.Conversation_ID,  c.Role, c.Content, c.TimeStamp));
 
@@ -21,5 +25,15 @@ public class ChatService (AppDbContext db)
         }
         
         return new(query.ToList());
+    }
+
+    /// <summary>Get the requested ChatMessage object</summary>
+    /// <param name="world_ID">ID of the ChatMessage to fetch</param>
+    /// <returns>ServiceResult with the ChatMessage as Data</returns>
+    /// <exception cref="KeyNotFoundexception">Thrown when ChatMessage not found</exception>
+    public ServiceResult<ChatMessage> GetOne(Guid message_ID){
+        var message = _db.Set<ChatMessage>().FirstOrDefault(m => m.ID == message_ID);
+        if(message == null) throw new KeyNotFoundException(ErrorMessages.CONVERSATION_NOT_FOUND);
+        return new(message);
     }
 }

@@ -142,4 +142,40 @@ public class ChatServiceTests : DatabaseTestBase
             }
         }
     }
+
+    [Fact]
+    public void GetOne_GetRequested(){
+        var conversation = CreateConversation();
+        var message = CreateMessages(1, conversation.ID)[0];
+
+        var fetch = _service.GetOne(message.ID).Data!;
+
+        Assert.Equivalent(fetch, message);
+    }
+    
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void GetOne_GetCorrectFromMany(int index){
+        var conversation = CreateConversation();
+        var messages = CreateMessages(2, conversation.ID);
+
+        var messageToGet = messages[index];
+        var fetch = _service.GetOne(messageToGet.ID).Data!;
+        Assert.Equivalent(messageToGet, fetch);
+    }
+
+    [Fact]
+    public void GetOne_CorrectReturnType(){
+        var conversation = CreateConversation();
+        var message = ChatMessageFactory.Create(_fixture, conversation.ID);
+        var fetch = _service.GetOne(message.ID);
+
+        Assert.IsType <ServiceResult<ChatMessage>>(fetch);
+    }
+
+    [Fact]
+    public void GetOne_InvalidGuidThrows(){
+        Assert.Throws<KeyNotFoundException>(() => _service.GetOne(_faker.Random.Guid()));
+    }
 }

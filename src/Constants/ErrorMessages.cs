@@ -11,4 +11,6 @@ public static class ErrorMessages{
     public const string LESSTHANONE = "Less than one requested";
     public const string PERSONA_NOT_FOUND = "Persona doesn't exist";
     public const string INVALID_PROVIDER = "Provider not supported";
+    public const string MESSAGE_NOT_FOUND = "Message doesn't exist";
+    public const string CONVERSATION_NOT_FOUND = "Conversation doesn't exist";
 }
