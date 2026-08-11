@@ -12,3 +12,7 @@ public class ChatMessageRequest{
     [Required]
     public required string Content { get; set; }
 }
+
+public class ChatMessageUpdateRequest{
+    public string? Content { get; set; }
+}

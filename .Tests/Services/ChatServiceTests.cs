@@ -6,6 +6,7 @@ using Yggdrasil.Services;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Extensions;
 using Yggdrasil.Util;
+using System.Reflection;
 
 namespace Yggdrasil.Test.Services;
 
@@ -207,7 +208,74 @@ public class ChatServiceTests : DatabaseTestBase
 
     [Fact]
     public void Creates_CorrectReturnType(){
-        var fetch = _service.Create(AutoFaker.Generate<ChatMessageRequest>());
+        var conversation = CreateConversation();
+        var request = AutoFaker.Generate<ChatMessageRequest>();
+        request.Conversation_ID = conversation.ID;
+        var fetch = _service.Create(request);
         Assert.IsType<ServiceResult<ChatMessage>>(fetch);
+    }
+
+    [Fact]
+    public void Creates_InvalidConversationID(){
+        Assert.Throws<KeyNotFoundException>(() => _service.Create(CreateMessageRequest(_faker.Random.Guid())));
+        
+    }
+
+    [Fact]
+    public void Edit_SuccessChangeContent(){
+        var conversation = CreateConversation();
+        var message = CreateMessages(1, conversation.ID)[0];
+        string? newContent;
+        // ensure unique new
+        do
+        {
+            newContent = _faker.Lorem.Lines();
+        } while (newContent == message.Content);
+
+        var request = new ChatMessageUpdateRequest {Content = newContent };
+
+        // Assert fetch is correct update
+        var fetch = _service.Update(message.ID, request).Data!;
+
+        Assert.Equal(newContent, fetch.Content);
+        
+        // DB compare
+        var dbFetch = _fixture.CreateContext().Set<ChatMessage>().FirstOrDefault(c => c.ID == message.ID);
+        Assert.Equivalent(fetch, dbFetch);
+    }
+
+    [Fact]
+    public void Edit_InvalidIDThrows(){
+        Assert.Throws<NullReferenceException>(() => _service.Update(_faker.Random.Guid(), AutoFaker.Generate<ChatMessageUpdateRequest>()));
+    }
+
+    [Fact]
+    public void Edit_ReturnCorrectType(){
+        var conversation = CreateConversation();
+        var message = ChatMessageFactory.Create(_fixture, conversation.ID);
+        var fetch = _service.Update(message.ID, AutoFaker.Generate<ChatMessageUpdateRequest>());
+        Assert.IsType<ServiceResult<ChatMessage>>(fetch);
+    }
+
+    [Fact]
+    public void Edit_OtherFieldsRemainSame(){
+        var conversation = CreateConversation();
+        var message = ChatMessageFactory.Create(_fixture, conversation.ID);
+        string? newContent = null;
+        do{
+            newContent = _faker.Lorem.Lines();
+        } while (newContent == message.Content);
+        var request = new ChatMessageUpdateRequest{
+            Content = newContent
+        };
+
+        var fetch = _service.Update(message.ID, request).Data!;
+
+        foreach(var property in message.GetType().GetProperties()){
+            var name = property.Name.ToString().ToLower();
+            if(name == "content") continue;
+            Assert.Equal(property.GetValue(message), property.GetValue(fetch));
+
+        }
     }
 }

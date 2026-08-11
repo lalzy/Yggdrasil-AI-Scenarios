@@ -45,9 +45,29 @@ public class ChatService (AppDbContext db)
     /// <param name="description">Description of the world</param>
     /// <param name="narratorInstructions">A custom instruction if desired</param>
     /// <returns>Service Result with Data as World Object</returns>
+    /// <exception cref="KeyNotFoundException">Thrown when Conversation not found</exception>
     public ServiceResult<ChatMessage> Create(ChatMessageRequest request){
+        if((_db.Set<Conversation>().FirstOrDefault(c => c.ID == request.Conversation_ID)) == null)
+            throw new KeyNotFoundException(ErrorMessages.CONVERSATION_NOT_FOUND);
+        
         ChatMessage message = request.ConvertModelToDTO<ChatMessage>();
-        _db.Set<ChatMessage>().Add(message);
+        message = _db.Set<ChatMessage>().Add(message).Entity;
+        _db.SaveChanges();
+        return new(message);
+    }
+
+
+    /// <summary>Update the Content of ChatMessage</summary>
+    /// <param name="message_ID">ID of the ChatMessage to Edit</param>
+    /// <param name="request">The DTO of fields/data to update (only Content)</param>
+    /// <returns>ServiceResult with the ChatMessage as Data</returns>
+    /// <exception cref="NullReferenceException">Thrown when ChatMessage not found</exception>
+    public ServiceResult<ChatMessage> Update(Guid message_ID, ChatMessageUpdateRequest request){
+        var message = _db.Set<ChatMessage>().Find(message_ID);
+
+        message.Content = request.Content ?? message.Content;
+        if(request.Content != null) message.Content = request.Content;
+        
         _db.SaveChanges();
         return new(message);
     }

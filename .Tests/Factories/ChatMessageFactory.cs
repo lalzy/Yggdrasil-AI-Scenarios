@@ -12,7 +12,7 @@ class ChatMessageFactory{
 
         if(timeStamp.HasValue) message.TimeStamp = timeStamp.Value;
 
-        db.Set<ChatMessage>().Add(message);
+        message = db.Set<ChatMessage>().Add(message).Entity;
         db.SaveChanges();
         
         return message;

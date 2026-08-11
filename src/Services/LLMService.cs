@@ -67,6 +67,11 @@ public class LLMService(AppDbContext db){
         return prompt.ToString(SaveOptions.None);
     }
 
+    ///<summary>Create the message payload for LLMs</summary>
+    ///<param name="world">A world object</param>
+    ///<param name="persona">A persona object</param>
+    ///<param name="messages">A list of message objects</param>
+    ///<returns>The LLM Payload object</returns>
     public ServiceResult<LLMPayload> CreateLLMPayload(World world, Persona persona, List<Message>? messages = null){
         var payload = new LLMPayload();
 
