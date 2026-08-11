@@ -20,6 +20,8 @@ public class LLMSendService
 
     // Quick and "static" for now, will 'probably' make a config-based approach instead later to make it easy
     // to add new providers.
+    ///<summary>Parse Json data from OpenRouter endpoint to an LLMResponse object</summary>
+    ///<returns>The LLMResponse object</returns>
     private LLMResponse ParseOpenRouter(JsonElement data){
         var model = data.GetProperty("model").GetString();
         var usage = data.GetProperty("usage");
@@ -45,6 +47,27 @@ public class LLMSendService
         
         return Parsed;
     }
+
+    /// <summary>Sends the json to the LLM endpoint</summary>
+    /// <returns>The Http Response object</returns>
+    private async Task<HttpResponseMessage> SendToLLMService(string URL, string? APIKey, string json){
+        var request = new HttpRequestMessage(HttpMethod.Post, URL);
+        if(APIKey != null)
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", APIKey);
+        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        return (await _client.SendAsync(request));
+    }
+
+    /// <summary>Create the request body from the payload and connection</summary>
+    /// <returns>The body to be made into a Json string</returns>
+    private Dictionary<string, JsonElement> CreateBody(LLMConnectionRequest connection, LLMPayload payload){
+        var body = ObjectMerger.Merge([payload, connection]);
+        body["reasoning"] = JsonSerializer.SerializeToElement(new { enabled = connection.Reasoning });
+        body.Remove("name");
+        
+        return body;
+    }
     
     ///<summary></summary>
     ///<param name="connection">The LLM Connection object, which contains APIKey, URL, Model, etc.</param>
@@ -53,15 +76,10 @@ public class LLMSendService
     ///<exception cref="NotSupportedException">Provider not supported</exception>
     public async Task<ServiceResult<LLMResponse>> Send(LLMConnectionRequest connection, LLMPayload payload)
     {
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.APIKey);
-
-        var body = ObjectMerger.Merge([payload, connection]);
-        body["reasoning"] = JsonSerializer.SerializeToElement(new { enabled = connection.Reasoning });
-        body.Remove("name");
+        var body = CreateBody(connection, payload);
         var json = JsonSerializer.Serialize(body, new JsonSerializerOptions{PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        
-        var response = await _client.PostAsync(connection.URL, content);
+
+        var response = await SendToLLMService(connection.URL, connection.APIKey, json);
         var result = await response.Content.ReadAsStringAsync();
 
         // parse and return an LLM Response
