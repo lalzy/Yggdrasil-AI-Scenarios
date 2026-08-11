@@ -35,6 +35,10 @@ public class ChatServiceTests : DatabaseTestBase
         request.Conversation_ID = conversation_ID;
         return request;
     }
+
+    private ChatMessage? GetFromDB(Guid message_ID){
+        return _fixture.CreateContext().Set<ChatMessage>().FirstOrDefault(c => c.ID == message_ID);
+    }
     
     // Tests
 
@@ -202,7 +206,7 @@ public class ChatServiceTests : DatabaseTestBase
 
         fetch.ID = ID;
 
-        var dbFetch = _fixture.CreateContext().Set<ChatMessage>().FirstOrDefault(c => c.ID == ID);
+        var dbFetch = GetFromDB(message.ID);
         Assert.Equivalent(fetch, dbFetch);
     }
 
@@ -238,9 +242,9 @@ public class ChatServiceTests : DatabaseTestBase
         var fetch = _service.Update(message.ID, request).Data!;
 
         Assert.Equal(newContent, fetch.Content);
-        
+
         // DB compare
-        var dbFetch = _fixture.CreateContext().Set<ChatMessage>().FirstOrDefault(c => c.ID == message.ID);
+        var dbFetch = GetFromDB(message.ID);
         Assert.Equivalent(fetch, dbFetch);
     }
 
@@ -277,5 +281,56 @@ public class ChatServiceTests : DatabaseTestBase
             Assert.Equal(property.GetValue(message), property.GetValue(fetch));
 
         }
+    }
+
+    [Fact]
+    public void Delete_Success(){
+        var conversation = CreateConversation();
+        var message = ChatMessageFactory.Create(_fixture, conversation.ID);
+
+        // Verify exist
+        var dbFetch =  GetFromDB(message.ID);
+        Assert.NotNull(dbFetch);
+        
+        _service.Delete(message.ID);
+
+        // Verify deleted
+        dbFetch = GetFromDB(message.ID);
+        Assert.Null(dbFetch);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void Delete_OnlyRequestedDeleted(int index){
+        var conversation = CreateConversation();
+        var messages = CreateMessages(3, conversation.ID);
+        var messageToDelete = messages[index];
+        _service.Delete(messageToDelete.ID);
+
+        foreach(var message in messages){
+            var dbFetch = GetFromDB(message.ID);
+            if(message == messageToDelete)
+                Assert.Null(dbFetch);
+            else
+                Assert.Equivalent(message, dbFetch);
+        }
+    }
+
+    [Fact]
+    public void Delete_CorrectReturnType(){
+        var conversation = CreateConversation();
+        var message = ChatMessageFactory.Create(_fixture, conversation.ID);
+        var fetch = _service.Delete(message.ID);
+
+        Assert.IsType<ServiceResult<Empty>>(fetch);
+    }
+
+    [Fact]
+    public void Delete_InvalidGuidThrows(){
+        var message = ChatMessageFactory.Create(_fixture);
+
+        Assert.Throws<KeyNotFoundException>(() => _service.Delete(_faker.Random.Guid()));
     }
 }

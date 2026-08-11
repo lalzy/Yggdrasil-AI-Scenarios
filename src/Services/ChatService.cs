@@ -71,4 +71,17 @@ public class ChatService (AppDbContext db)
         _db.SaveChanges();
         return new(message);
     }
+
+    ///<summary>Delete message</summary>
+    ///<param name="message_ID">ID of message to delete</param>
+    ///<returns>No content</returns>
+    public ServiceResult<Empty> Delete(Guid message_ID){
+        var message = _db.Set<ChatMessage>().FirstOrDefault(m => m.ID == message_ID);
+        if(message == null) throw new KeyNotFoundException(ErrorMessages.MESSAGE_NOT_FOUND);
+
+        _db.Set<ChatMessage>().Remove(message);
+        _db.SaveChanges();
+        
+        return ServiceResult<Empty>.NoContent();
+    }
 }
