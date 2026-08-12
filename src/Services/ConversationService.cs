@@ -49,6 +49,7 @@ public class ConversationService(AppDbContext db)
     ///<returns></returns>
     ///<exception cref="KeyNotfoundexception">Thrown if world does not exist</exception>
     public ServiceResult<Conversation> Create(ConversationRequest request){
+        if (_db.Set<World>().FirstOrDefault(w => w.ID == request.World_ID) == null) throw new KeyNotFoundException();
         Conversation conversation = request.ConvertModelToDTO<Conversation>();
 
         _db.Set<Conversation>().Add(conversation);

@@ -131,9 +131,10 @@ public class ConversationServiceTests : DatabaseTestBase
     }
 
     [Fact]
-    public void Creates_Success(){
+    public void Create_Success(){
         var world = WorldFactory.Create(_fixture);
         var request = AutoFaker.Generate<ConversationRequest>();
+        request.World_ID = world.ID;
         var convertedRequest = request.ConvertModelToDTO<Conversation>();
         var conversation = _service.Create(request).Data!;
         var ID = conversation.ID;
@@ -144,5 +145,21 @@ public class ConversationServiceTests : DatabaseTestBase
         conversation.ID = ID;
         var dbFetch = _fixture.CreateContext().Set<Conversation>().FirstOrDefault(c => c.ID == ID);
         Assert.Equivalent(conversation, dbFetch);
+    }
+
+    [Fact]
+    public void Create_CorrectReturnType(){
+        var world = WorldFactory.Create(_fixture);
+        var request = AutoFaker.Generate<ConversationRequest>();
+        request.World_ID = world.ID;
+        var fetch = _service.Create(request);
+
+        Assert.IsType<ServiceResult<Conversation>>(fetch);
+    }
+
+    [Fact]
+    public void Create_WorldNotFoundThrows(){
+        var request = AutoFaker.Generate<ConversationRequest>();
+        Assert.Throws<KeyNotFoundException>(()=>_service.Create(request));
     }
 }
