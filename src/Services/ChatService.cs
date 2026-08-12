@@ -75,6 +75,7 @@ public class ChatService (AppDbContext db)
     ///<summary>Delete message</summary>
     ///<param name="message_ID">ID of message to delete</param>
     ///<returns>No content</returns>
+    ///<exception cref="KeyNotfoundexception">Thrown if chatMessage is not found</exception>
     public ServiceResult<Empty> Delete(Guid message_ID){
         var message = _db.Set<ChatMessage>().FirstOrDefault(m => m.ID == message_ID);
         if(message == null) throw new KeyNotFoundException(ErrorMessages.MESSAGE_NOT_FOUND);
