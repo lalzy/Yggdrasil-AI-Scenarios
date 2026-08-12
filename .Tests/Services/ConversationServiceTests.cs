@@ -162,4 +162,45 @@ public class ConversationServiceTests : DatabaseTestBase
         var request = AutoFaker.Generate<ConversationRequest>();
         Assert.Throws<KeyNotFoundException>(()=>_service.Create(request));
     }
+
+    [Fact]
+    public void Delete_SuccessfullDelete(){
+        var world = WorldFactory.Create(_fixture);
+        var conversation = ConversationFactory.Create(_fixture, world.ID);
+
+        _service.Delete(conversation.ID);
+
+        var dbFetch = _fixture.CreateContext().Set<Conversation>().FirstOrDefault(c => c.ID == conversation.ID);
+        Assert.Null(dbFetch);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void Delete_OnlyRequestedDeleted(int index){
+        var world = WorldFactory.Create(_fixture);
+        var conversations = CreateConversations(3, world.ID);
+        var conversationToDelete = conversations[index];
+        
+        _service.Delete(conversationToDelete.ID);
+        foreach(var conversation in conversations){
+            var dbFetch = _fixture.CreateContext().Set<Conversation>()
+                .FirstOrDefault(c => c.ID == conversation.ID);
+
+            if(conversation == conversationToDelete)
+                Assert.Null(dbFetch);
+            else
+                Assert.Equivalent(conversation, dbFetch);
+            
+        }
+    }
+
+    [Fact]
+    public void Delete_CorrectReturnType(){
+        var world = WorldFactory.Create(_fixture);
+        var conversation = ConversationFactory.Create(_fixture, world.ID);
+        var fetch = _service.Delete(conversation.ID);
+        Assert.IsType<ServiceResult<Empty>>(fetch);
+    }
 }

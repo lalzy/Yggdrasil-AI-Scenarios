@@ -57,4 +57,13 @@ public class ConversationService(AppDbContext db)
 
         return new(conversation);
     }
+
+    public ServiceResult<Empty> Delete(Guid conversation_ID){
+        var conversation = _db.Set<Conversation>().FirstOrDefault(c => c.ID == conversation_ID);
+
+        _db.Set<Conversation>().Remove(conversation);
+        _db.SaveChanges();
+
+        return ServiceResult<Empty>.NoContent();
+    }
 }
