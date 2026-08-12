@@ -5,6 +5,7 @@ using Yggdrasil.Models;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.DTO;
 using Yggdrasil.Extensions;
+using Yggdrasil.Util;
 
 namespace Yggdrasil.Tests.Services;
 
@@ -127,5 +128,21 @@ public class ConversationServiceTests : DatabaseTestBase
     [Fact]
     public void GetOne_InvalidGuidThrows(){
         Assert.Throws<KeyNotFoundException>(()=>_service.GetOne(_faker.Random.Guid()));
+    }
+
+    [Fact]
+    public void Creates_Success(){
+        var world = WorldFactory.Create(_fixture);
+        var request = AutoFaker.Generate<ConversationRequest>();
+        var convertedRequest = request.ConvertModelToDTO<Conversation>();
+        var conversation = _service.Create(request).Data!;
+        var ID = conversation.ID;
+        conversation.ID = Guid.Empty;
+
+        Assert.Equivalent(convertedRequest, conversation, strict:false);
+
+        conversation.ID = ID;
+        var dbFetch = _fixture.CreateContext().Set<Conversation>().FirstOrDefault(c => c.ID == ID);
+        Assert.Equivalent(conversation, dbFetch);
     }
 }

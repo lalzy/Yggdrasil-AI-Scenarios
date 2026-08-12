@@ -5,6 +5,7 @@ using Yggdrasil.Data;
 using Yggdrasil.Models;
 using Yggdrasil.DTO;
 using Yggdrasil.Constants;
+using Yggdrasil.Util;
 
 namespace Yggdrasil.Services;
 
@@ -40,6 +41,19 @@ public class ConversationService(AppDbContext db)
     public ServiceResult<Conversation> GetOne(Guid conversation_ID){
         var conversation = _db.Set<Conversation>().FirstOrDefault(c => c.ID == conversation_ID);
         if(conversation == null) throw new KeyNotFoundException(ErrorMessages.CONVERSATION_NOT_FOUND);
+        return new(conversation);
+    }
+
+    ///<summary></summary>
+    ///<param name="request"></param>
+    ///<returns></returns>
+    ///<exception cref="KeyNotfoundexception">Thrown if world does not exist</exception>
+    public ServiceResult<Conversation> Create(ConversationRequest request){
+        Conversation conversation = request.ConvertModelToDTO<Conversation>();
+
+        _db.Set<Conversation>().Add(conversation);
+        _db.SaveChanges();
+
         return new(conversation);
     }
 }
