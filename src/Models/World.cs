@@ -11,7 +11,7 @@ public class World{
     public string? NarratorInstruction {get; set;}
     public string? Scenario { get; set; }
     public List<Character> Characters {get; set;} = [];
-    public List<string>? NarratorExampleDialogue {get;set;} = [];
+    public string? NarratorExampleDialogue {get;set;}
     public DateTime CreatedAt {get; set;} = DateTime.UtcNow;
     public DateTime UpdatedAt {get; set;} = DateTime.UtcNow;
 }
