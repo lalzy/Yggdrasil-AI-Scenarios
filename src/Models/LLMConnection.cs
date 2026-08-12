@@ -25,4 +25,5 @@ public class LLMConnection
     public required APIType APIType  { get; set; }
     public bool Reasoning  { get; set; }
     public required SupportedProviders Provider {get; set;}
+    public string? Instruction { get; set; }
 }

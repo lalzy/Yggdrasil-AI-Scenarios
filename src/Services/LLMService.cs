@@ -26,44 +26,66 @@ public class LLMService(AppDbContext db){
         return string.Join("\n", lines.Where(l => l != null));
     }
 
-    private string createCharacterString(Character character){
+    private XElement AddExampleDialogueToCharacter(Character character, XElement characterElement){
+        if(character.ExampleDialogue != null){
+            var exampleDialogueElement = new XElement("example-dialogue");
+            foreach(var line in character.ExampleDialogue){
+                exampleDialogueElement.Add(new XElement("line", line));
+            }
+            characterElement.Add(exampleDialogueElement);
+        }
+        return characterElement;
+    }
+    
+    /// <summary>Create character XMl-like wrapping for a character</summary>
+    private XElement createCharacterElement(Character character){
         var lines = new[]{
             (character.Personality != null ? $"Personality: {character.Personality}" : null),
             (character.NarrativeRole != null ? $"NarrativeRole: {character.NarrativeRole}" : null),
         };
+        var characterElement = new XElement("char",
+                                            new XText("\n" + string.Concat(CreateBaseCharacterString(character),
+                                            "\n", string.Join("\n", lines.Where(l => l != null)))));
+    
         
-        return string.Concat(CreateBaseCharacterString(character), "\n", string.Join("\n", lines.Where(l => l != null)));
+        return AddExampleDialogueToCharacter(character, characterElement);
     }
 
-    private string CreateSystemPrompt(World world, Persona persona)
-    {
-        var userElement = new XElement("user", new XText("\n" + CreateBaseCharacterString(persona)));
-        userElement.Add(new XAttribute(XNamespace.None + "name", persona.Name));
+    private XElement CreateCharactersElement(World world){
         var charactersElement = new XElement("characters");
-
-        // Create <char name="name"> for each character
-        // wrapped in <characters> tag
         charactersElement.Add(world.Characters.Select(c =>
         {
-            var characterElement = new XElement("char", new XText("\n" + createCharacterString(c)));
+            var characterElement = createCharacterElement(c);
             characterElement.Add(new XAttribute(XNamespace.None + "name", c.Name));
 
-            if(c.ExampleDialogue != null){
-                var exampleDialogueElement = new XElement("example-dialogue");
-                foreach(var line in c.ExampleDialogue){
-                    exampleDialogueElement.Add(new XElement("line", line));
-                }
-            characterElement.Add(exampleDialogueElement);
-        }
-            
             return characterElement;
         }));
+        return charactersElement;
+    }
 
+    
+    private XElement CreateWorldElement(World world, Persona user){
+        var charactersElement = CreateCharactersElement(world);
+        var userElement = new XElement("user", new XText("\n" + CreateBaseCharacterString(user)));
+        userElement.Add(new XAttribute(XNamespace.None + "name", user.Name));
+
+        
+        var worldElement = new XElement("world");
+        worldElement.Add(new XAttribute(XNamespace.None + "name", world.Name));
+        worldElement.Add(new XText("NarratorInstruction: " + world.NarratorInstruction));
+        worldElement.Add(new XText("Narrator-Example-Dialogue: " + world.NarratorExampleDialogue));
+
+        worldElement.Add(new XElement("world", new XElement("scenario", world.Scenario, userElement, charactersElement)));
+        
+
+        return worldElement;
+    }
+    
+    private string CreateSystemPrompt(World world, Persona persona)
+    {
+        var worldElement = CreateWorldElement(world, persona);
         var prompt = new XDocument(
-            new XElement("system", new XElement("instruction", world.NarratorInstruction!),
-                new XElement("world",
-                    new XElement("scenario", world.Scenario),
-                        userElement, charactersElement)));
+            new XElement("system", new XElement("instruction", world.NarratorInstruction!), CreateWorldElement(world, persona)));
         return prompt.ToString(SaveOptions.None);
     }
 

@@ -172,19 +172,19 @@ public class LLMServiceTests : DatabaseTestBase{
     }
 
     [Fact]
-    public void CreateLLMPayload_WorldInformationAddedINSystemMessage(){
+    public void CreateLLMPayload_WorldInformationAddedInSystemMessage(){
         var (world, character, persona) = CreateData();
 
         var payload = _service.CreateLLMPayload(world, persona).Data!;
         var systemMessage = XDocument.Parse(payload.Messages![0].Content);
 
-        var skip = new[] { "ID", "Name", "CreatedAt", "UpdatedAt", "Description" };
-        var properties = typeof(Persona).GetProperties().Where(p => !skip.Contains(p.Name)).ToList();
+        var skip = new[] {"ID", "Lorebook_ID", "Name", "Description", "Characters",  "IntroMessage", "CreatedAt", "UpdatedAt", "NarratorExampleDialogue"};
+        var properties = typeof(World).GetProperties().Where(w => !skip.Contains(w.Name)).ToList();
 
-        assertProperties(typeof(Persona).GetProperties().Where(p => !skip.Contains(p.Name)).ToList(), persona, skip, XDocument.Parse(payload.Messages[0]!.Content), "world");
+        assertProperties(typeof(World).GetProperties().Where(w => !skip.Contains(w.Name)).ToList(), world, skip, XDocument.Parse(payload.Messages[0]!.Content), "world");
         
-        Assert.True(systemMessage.Descendants("user").Any(element => element.Attribute("name")?.Value == persona.Name),
-                $"<char> for '{character.Name}' is missing the name attribute");
+        Assert.True(systemMessage.Descendants("world").Any(element => element.Attribute("name")?.Value == world.Name),
+                $"<world> for '{world.Name}' is missing the name attribute");
     }
 }
 

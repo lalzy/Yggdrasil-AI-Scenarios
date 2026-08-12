@@ -16,5 +16,5 @@ public class ChatMessageController : ControllerBase{
     }
 
     [HttpGet("all/{conversation_ID}")]
-    public IActionResult GetAll([FromQuery] Guid conversation_ID, int? count) => ServiceResultExtensions.SafeExecute(() => _service.GetAll(conversation_ID, count));
+    public IActionResult GetAll(Guid conversation_ID, [FromQuery] int? count) => ServiceResultExtensions.SafeExecute(() => _service.GetAll(conversation_ID, count));
 }
