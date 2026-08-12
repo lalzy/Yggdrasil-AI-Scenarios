@@ -206,7 +206,7 @@ public class ChatServiceTests : DatabaseTestBase
 
         fetch.ID = ID;
 
-        var dbFetch = GetFromDB(message.ID);
+        var dbFetch = GetFromDB(fetch.ID);
         Assert.Equivalent(fetch, dbFetch);
     }
 
