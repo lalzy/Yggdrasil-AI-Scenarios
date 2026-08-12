@@ -44,9 +44,9 @@ public class ConversationService(AppDbContext db)
         return new(conversation);
     }
 
-    ///<summary></summary>
-    ///<param name="request"></param>
-    ///<returns></returns>
+    ///<summary>Create a conversation</summary>
+    ///<param name="request">Conversation Request</param>
+    ///<returns>The created conversation</returns>
     ///<exception cref="KeyNotfoundexception">Thrown if world does not exist</exception>
     public ServiceResult<Conversation> Create(ConversationRequest request){
         if (_db.Set<World>().FirstOrDefault(w => w.ID == request.World_ID) == null) throw new KeyNotFoundException();
@@ -58,8 +58,14 @@ public class ConversationService(AppDbContext db)
         return new(conversation);
     }
 
+    ///<summary>Deleted conversation</summary>
+    ///<param name="conversation_ID">The ID of conversation to delete</param>
+    ///<returns>NoContent/Empty</returns>
+    ///<exception cref="KeyNotfoundexception">Thrown if conversation does not exist</exception>
     public ServiceResult<Empty> Delete(Guid conversation_ID){
         var conversation = _db.Set<Conversation>().FirstOrDefault(c => c.ID == conversation_ID);
+
+        if(conversation == null) throw new KeyNotFoundException(ErrorMessages.CONVERSATION_NOT_FOUND);
 
         _db.Set<Conversation>().Remove(conversation);
         _db.SaveChanges();

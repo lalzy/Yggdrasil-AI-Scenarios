@@ -38,7 +38,6 @@ public class ChatService (AppDbContext db)
         if(message == null) throw new KeyNotFoundException(ErrorMessages.CONVERSATION_NOT_FOUND);
         return new(message);
     }
-
     
     /// <summary> Create a new ChatMessage</summary>
     /// <param name="name">Name of the World</param>
@@ -55,7 +54,6 @@ public class ChatService (AppDbContext db)
         _db.SaveChanges();
         return new(message);
     }
-
 
     /// <summary>Update the Content of ChatMessage</summary>
     /// <param name="message_ID">ID of the ChatMessage to Edit</param>

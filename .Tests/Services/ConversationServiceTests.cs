@@ -203,4 +203,9 @@ public class ConversationServiceTests : DatabaseTestBase
         var fetch = _service.Delete(conversation.ID);
         Assert.IsType<ServiceResult<Empty>>(fetch);
     }
+
+    [Fact]
+    public void Delete_ConversationNotExistThrows(){
+        Assert.Throws<KeyNotFoundException>(()=>_service.Delete(_faker.Random.Guid()));
+    }
 }
