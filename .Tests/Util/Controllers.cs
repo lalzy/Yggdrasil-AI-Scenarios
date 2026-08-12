@@ -29,13 +29,6 @@ public static class ControllerUtil{
         });
     }
 
-    // public static (WebApplicationFactory<Program>, FakeHttpHandler) SetupWithHandler(WebApplicationFactory<Program> factory){
-    //     var handler = new FakeHttpHandler();
-    //     var app = Setup(factory).WithWebHostBuilder(builder =>
-    //     builder.ConfigureServices(services =>
-    //         services.AddSingleton<HttpClient>(new HttpClient(handler))));
-    //     return (app, handler);
-    // }
 public static (WebApplicationFactory<Program>, FakeHttpHandler) SetupWithHandler(WebApplicationFactory<Program> factory, Func<IServiceCollection, IServiceCollection> configureServices){
     var handler = new FakeHttpHandler();
     var connection = new SqliteConnection("Data Source=:memory:");
@@ -52,9 +45,6 @@ public static (WebApplicationFactory<Program>, FakeHttpHandler) SetupWithHandler
 }
 
 
-
-
-    
     /// <summary>Database wrapper</summary>
     /// <param name="factory">The mock webserver context</param>
     /// <param name="action">The DB Factory call</param>
@@ -85,6 +75,13 @@ public static (WebApplicationFactory<Program>, FakeHttpHandler) SetupWithHandler
         return WithDB(factory, db => PersonaFactory.Create(db));
     }
 
+    /// <summary>Create a procedural-filled conversation in the database</summary>
+    /// <param name="factory">The mock webserver context</param>
+    /// <returns>The conversation object</returns>
+    public static Conversation CreateConversation(WebApplicationFactory<Program> factory, Guid? world_ID=null){
+        return WithDB(factory, db => ConversationFactory.Create(db, world_ID));
+    }
+    
     public static LLMConnection CreateConnection(WebApplicationFactory<Program> factory, SupportedProviders? provider=null){
         return WithDB(factory, db => LLMConnectionFactory.Create(db, provider));
     }

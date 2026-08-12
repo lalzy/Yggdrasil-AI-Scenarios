@@ -19,6 +19,8 @@ public class ChatService (AppDbContext db)
     /// <returns>ServiceResult with data of list of chatSummaries</returns>
     /// <exception cref="Argumentexception">Count is less than one</exception>
     public ServiceResult<List<ChatMessageSummary>> GetAll(Guid conversation_ID, int? amount=null){
+        if(_db.Set<Conversation>().FirstOrDefault(c => c.ID == conversation_ID) == null) throw new KeyNotFoundException(ErrorMessages.CONVERSATION_NOT_FOUND);
+        
         var query = _db.Set<ChatMessage>().Where(c => c.Conversation_ID == conversation_ID).OrderByDescending(c => c.TimeStamp).Select(c=> new ChatMessageSummary(c.ID, c.Conversation_ID,  c.Role, c.Content, c.TimeStamp));
 
         if(amount != null){

@@ -102,6 +102,11 @@ public class ChatServiceTests : DatabaseTestBase
         Assert.Empty(fetched);
     }
 
+    [Fact]
+    public void GetAll_ConversationNotFoundThrows(){
+        Assert.Throws<KeyNotFoundException>(() => _service.GetAll(_faker.Random.Guid()));
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
