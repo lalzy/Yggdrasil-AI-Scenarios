@@ -64,11 +64,15 @@ public class ChatService (AppDbContext db)
     /// <exception cref="NullReferenceException">Thrown when ChatMessage not found</exception>
     public ServiceResult<ChatMessage> Update(Guid message_ID, ChatMessageUpdateRequest request){
         var message = _db.Set<ChatMessage>().Find(message_ID);
+        if(message == null) throw new KeyNotFoundException(ErrorMessages.MESSAGE_NOT_FOUND);
 
-        message.Content = request.Content ?? message.Content;
-        if(request.Content != null) message.Content = request.Content;
+        if(request.Content != null){
+             message.Content = request.Content;
+            _db.SaveChanges();
+        }else{
+            throw new ArgumentNullException(nameof(request.Content));
+        }
         
-        _db.SaveChanges();
         return new(message);
     }
 

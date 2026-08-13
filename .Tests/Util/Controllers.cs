@@ -81,8 +81,13 @@ public static (WebApplicationFactory<Program>, FakeHttpHandler) SetupWithHandler
     public static Conversation CreateConversation(WebApplicationFactory<Program> factory, Guid? world_ID=null){
         return WithDB(factory, db => ConversationFactory.Create(db, world_ID));
     }
+
+    public static ChatMessage CreateChatMessage(WebApplicationFactory<Program> factory, Guid? conversation_ID=null){
+        return WithDB(factory, db => ChatMessageFactory.Create(db, conversation_ID));
+    }
     
     public static LLMConnection CreateConnection(WebApplicationFactory<Program> factory, SupportedProviders? provider=null){
         return WithDB(factory, db => LLMConnectionFactory.Create(db, provider));
     }
+    
 }

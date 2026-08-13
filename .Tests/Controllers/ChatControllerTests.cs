@@ -17,6 +17,29 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
         _client = _factory.CreateClient();
     }
 
+    // Helpers
+    
+    private (World, Conversation) CreateConversation(){
+        var world = ControllerUtil.CreateWorld(_factory);
+        var conversation = ControllerUtil.CreateConversation(_factory, world.ID);
+        return (world, conversation);
+    }
+
+    private (World, Conversation, ChatMessage) CreateMessageChain(){
+        var (world, conversation) = CreateConversation();
+        return (world, conversation, ControllerUtil.CreateChatMessage(_factory, conversation.ID));
+    }
+
+    private StringContent CreateEditContent(string newContent){
+        var body = new {
+            Content = newContent
+        };
+
+        return  new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
+    }
+
+    // Tests
+    
     [Fact]
     public async Task GetAll(){
         var conversation = ControllerUtil.CreateConversation(_factory);
@@ -52,8 +75,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
     [Fact]
     public async Task GetOne_Ok(){
-        var world = ControllerUtil.CreateWorld(_factory);
-        var conversation = ControllerUtil.CreateConversation(_factory);
+        var (world, conversation) = CreateConversation();
         var response = await _client.GetAsync($"/api/chat/{conversation.ID}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -66,8 +88,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
     [Fact]
     public async Task Create_Ok(){
-        var world = ControllerUtil.CreateWorld(_factory);
-        var conversation = ControllerUtil.CreateConversation(_factory, world.ID);
+        var (world, conversation) = CreateConversation();
         var body = new {
             conversation_ID = conversation.ID,
             Role = RoleType.user,
@@ -83,8 +104,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
     [InlineData("Role")]
     [InlineData("Content")]
     public async Task Create_MissingRequiredReturnBadRequest(string propertyToSkip){
-        var world = ControllerUtil.CreateWorld(_factory);
-        var conversation = ControllerUtil.CreateConversation(_factory, world.ID);
+        var (world, conversation) = CreateConversation();
         var body = typeof(ChatMessageRequest).GetProperties()
             .ToDictionary(p => p.Name, p => p.Name == propertyToSkip 
                 ? (object)null
@@ -108,6 +128,41 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
         };
         var content = new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
         var response = await _client.PostAsync("/api/chat/create", content);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_Ok(){
+        var (world, conversation, message) = CreateMessageChain();
+        string? newContent;
+        
+        do{
+            newContent = _faker.Lorem.Lines();
+        }while(newContent == message.Content);
+        
+        var content = CreateEditContent(newContent);
+        var response = await _client.PatchAsync($"/api/chat/{message.ID}", content);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_NotFoundMessage(){
+        
+        var content = CreateEditContent(_faker.Lorem.Lines());
+        var response = await _client.PatchAsync($"/api/chat/{_faker.Random.Guid()}", content);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Delete_NoContentOnSuccess(){
+        var (world, conversation, message) = CreateMessageChain();
+        var response = await _client.DeleteAsync($"/api/chat/{message.ID}");
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Delete_NotFound(){
+        var response = await _client.DeleteAsync($"/api/chat/{_faker.Random.Guid()}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }

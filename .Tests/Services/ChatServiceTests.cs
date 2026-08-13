@@ -289,6 +289,13 @@ public class ChatServiceTests : DatabaseTestBase
     }
 
     [Fact]
+    public void Edit_NoContentThrows(){
+        var conversation = CreateConversation();
+        var message = ChatMessageFactory.Create(_fixture, conversation.ID);
+        var request = new ChatMessageUpdateRequest { Content = null };
+        Assert.Throws<ArgumentNullException>(() => _service.Update(message.ID, request));
+    }
+    [Fact]
     public void Delete_Success(){
         var conversation = CreateConversation();
         var message = ChatMessageFactory.Create(_fixture, conversation.ID);
