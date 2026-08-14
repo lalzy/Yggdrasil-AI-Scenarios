@@ -2,6 +2,7 @@
 
 using Yggdrasil.DTO;
 using Yggdrasil.Tests.Util;
+using System.Text.RegularExpressions;
 
 namespace Yggdrasil.Tests.Controllers;
 
@@ -41,13 +42,13 @@ public class LLMConnectionControllerTests : IClassFixture<WebApplicationFactory<
     [Fact]
     public async Task GetOne_Ok(){
         var connection = ControllerUtil.CreateConnection(_factory);
-        var response = await _client.GetAsync($"/api/connection{connection.ID}");
+        var response = await _client.GetAsync($"/api/connection/{connection.ID}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
     public async Task GetOne_NotFound(){
-        var response = await _client.GetAsync($"/api/connection{_faker.Random.Guid()}");
+        var response = await _client.GetAsync($"/api/connection/{_faker.Random.Guid()}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -56,7 +57,7 @@ public class LLMConnectionControllerTests : IClassFixture<WebApplicationFactory<
         var body = AutoFaker.Generate<LLMConnectionRequest>();
 
         var content = new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
-        var response = await _client.PostAsync("/api/connectioncreate", content);
+        var response = await _client.PostAsync("/api/connection/create", content);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -68,11 +69,10 @@ public class LLMConnectionControllerTests : IClassFixture<WebApplicationFactory<
     [InlineData("Provider")]
     public async Task Create_MissingRequiredReturnBadRequest(string property){
         var body = AutoFaker.Generate<LLMConnectionRequest>();
-
+        var content = new StringContent(Regex.Replace(JsonSerializer.Serialize(body), $"\"{property}\":[^, }}]", $"\"{property}\":null"), System.Text.Encoding.UTF8, "application/json");
         body.GetType().GetProperty(property)?.SetValue(body, null);        
         
-        var content = new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
-        var response = await _client.PostAsync("/api/connectioncreate", content);
+        var response = await _client.PostAsync("/api/connection/create", content);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -80,13 +80,13 @@ public class LLMConnectionControllerTests : IClassFixture<WebApplicationFactory<
     [Fact]
     public async Task Delete_NoContentOnSuccess(){
         var connection = ControllerUtil.CreateConnection(_factory);
-        var response = await _client.DeleteAsync($"/api/connection{connection.ID}");
+        var response = await _client.DeleteAsync($"/api/connection/{connection.ID}");
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [Fact]
     public async Task Delete_NotFound(){
-        var response = await _client.DeleteAsync($"/api/connection{_faker.Random.Guid()}");
+        var response = await _client.DeleteAsync($"/api/connection/{_faker.Random.Guid()}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }

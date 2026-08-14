@@ -20,4 +20,13 @@ public class LLMConnectionController : ControllerBase{
 
     [HttpGet("all")]
     public IActionResult GetAll([FromQuery] int? count) => ServiceResultExtensions.SafeExecute(() => _service.GetAll(count));
+
+    [HttpGet("{connection_ID}")]
+    public IActionResult GetOne(Guid connection_ID) => ServiceResultExtensions.SafeExecute(() => _service.GetOne(connection_ID));
+
+    [HttpPost("create")]
+    public IActionResult Create([FromBody] LLMConnectionRequest request) => ServiceResultExtensions.SafeExecute(() => _service.Create(request));
+
+    [HttpDelete("{connection_ID}")]
+    public IActionResult Delete(Guid connection_ID) => ServiceResultExtensions.SafeExecute(() => _service.Delete(connection_ID));
 }
