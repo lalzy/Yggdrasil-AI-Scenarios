@@ -19,17 +19,6 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
     // Helpers
     
-    private (World, Conversation) CreateConversation(){
-        var world = ControllerUtil.CreateWorld(_factory);
-        var conversation = ControllerUtil.CreateConversation(_factory, world.ID);
-        return (world, conversation);
-    }
-
-    private (World, Conversation, ChatMessage) CreateMessageChain(){
-        var (world, conversation) = CreateConversation();
-        return (world, conversation, ControllerUtil.CreateChatMessage(_factory, conversation.ID));
-    }
-
     private StringContent CreateEditContent(string newContent){
         var body = new {
             Content = newContent
@@ -75,7 +64,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
     [Fact]
     public async Task GetOne_Ok(){
-        var (world, conversation) = CreateConversation();
+        var (world, conversation) = CreateHelpers.CreateConversation(_factory);
         var response = await _client.GetAsync($"/api/chat/{conversation.ID}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -88,7 +77,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
     [Fact]
     public async Task Create_Ok(){
-        var (world, conversation) = CreateConversation();
+        var (world, conversation) = CreateHelpers.CreateConversation(_factory);
         var body = new {
             conversation_ID = conversation.ID,
             Role = RoleType.user,
@@ -104,7 +93,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
     [InlineData("Role")]
     [InlineData("Content")]
     public async Task Create_MissingRequiredReturnBadRequest(string propertyToSkip){
-        var (world, conversation) = CreateConversation();
+        var (world, conversation) = CreateHelpers.CreateConversation(_factory);
         var body = typeof(ChatMessageRequest).GetProperties()
             .ToDictionary(p => p.Name, p => p.Name == propertyToSkip 
                 ? (object)null
@@ -133,7 +122,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
     [Fact]
     public async Task Update_Ok(){
-        var (world, conversation, message) = CreateMessageChain();
+        var (world, conversation, message) = CreateHelpers.CreateMessageChain(_factory);
         string? newContent;
         
         do{
@@ -155,7 +144,7 @@ public class ChatControllerTests : IClassFixture<WebApplicationFactory<Program>>
 
     [Fact]
     public async Task Delete_NoContentOnSuccess(){
-        var (world, conversation, message) = CreateMessageChain();
+        var (world, conversation, message) = CreateHelpers.CreateMessageChain(_factory);
         var response = await _client.DeleteAsync($"/api/chat/{message.ID}");
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }

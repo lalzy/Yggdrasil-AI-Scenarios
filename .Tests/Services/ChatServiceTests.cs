@@ -255,7 +255,7 @@ public class ChatServiceTests : DatabaseTestBase
 
     [Fact]
     public void Edit_InvalidIDThrows(){
-        Assert.Throws<NullReferenceException>(() => _service.Update(_faker.Random.Guid(), AutoFaker.Generate<ChatMessageUpdateRequest>()));
+        Assert.Throws<KeyNotFoundException>(() => _service.Update(_faker.Random.Guid(), AutoFaker.Generate<ChatMessageUpdateRequest>()));
     }
 
     [Fact]
