@@ -73,4 +73,42 @@ public class LLMConnectionServiceTests : DatabaseTestBase{
 
         Assert.Empty(world);
     }
+
+    [Fact]
+    public void GetOne_GetRequested(){
+        var connection = LLMConnectionFactory.Create(_fixture);
+        var fetch = _service.GetOne(connection.ID).Data!;
+        Assert.Equivalent(connection, fetch);
+
+        var fetched = _fixture.CreateContext().Set<LLMConnection>().FirstOrDefault(c => c.ID == connection.ID);
+        Assert.Equivalent(connection, fetched);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void GetOne_GetCorrectFromMany(int index){
+        var connections = Enumerable.Range(0, 2).Select(w => LLMConnectionFactory.Create(_fixture)).ToList();
+
+        var connectionToGet = connections[index];
+        
+        var fetch = _service.GetOne(connectionToGet.ID).Data!;
+        Assert.Equivalent(connectionToGet, fetch);
+
+        foreach(var other in connections.Where(w => w != connectionToGet)){
+            Assert.Throws<EquivalentException>(() => Assert.Equivalent(other, fetch));
+        }
+    }
+
+    [Fact]
+    public void GetOne_CorrectReturnType(){
+        var connection = LLMConnectionFactory.Create(_fixture);
+        var fetch = _service.GetOne(connection.ID);
+        Assert.IsType<ServiceResult<LLMConnection>>(fetch);
+    }
+
+    [Fact]
+    public void GetOne_InvalidGuidThrows(){
+        Assert.Throws<KeyNotFoundException>(() => _service.GetOne(_faker.Random.Guid()));
+    }
 }

@@ -22,4 +22,13 @@ public class LLMConnectionService (AppDbContext db){
         
         return new(query.ToList());
     }
+
+    public ServiceResult<LLMConnection> GetOne(Guid connection_ID){
+        var connection = _db.Set<LLMConnection>().FirstOrDefault(c => c.ID == connection_ID);
+
+        if(connection == null) throw new KeyNotFoundException(ErrorMessages.CONNECTION_NOT_FOUND);
+
+        return new(connection);
+    }
+
 }

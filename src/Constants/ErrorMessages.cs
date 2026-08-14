@@ -13,4 +13,5 @@ public static class ErrorMessages{
     public const string INVALID_PROVIDER = "Provider not supported";
     public const string MESSAGE_NOT_FOUND = "Message doesn't exist";
     public const string CONVERSATION_NOT_FOUND = "Conversation doesn't exist";
+    public const string CONNECTION_NOT_FOUND = "LLM Connection not found";
 }
