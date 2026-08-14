@@ -134,4 +134,53 @@ public class LLMConnectionServiceTests : DatabaseTestBase{
 
         Assert.IsType<ServiceResult<LLMConnection>>(result);
     }
+
+    [Fact]
+    public void Deletes_DeletesTheConnection(){
+        var connection_ID = LLMConnectionFactory.Create(_fixture).ID;
+
+        _service.Delete(connection_ID);
+
+        // Verify deleted in DB
+        var dbFetch = _fixture.CreateContext().Set<LLMConnection>().FirstOrDefault(c => c.ID == connection_ID);
+        Assert.Null(dbFetch);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void Delete_OnlyRequestedDeleted(int index){
+        var connections = CreateConnections(3);
+        var connectionToDelete = connections[index];
+
+        _service.Delete(connectionToDelete.ID);
+
+        foreach(var connection in connections){
+            var dbFetch = _fixture.CreateContext().Set<LLMConnection>().FirstOrDefault(c => c.ID == connection.ID);
+
+            if(connection == connectionToDelete)
+                Assert.Null(dbFetch);
+            else
+                Assert.Equivalent(connection, dbFetch);
+        }
+    }
+
+    [Fact]
+    public void Delete_CorrectReturnType(){
+        var connection_ID = LLMConnectionFactory.Create(_fixture).ID;
+
+        var ret = _service.Delete(connection_ID);
+
+        Assert.IsType<ServiceResult<Empty>>(ret);
+
+        Assert.Equal(ret.StatusCode, ServiceResult<Empty>.NoContent().StatusCode);
+    }
+
+    [Fact]
+    public void Delete_InvalidGuidThrows(){
+        CreateConnections(1);
+        Assert.Throws<KeyNotFoundException>(() => _service.Delete(_faker.Random.Guid()));
+    }
+
 }

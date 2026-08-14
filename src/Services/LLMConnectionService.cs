@@ -38,4 +38,15 @@ public class LLMConnectionService (AppDbContext db){
         _db.SaveChanges();
         return new(connection);
     }
+
+    public ServiceResult<Empty> Delete(Guid connection_ID){
+        var db = _db.Set<LLMConnection>();
+        var connection = db.FirstOrDefault(c => c.ID == connection_ID);
+
+        if(connection == null) throw new KeyNotFoundException(ErrorMessages.CONNECTION_NOT_FOUND);
+
+        db.Remove(connection);
+        _db.SaveChanges();
+        return ServiceResult<Empty>.NoContent();
+    }
 }
