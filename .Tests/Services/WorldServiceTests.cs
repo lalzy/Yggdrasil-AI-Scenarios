@@ -132,10 +132,10 @@ public class WorldServiceTests : DatabaseTestBase
 
         Assert.Equivalent(convertedRequest, world, strict: false);
 
+        world.ID = ID;
         // Check DB
-        var fetched = _fixture.CreateContext().Set<Character>().FirstOrDefault(w => w.ID == ID);
-
-        Assert.Throws<EquivalentException>(() => Assert.Equivalent(world, fetched));
+        var fetched = _fixture.CreateContext().Set<World>().FirstOrDefault(w => w.ID == ID);
+        Assert.Equivalent(fetched, world);
     }
 
     [Fact]

@@ -111,4 +111,27 @@ public class LLMConnectionServiceTests : DatabaseTestBase{
     public void GetOne_InvalidGuidThrows(){
         Assert.Throws<KeyNotFoundException>(() => _service.GetOne(_faker.Random.Guid()));
     }
+
+    [Fact]
+    public void Creates_Success(){
+        var request = AutoFaker.Generate<LLMConnectionRequest>();
+        var convertedRequest = request.ConvertModelToDTO<LLMConnection>();
+        var connection = _service.Create(request).Data!;
+        var ID = connection.ID;
+        connection.ID = Guid.Empty;
+
+        Assert.Equivalent(convertedRequest, connection, strict: false);
+        connection.ID = ID;
+        
+        // Check DB
+        var dbFetch = _fixture.CreateContext().Set<LLMConnection>().FirstOrDefault(c=>c.ID == connection.ID);
+        Assert.Equivalent(connection, dbFetch);
+    }
+
+    [Fact]
+    public void Creates_CorrectReturnType(){
+        var result = _service.Create(AutoFaker.Generate<LLMConnectionRequest>());
+
+        Assert.IsType<ServiceResult<LLMConnection>>(result);
+    }
 }

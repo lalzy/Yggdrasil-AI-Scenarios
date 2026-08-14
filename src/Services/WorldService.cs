@@ -47,7 +47,7 @@ public class WorldService(AppDbContext db){
    
         world.NarratorInstruction ??= _db.Set<Yggdrasil.Models.Settings>().First().DefaultPrompt;
     
-        _db.Set<World>().Add(world);
+        world = _db.Set<World>().Add(world).Entity;
         _db.SaveChanges();
 
         return new ServiceResult<World>(world);

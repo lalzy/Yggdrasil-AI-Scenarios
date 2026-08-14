@@ -31,4 +31,11 @@ public class LLMConnectionService (AppDbContext db){
         return new(connection);
     }
 
+    public ServiceResult<LLMConnection> Create(LLMConnectionRequest request){
+        LLMConnection connection = request.ConvertModelToDTO<LLMConnection>();
+
+        connection = _db.Set<LLMConnection>().Add(connection).Entity;
+        _db.SaveChanges();
+        return new(connection);
+    }
 }

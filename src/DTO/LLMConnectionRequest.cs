@@ -8,6 +8,8 @@ namespace Yggdrasil.DTO;
 public class LLMConnectionRequest
 {
     [Required]
+    public required string Name { get; set; }
+    [Required]
     public required APIType APIType  { get; set; }
     [Required]
     public required string URL  { get; set; }
