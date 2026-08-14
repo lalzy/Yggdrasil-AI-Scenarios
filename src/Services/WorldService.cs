@@ -9,7 +9,6 @@ using Yggdrasil.Extensions;
 
 namespace Yggdrasil.Services;
 
-
 public class WorldService(AppDbContext db){
     private readonly AppDbContext _db = db;
 
