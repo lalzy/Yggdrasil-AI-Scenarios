@@ -12,6 +12,7 @@ public class World{
     public string? Scenario { get; set; }
     public List<Character> Characters {get; set;} = [];
     public string? NarratorExampleDialogue {get;set;}
+    public DateTime LastUsed { get; set; } = DateTime.UtcNow;
     public DateTime CreatedAt {get; set;} = DateTime.UtcNow;
     public DateTime UpdatedAt {get; set;} = DateTime.UtcNow;
 }

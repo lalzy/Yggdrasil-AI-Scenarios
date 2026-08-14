@@ -178,7 +178,7 @@ public class LLMServiceTests : DatabaseTestBase{
         var payload = _service.CreateLLMPayload(world, persona).Data!;
         var systemMessage = XDocument.Parse(payload.Messages![0].Content);
 
-        var skip = new[] {"ID", "Lorebook_ID", "Name", "Description", "Characters",  "IntroMessage", "CreatedAt", "UpdatedAt", "NarratorExampleDialogue"};
+        var skip = new[] {"ID", "Lorebook_ID", "Name", "Description", "Characters",  "IntroMessage", "CreatedAt", "UpdatedAt", "NarratorExampleDialogue", "LastUsed"};
         var properties = typeof(World).GetProperties().Where(w => !skip.Contains(w.Name)).ToList();
 
         assertProperties(typeof(World).GetProperties().Where(w => !skip.Contains(w.Name)).ToList(), world, skip, XDocument.Parse(payload.Messages[0]!.Content), "world");

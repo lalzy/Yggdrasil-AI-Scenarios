@@ -216,6 +216,22 @@ public class ChatServiceTests : DatabaseTestBase
     }
 
     [Fact]
+    public void Creates_UpdatesTimeUpward(){
+        var conversation = CreateConversation();
+        var request = AutoFaker.Generate<ChatMessageRequest>();
+        request.Conversation_ID = conversation.ID;
+        var before = DateTime.UtcNow;
+        _service.Create(request);
+        var after = DateTime.UtcNow;
+
+        var dbConversation = _fixture.CreateContext().Set<Conversation>().FirstOrDefault(c => c.ID == conversation.ID);
+        var dbWorld = _fixture.CreateContext().Set<World>().FirstOrDefault(w => w.ID == conversation.World_ID);
+
+        Assert.InRange(dbConversation!.UpdatedAt, before, after);
+        Assert.InRange(dbWorld!.LastUsed, before, after);
+    }
+
+    [Fact]
     public void Creates_CorrectReturnType(){
         var conversation = CreateConversation();
         var request = AutoFaker.Generate<ChatMessageRequest>();
@@ -253,6 +269,31 @@ public class ChatServiceTests : DatabaseTestBase
         Assert.Equivalent(fetch, dbFetch);
     }
 
+    [Fact]
+    public void Edit_UpdatesTimeUpward(){
+        var conversation = CreateConversation();
+        var message = CreateMessages(1, conversation.ID)[0];
+        string? newContent;
+        // ensure unique new
+        do
+        {
+            newContent = _faker.Lorem.Lines();
+        } while (newContent == message.Content);
+        
+        var request = new ChatMessageUpdateRequest {Content = newContent };
+        
+
+        var before = DateTime.UtcNow;
+        _service.Update(message.ID, request);
+        var after = DateTime.UtcNow;
+
+        var dbConversation = _fixture.CreateContext().Set<Conversation>().FirstOrDefault(c => c.ID == conversation.ID);
+        var dbWorld = _fixture.CreateContext().Set<World>().FirstOrDefault(w => w.ID == conversation.World_ID);
+
+        Assert.InRange(dbConversation!.UpdatedAt, before, after);
+        Assert.InRange(dbWorld!.LastUsed, before, after);
+    }
+    
     [Fact]
     public void Edit_InvalidIDThrows(){
         Assert.Throws<KeyNotFoundException>(() => _service.Update(_faker.Random.Guid(), AutoFaker.Generate<ChatMessageUpdateRequest>()));
@@ -328,6 +369,22 @@ public class ChatServiceTests : DatabaseTestBase
             else
                 Assert.Equivalent(message, dbFetch);
         }
+    }
+
+    [Fact]
+    public void Delete_UpdatesTimeUpward(){
+        var conversation = CreateConversation();
+        var message = CreateMessages(1, conversation.ID)[0];
+        
+        var before = DateTime.UtcNow;
+        _service.Delete(message.ID);
+        var after = DateTime.UtcNow;
+
+        var dbConversation = _fixture.CreateContext().Set<Conversation>().FirstOrDefault(c => c.ID == conversation.ID);
+        var dbWorld = _fixture.CreateContext().Set<World>().FirstOrDefault(w => w.ID == conversation.World_ID);
+
+        Assert.InRange(dbConversation!.UpdatedAt, before, after);
+        Assert.InRange(dbWorld!.LastUsed, before, after);
     }
 
     [Fact]
