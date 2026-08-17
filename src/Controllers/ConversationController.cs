@@ -7,7 +7,7 @@ using Yggdrasil.Extensions;
 namespace Yggdrasil.Controllers;
 
 [ApiController]
-[Route("api/{controller}")]
+[Route("api/[controller]")]
 public class ConversationController : ControllerBase{
     private readonly ConversationService _service;
 

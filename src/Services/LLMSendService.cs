@@ -62,10 +62,9 @@ public class LLMSendService
     /// <summary>Create the request body from the payload and connection</summary>
     /// <returns>The body to be made into a Json string</returns>
     private Dictionary<string, JsonElement> CreateBody(LLMConnectionRequest connection, LLMPayload payload){
-        var body = ObjectMerger.Merge([payload, connection]);
+        var body = ObjectMerger.Merge([payload, connection.ConvertModelToDTO<LLMConnectionSendRequest>()]);
         body["reasoning"] = JsonSerializer.SerializeToElement(new { enabled = connection.Reasoning });
-        body.Remove("name");
-        
+    
         return body;
     }
     
@@ -77,11 +76,11 @@ public class LLMSendService
     public async Task<ServiceResult<LLMResponse>> Send(LLMConnectionRequest connection, LLMPayload payload)
     {
         var body = CreateBody(connection, payload);
+        
         var json = JsonSerializer.Serialize(body, new JsonSerializerOptions{PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-
+        
         var response = await SendToLLMService(connection.URL, connection.APIKey, json);
         var result = await response.Content.ReadAsStringAsync();
-
         // parse and return an LLM Response
         switch(connection.Provider){
             case SupportedProviders.OpenRouter:

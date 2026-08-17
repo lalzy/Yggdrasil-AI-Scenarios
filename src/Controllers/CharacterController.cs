@@ -7,7 +7,7 @@ using Yggdrasil.DTO;
 namespace Yggdrasil.Controllers;
 
 [ApiController]
-[Route("/api/[controller]")]
+[Route("api/[controller]")]
 public class CharacterController : ControllerBase{
     private readonly CharacterService _service;
     public CharacterController(CharacterService service){
