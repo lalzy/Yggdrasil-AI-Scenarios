@@ -25,6 +25,10 @@ public class WorldService(AppDbContext db){
         return new(query.ToList());
     }
 
+    public ServiceResult<World> GetLastUsed(){
+        return new(_db.Set<World>().OrderByDescending(w => w.LastUsed).FirstOrDefault());
+    }
+
     /// <summary>Get the requested world object</summary>
     /// <param name="world_ID">ID of the world to fetch</param>
     /// <returns>ServiceResult with the world as Data</returns>

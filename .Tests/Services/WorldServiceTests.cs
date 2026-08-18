@@ -19,10 +19,8 @@ public class WorldServiceTests : DatabaseTestBase
     }
     // Helpers
 
-    private void CreateWorlds(int count = 1){
-        for (int i = 0; i < count; i++){
-            WorldFactory.Create(_fixture);
-        }
+    private List<World> CreateWorlds(int count = 1){
+        return Enumerable.Range(0, count).Select(t => WorldFactory.Create(_fixture)).ToList();
     }
 
     private List<Character> GetCharactersFromDB(Guid World_ID, AppDbContext? context = null){
@@ -82,6 +80,28 @@ public class WorldServiceTests : DatabaseTestBase
         var world = _service.GetAll().Data!;
 
         Assert.Empty(world);
+    }
+
+    [Fact]
+    public void GetLastUsed_Success(){
+        var world = WorldFactory.Create(_fixture);
+        var fetch = _service.GetLastUsed().Data!;
+        Assert.Equivalent(world, fetch);
+    }
+
+    [Fact]
+    public void GetLastUsed_GetCorrectFromMany(){
+        var worlds = CreateWorlds(3);
+        var lastUsed = worlds.OrderByDescending(w => w.LastUsed).FirstOrDefault();
+        var fetch = _service.GetLastUsed().Data!;
+        Assert.Equivalent(lastUsed, fetch);
+    }
+
+    [Fact]
+    public void GetLastUsed_ReturnsCorrectServiceResultType(){
+        CreateWorlds(1);
+        var fetch = _service.GetLastUsed();
+        Assert.IsType<ServiceResult<World>>(fetch);
     }
 
     [Fact]

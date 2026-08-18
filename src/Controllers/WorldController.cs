@@ -24,6 +24,8 @@ public class WorldController : ControllerBase{
     [HttpPost("create")]
     public IActionResult Create([FromBody] WorldRequest request) => ServiceResultExtensions.SafeExecute(() => _service.Create(request));
 
+    [HttpGet("lastused")]
+    public IActionResult LastUsed() => ServiceResultExtensions.SafeExecute(() => _service.GetLastUsed());
 
     [HttpDelete("{world_ID}")]
     public async Task<IActionResult> Delete(Guid world_ID) => ServiceResultExtensions.SafeExecute(() => _service.Delete(world_ID));

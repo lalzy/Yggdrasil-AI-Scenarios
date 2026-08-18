@@ -53,6 +53,19 @@ public class WorldControllerTests : IClassFixture<WebApplicationFactory<Program>
     }
 
     [Fact]
+    public async Task GetLastUsed_Ok(){
+        var world = ControllerUtil.CreateWorld(_factory);
+        var response = await _client.GetAsync("/api/world/lastused");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetLastUsed_NoContent(){
+        var response = await _client.GetAsync("/api/world/lastused");
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Create_Ok(){
         var body = new { name = _faker.Name.FullName(), description= _faker.Lorem.Lines() };
         var content = new StringContent(
@@ -65,7 +78,7 @@ public class WorldControllerTests : IClassFixture<WebApplicationFactory<Program>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-        [Theory]
+    [Theory]
     [InlineData("", "desc")]
     [InlineData("name", "")]
     public async Task Create_MissingRequiredReturnBadRequest(string name, string description){
