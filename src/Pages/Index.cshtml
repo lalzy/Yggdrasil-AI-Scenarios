@@ -1,5 +1,26 @@
 @page
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Setup";
     Layout = "Layout/_Main";
 }
+
+<div class="Setup">
+    <a class="CreateCharacterButton" href="./setup/characters">Create/select Character(s)</a>
+    <a class="CreateWorldButton" href="">Create/select World(s)</a>
+    <a class="CreateLLMConnectionButton" href="">Create/select LLMConnection</a>
+</div>
+
+<p id="test" hidden>hey</p>
+
+<script>
+ async function RedirectIfWorldExist(){
+     const worlds = await (await fetch(`${window.location.origin}/api/world/all`)).json();
+     if(worlds.length > 0){
+         window.location.href = "/worldChat";
+ }
+ }
+ 
+ RedirectIfWorldExist();
+ if (JSON.parse(sessionStorage.getItem('test')))
+     document.getElementById("test").hidden = false;
+</script>

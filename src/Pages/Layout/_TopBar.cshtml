@@ -1,10 +1,18 @@
 <!-- _TopBar.cshtml -->
-<header class="top-bar">
-    <div class="top-bar__left">
-        <button class="top-btn" id="btnAiConnect">&#x1F50C; AI Connect</button>
-        <button class="top-btn" id="btnAiTune">&#x2699; AI Tune settings</button>
+
+<header class="topBar">
+    <div class="topBarLeft">
+	<a class="topBarButton" href="LLMConnection"><i class="fa-solid fa-plug"></i></a>
     </div>
-    <div class="top-bar__right">
-        <button class="top-btn" id="btnAppSettings">&#x2699; App settings</button>
+    <div class="topBarMiddle">
+	<p class="topbarTitle">@ViewData["Title"]</p>
+    </div>
+    <div class="topBarRight">
+	<a class="topBarButton"><i class="fa-solid fa-globe"></i></a>
+	<a class="topBarButton"><i class="fa-regular fa-id-card"></i></a>
+	<a class="topBarButton"><i class="fa-solid fa-address-book"></i></a>
+	<a class="topBarButton"><i class="fa-solid fa-question"></i></a>
+	<!-- <button id="openMenuButton"><i class="fa-solid fa-bars"></i></button> -->
+	<a class="topBarButton"><i class="fa-solid fa-gear"></i></a>
     </div>
 </header>

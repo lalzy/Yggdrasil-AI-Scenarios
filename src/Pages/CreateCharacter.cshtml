@@ -1,0 +1,64 @@
+@page
+@{
+    ViewData["Title"] = "Create Character";
+    Layout = "Layout/_Main";
+}
+<form id="" onsubmit="Save(event)">
+    <fieldset>
+	<div>
+	    <div>
+		<label for="nameField">Name:<sup class="requiredSymbol">*</sup></label>
+		<input id="nameField" type="text" required>
+		<small>Identifier</small>
+	    </div>
+	    <div>
+		<label for="nameField">Full Name:</label>
+		<input id="nameField" type="text">
+	    </div>
+	    <div>
+		<label for="genderField">Gender:<sup class="requiredSymbol">*</sup></label>
+		<input id="genderField" type="text" required>
+	    </div>
+	    <div>
+		<label for="pronounsField">Pronouns:</label>
+		<input id="pronounsField" type="text">
+	    </div>
+	    <div>
+		<label for="raceField">Race:</label>
+		<input id="raceField" type="text">
+	    </div>
+	    <div>
+		<label for="descriptionField">Description:<sup class="requiredSymbol">*</sup></label>
+		<textarea id="descriptionField" required></textarea>
+		<small>Not given to the LLM</small>
+	    </div>
+	    <div>
+		<label for="AppearanceField">Apperance:</label>
+		<textarea id="AppearanceField"></textarea>
+	    </div>
+	    <div>
+		<label for="occupationField">Occupation:</label>
+		<input id="occupationField" type="text">
+	    </div>
+	    <div>
+		<label for="EquipmentField">Equipment:</label>
+		<input id="EquipmentField" type="text">
+	    </div>
+	    <button type="submit" class="formButton">Save</button>
+	    <a href="/setup/Characters" class="formButton"><button type="button">Back</button></a>
+
+	</div>
+    </fieldset>
+</form>
+
+
+<script>
+ async function Save(event){
+     event.preventDefault();
+
+     // Save to DB, then store DB to Local
+     sessionStorage.setItem('test', true);
+     
+     window.location.href = "/setup/characters";
+ }
+</script>
