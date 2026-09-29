@@ -1,0 +1,23 @@
+@page
+@{
+    ViewData["Title"] = "Setup";
+    Layout = "Layout/_Main";
+}
+
+<partial name="Layout/overlays/_character" />
+<partial name="Layout/overlays/_world" />
+
+<div id="characters">
+    <ul id="characterList"></ul>
+    <button id="createCharacter" data-modal="characterModal">Create Character</button>
+    <button id="importCharacter" hidden>Import Character(s)</button>
+</div>
+<div id="world">
+    <form id="worldData" hidden></form>
+    <button id="createWorld" data-modal="worldModal">Create World</button>
+    <button id="importWorld" hidden>Import World</button>
+</div>
+<div id="connection">
+    <form id="connectionData" hidden></form>
+    <button id="createConnection">Create connection</button>
+</div>

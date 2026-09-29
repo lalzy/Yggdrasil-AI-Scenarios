@@ -1,52 +1,18 @@
-<!-- world.cshtml -->
-<div id="overlay-WorldForm" class="overlay-content" style="display:none">
-    <h3 id="worldFormTitle">Create World</h3>
-    <form>
-        <input type="text" placeholder="World name" id="worldFormName"/>
-        <button class="top-btn" type="button" id="worldFormSubmit">Create</button>
-    </form>
-</div>
+<!-- _world.cshtml -->
 
+<dialog id="worldModal">
+    <form>
+	<button class="modalClose" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </form>
+    <form id="worldForm">
+	<div id="nameEntry">
+	    <label for="nameField">Name:</label>
+	    <input id="nameField" type="text" required>
+	    <small>Identifier</small>
+	</div>
+	<button type="submit">Save</button>
+    </form>
+</dialog>
 
 <script>
-    function openWorldForm(id = null){
-        const title = document.getElementById('worldFormTitle');
-        const nameInput = document.getElementById('worldFormName');
-        const submitButton = document.getElementById('worldFormSubmit');
-
-        if(id){
-            title.textContent = 'Edit World';
-            submitButton.textContent = 'Save';
-            submitButton.setAttribute('onclick', `submitWorld('${id}')`);
-            fetch(`/api/world/${id}`).then(r => r.json()).then(res => {
-                nameInput.value = res.data.name ?? '';
-            });
-        }else{
-            title.textContent = 'Create World';
-            submitButton.textContent = 'Create';
-            submitButton.setAttribute('onclick', 'submitWorld()');
-        }
-
-        openOverlay('overlay-WorldForm');
-    }
-
-
-    async function submitWorld(id = null){
-        const Name = document.getElementById('worldFormName').value;
-        const url = id ? `/api/world/${id}` : '/api/world/create';
-        const method = id ? 'PUT' : 'POST';
-
-        const res = await fetch(url, {
-            method,
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                Name
-                })
-        });
-
-        if(res.ok){
-            closeOverlay();
-            loadWorlds();
-        }
-    }
 </script>

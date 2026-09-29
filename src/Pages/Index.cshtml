@@ -4,23 +4,20 @@
     Layout = "Layout/_Main";
 }
 
-<div class="Setup">
-    <a class="CreateCharacterButton" href="./setup/characters">Create/select Character(s)</a>
-    <a class="CreateWorldButton" href="">Create/select World(s)</a>
-    <a class="CreateLLMConnectionButton" href="">Create/select LLMConnection</a>
-</div>
-
-<p id="test" hidden>hey</p>
-
 <script>
- async function RedirectIfWorldExist(){
-     const worlds = await (await fetch(`${window.location.origin}/api/world/all`)).json();
-     if(worlds.length > 0){
-         window.location.href = "/worldChat";
+ async function redirectIfNotReady(){
+     const [worldResponse, connectionResponse] = await Promise.all([
+	 fetch("/api/world/all?count=1"),
+	 fetch("/api/connection/all?count=1")
+     ]);
+
+     const worlds = await worldResponse.json();
+     const connections = await connectionResponse.json();
+
+     if(worlds.length === 0 && connections.length === 0){
+	 window.location.href = "/Landing";
+     }
  }
- }
- 
- RedirectIfWorldExist();
- if (JSON.parse(sessionStorage.getItem('test')))
-     document.getElementById("test").hidden = false;
+
+redirectIfNotReady();
 </script>
