@@ -14,6 +14,7 @@ builder.Services.AddSwaggerGen(c =>{
 });
 
 builder.Services.AddServices();
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddControllers().AddJsonOptions(options =>{
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

@@ -3,6 +3,7 @@
 using FluentAssertions;
 using AutoBogus;
 using Bogus;
+using System.Text.Json;
 using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Services;
 using Yggdrasil.Models.Entities;
@@ -159,9 +160,25 @@ public class SystemPromptServicesTests : DatabaseSetup{
 
         var fetched = _service.Rename(original.ID, newName);
 
+        Assert.Equal(newName, fetched.Name);
+        
         fetched = SystemPrompts.Single(sp => sp.ID == original.ID);
 
         Assert.Equal(newName, fetched.Name);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Rename_OnlyRequestedRenamed(int index){
+        var prompts = Enumerable.Range(0, 10).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        string newName = "newName";
+        _service.Rename(prompts[index].ID, newName);
+
+        var expected = prompts.Where(sp => sp.ID != prompts[index].ID).ToList();
+        var actual = SystemPrompts.Where(sp => sp.ID != prompts[index].ID).ToList();
+        Assert.Equivalent(expected, actual, strict: true);
     }
 
     [Fact]
@@ -280,6 +297,20 @@ public class SystemPromptServicesTests : DatabaseSetup{
         var systemPrompt = SystemPromptFactory.Create(Db());
         Assert.Throws<ArgumentNullException>(() => _service.AddPrompt(systemPrompt.ID, null!));
     }
+    
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void AddPrompt_OnlyRequestedChanged(int index){
+        var prompts = Enumerable.Range(0, 10).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        _service.AddPrompt(prompts[index].ID, AutoFaker.Generate<Prompt>());
+
+        var expected = prompts.Where(sp => sp.ID != prompts[index].ID).ToList();
+        var actual = SystemPrompts.Where(sp => sp.ID != prompts[index].ID).ToList();
+
+        Assert.Equivalent(expected, actual, strict: true);
+    }
 
     [Fact]
     public void AddPrompt_InvalidSystemPromptThrowsNullReferenceException(){
@@ -287,13 +318,29 @@ public class SystemPromptServicesTests : DatabaseSetup{
         Assert.Throws<NullReferenceException>(() => _service.AddPrompt(_faker.Random.Guid(), prompt));
     }
 
+    private List<Prompt> CreatePlausiblePrompts(int count){
+        var prompts = BasePrompts.Create();
+        prompts.AddRange(Enumerable.Range(0, count).Select(_ => AutoFaker.Generate<Prompt>()).ToList());
+        return prompts;
+    }
+
     [Fact]
     public void UpdatePrompts_ChangesEntirePromptListing(){
-        // Setup an plausible Prompt set
-        var prompts = BasePrompts.Create();
-        prompts.AddRange(Enumerable.Range(0, 10).Select(_ => AutoFaker.Generate<Prompt>()).ToList());
+        var prompts = CreatePlausiblePrompts(10);
 
         var systemPrompt = SystemPromptFactory.Create(Db(), prompts);
+
+        var newPrompts = CreatePlausiblePrompts(10);
+
+        // Verify the database's prompts are the same
+        var dbFetch = SystemPrompts.Find(systemPrompt.ID)!;
+        Assert.Equivalent(dbFetch.Prompts, prompts, strict:true);
+
+        // Verify the database was changed
+        var fetched = _service.UpdatePrompts(systemPrompt.ID, newPrompts);
+        dbFetch = SystemPrompts.Find(systemPrompt.ID)!;
+        Assert.Equivalent(fetched.Prompts, newPrompts, strict:true);
+        Assert.Equivalent(dbFetch.Prompts, newPrompts, strict:true);
     }
 
     [Fact]
@@ -302,5 +349,40 @@ public class SystemPromptServicesTests : DatabaseSetup{
         var systemPrompt = SystemPromptFactory.Create(Db());
 
         Assert.Throws<ArgumentException>(() => _service.UpdatePrompts(systemPrompt.ID, prompts));
+    }
+
+    [Fact]
+    public void UpdatePrompts_OrderIsRespected(){
+        var prompts = CreatePlausiblePrompts(3);
+        var systemPrompt = SystemPromptFactory.Create(Db(), prompts);
+
+        prompts.Insert(0, AutoFaker.Generate<Prompt>());
+
+        var fetched = _service.UpdatePrompts(systemPrompt.ID, prompts);
+        var dbFetch = SystemPrompts.Find(systemPrompt.ID);
+
+        Assert.Equal(JsonSerializer.Serialize(prompts), JsonSerializer.Serialize(fetched.Prompts));
+        Assert.Equal(JsonSerializer.Serialize(prompts), JsonSerializer.Serialize(dbFetch.Prompts));
+    }
+
+    [Fact]
+    public void UpdatePrompts_InvalidID(){
+        var prompts = CreatePlausiblePrompts(1);
+        Assert.Throws<NullReferenceException>(() => _service.UpdatePrompts(_faker.Random.Guid(), prompts));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void UpdatePrompts_OnlyUpdateRequestedPrompt(int index){
+        var prompts = CreatePlausiblePrompts(1);
+        var systemPrompts = Enumerable.Range(0, 10).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        _service.UpdatePrompts(systemPrompts[index].ID, prompts);
+
+        var expected = systemPrompts.Where(sp => sp.ID != systemPrompts[index].ID).ToList();
+        var actual = SystemPrompts.Where(sp => sp.ID != systemPrompts[index].ID).ToList();
+
+        Assert.Equivalent(expected, actual, strict: true);
     }
 }

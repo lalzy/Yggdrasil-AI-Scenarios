@@ -6,7 +6,10 @@ using Yggdrasil.Models.Entities;
 namespace Yggdrasil.Data;
 
 public class AppDbContext : DbContext{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    private readonly TimeProvider _time;
+    public AppDbContext(DbContextOptions<AppDbContext> options, TimeProvider? time = null) : base(options) {
+        _time = time ?? TimeProvider.System;
+    }
 
     ///<summary>Register all Models as DB Tables automatically</summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder){
@@ -16,9 +19,18 @@ public class AppDbContext : DbContext{
         foreach(var type in entityTypes){
             modelBuilder.Entity(type);
         }
-
         modelBuilder.Entity<SystemPrompt>().OwnsMany(sp => sp.Prompts, p => p.ToJson());
 
         base.OnModelCreating(modelBuilder);
+    }
+
+    public override int SaveChanges(){
+        var now = _time.GetUtcNow().UtcDateTime;
+
+        foreach(var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Modified)){
+            entry.Property("UpdatedAt").CurrentValue = now;
+        }
+
+        return base.SaveChanges();
     }
 }

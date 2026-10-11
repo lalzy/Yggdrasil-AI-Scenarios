@@ -106,6 +106,11 @@ public class SystemPromptServices(AppDbContext db){
     public SystemPrompt? UpdatePrompts(Guid ID, List<Prompt> prompts){
         // Must have the base Prompts in the listing.
         if(!BasePrompts.Create().All(b => prompts.Any(p => p.Name == b.Name))) throw new ArgumentException("BasePrompts were removed");
-        return new();
+
+        var systemPrompt = _systemPrompt.Find(ID);
+
+        systemPrompt!.Prompts = prompts;
+        db.SaveChanges();
+        return systemPrompt;
     }
 }
