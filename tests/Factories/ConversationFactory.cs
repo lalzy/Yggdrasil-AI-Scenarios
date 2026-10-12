@@ -10,6 +10,8 @@ public static class ConversationFactory{
     public static Conversation Create(AppDbContext db, List<Chat>? chats = null){
         chats ??= [];
         var entity = new AutoFaker<Conversation>().RuleFor(x => x.ID, _ => Guid.Empty)
+            .RuleFor(x => x.CreatedAt, _ => DateTime.UtcNow)
+            .RuleFor(x => x.UpdatedAt, _ => DateTime.UtcNow)
             .RuleFor(x => x.Chats, _ => chats).Generate();
         db.Set<Conversation>().Add(entity);
         db.SaveChanges();

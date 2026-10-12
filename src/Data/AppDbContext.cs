@@ -28,7 +28,8 @@ public class AppDbContext : DbContext{
         var now = _time.GetUtcNow().UtcDateTime;
 
         foreach(var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Modified)){
-            entry.Property("UpdatedAt").CurrentValue = now;
+            if(entry.Metadata.FindProperty("UpdatedAt") != null)
+                entry.Property("UpdatedAt").CurrentValue = now;
         }
 
         return base.SaveChanges();

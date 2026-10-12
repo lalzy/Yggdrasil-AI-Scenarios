@@ -55,10 +55,96 @@ public class ChatServiceTests : DatabaseSetup{
 
     [Fact]
     public void Get_RetrieveRequested(){
-        var conversation = ConversationFactory.Create(Db());
-        var chat = ChatFactory.Create(Db(), conversation);
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chat = ChatFactory.Create(db, conversation);
         var fetch = _service.Get(chat.ID);
 
-        Assert.Equivalent(chat, fetch);
+        Assert.EquivalentWithExclusions(chat, fetch, x => x.Conversation);
+        Assert.EquivalentWithExclusions(chat.Conversation, fetch.Conversation, x => x.Chats);
+    }
+
+    [Fact]
+    public void Get_InvalidIDReturnNull(){
+        var fetch = _service.Get(_faker.Random.Guid());
+        Assert.Null(fetch);
+    }
+
+    [Fact]
+    public void Update_SuccessfullChangeMessage(){
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chat = ChatFactory.Create(db, conversation);
+        string newMessage = "";
+        do{
+            newMessage = _faker.Lorem.Word();
+        } while(newMessage == chat.Content);
+
+        var fetch = _service.Update(chat.ID, newMessage);
+        var dbFetch = Chat.Find(chat.ID);
+        
+        Assert.Equal(newMessage, fetch.Content);
+        Assert.Equal(newMessage, dbFetch.Content);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Update_OnlyRequestedMessageIsChanged(int index){
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+
+        var newMessage = "";
+        do{
+            newMessage = _faker.Lorem.Word();
+        }while(chats.Any((c)=> c.Content == newMessage));
+
+        _service.Update(chats[index].ID, newMessage);
+        
+        var expected = chats.Where(c => c.ID != chats[index].ID).ToList();
+        var actual = Chat.Include(c => c.Conversation).Where(c => c.ID != chats[index].ID).ToList();
+
+        Assert.EquivalentWithExclusions(expected, actual, "Conversation");
+    }
+
+    [Fact]
+    public void Update_ReturnNullOnInvalidID(){
+        Assert.Null(_service.Get(_faker.Random.Guid()));
+    }
+
+    [Fact]
+    public void Delete_DeletesChat(){
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chat = ChatFactory.Create(db, conversation);
+
+        _service.Delete(chat.ID);
+
+        var dbFetch = Chat.Find(chat.ID);
+        Assert.Null(dbFetch);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Delete_DeleteOnlyRequested(int index){
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+        _service.Delete(chats[index].ID);
+
+        var actual = chats.Where(c => c.ID != chats[index].ID).ToList();
+        var expected = Chat.ToList();
+
+        Assert.EquivalentWithExclusions(actual, expected, "Conversation");
+    }
+
+    [Fact]
+    public void Delete_DoesNothingOnInvalidID(){
+        var exceptions = Record.Exception(() => _service.Delete(_faker.Random.Guid()));
+        Assert.Null(exceptions);
     }
 }

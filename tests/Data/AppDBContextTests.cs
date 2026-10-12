@@ -73,6 +73,18 @@ public class AppDbContextTests : IDisposable{
 
         Assert.True(nav.TargetEntityType.IsMappedToJson());
     }
+
+    [Fact]
+    public void SaveChanges_ModifiedEntryWIthoutUpdatedAtDoesNotThrow(){
+        var db = Db();
+        var entity = new TestEntityNoUpdateAt { Name = _faker.Lorem.Word() };
+        db.Add(entity);
+        db.SaveChanges();
+
+        entity.Name += "x";
+        var ex = Record.Exception(() => db.SaveChanges());
+        Assert.Null(ex);
+    }
     
     public void Dispose() => _connection.Dispose();
 }
