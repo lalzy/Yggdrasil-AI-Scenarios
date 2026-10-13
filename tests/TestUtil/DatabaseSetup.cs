@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using Yggdrasil.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Yggdrasil.Tests.TestUtil;
 
@@ -21,6 +22,7 @@ public class DatabaseSetup : IDisposable
         _connection.Open();
 
         var builder = WebApplication.CreateBuilder();
+        builder.Logging.ClearProviders();
         builder.Services.AddSingleton<TimeProvider>(_clock);
         builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(_connection));
         App = builder.Build();

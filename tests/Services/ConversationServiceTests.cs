@@ -23,4 +23,22 @@ public class ConversationServiceTests : DatabaseSetup{
     public ConversationServiceTests(){
         _service = new ConversationService(Db());
     }
+
+    private ConversationDTO.Request CreateDTORequest(){
+        return new AutoFaker<ConversationDTO.Request>()
+            .RuleFor(x => x.Chats, _ => [])
+            .Generate();
+    }
+
+    [Fact]
+    public void Create_CreatesConversation(){
+        var request = CreateDTORequest();
+        var conversation = ConversationFactory.Create(Db());
+        var fetch = _service.Create(request);
+        var dbFetch = Conversation.Include(c => c.Chats).FirstOrDefault(c => c.ID == fetch.ID);
+        
+        Assert.Equivalent(request, fetch);
+        Assert.Equivalent(request, dbFetch);
+    }
+
 }
