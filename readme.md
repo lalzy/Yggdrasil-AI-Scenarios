@@ -5,29 +5,32 @@ A scenario based web-app for running RP Sessions with an LLM, (contra companion 
 **World:**
 The world is where the RP takes place (can be based on reality, on fiction, whatever you think of). A world can contain 0 or more characters, and 0 or more lorebooks.
 
+**Narrator**
+The primary agent which handle the narration and orchestration of which characters are in a scene.
+
 **Character:**
-A "protagonist" of sort, that the LLM controls. They can be antagonists, companions, or simply background characters of some import or note. Characters can be shared with any number of worlds and is not tied to a specific world.
+A primary (named, and fleshed out) character. Either separate Agent(s), or controlled by the narrator.
 
 **Persona:**
 The user "character". How you want the characters/narrator to 'see' or 'understand' what 'you' are.
 
 ### Current State:
 Working towards MVP (Progress can be seen on the public [Trello](https://trello.com/b/1AmBLJMv)) but in essence, the MVP will have these features:
-- Ability to create worlds, characters and Personas.
-- Send messages To Llama.Cpp and OpenRouter API.
-- Store Worlds, chats (within the world), and characters for persistent use.
+- Ability to create world, narrators, characters and personas.
+- Create an LLM Connection (Any LLM supported through setting up the endpoint and format whichever you use expects).
+- Preset LLM Connection for LLamaCpp and OpenRouter (no API key included, obviously).
+- Encrypted chats.
 
 ### Plan / Future Features:
-- Native Narrator + Multiple character support for an RP Scenario (No Lorebook juggling).
-- Custom location-fields in Lorebook (with summary versus detailed entry for districts etc).
-- Narrative in-world location tracking (space, time, weather). Paired with location fields above to get the relevant location data at all times.
-- Character stat tracking (location, relationship/disposition, etc).
-- (optional and experimental) Character / Narrator separation using different LLM calls for Narrator versus Character.
-- (optional) Memory storage per character(per world), to be used with the separation of LLM Calls.
-- (optional) Experimental attempt to combat context-bleed (will detail when implemented).
-- SillyTavern character card import support.
-- Export world/character support
-- plugins
+- Multiple Agent system (separate character and narrator).
+- Agent-based Memory (narrator has its memory, a character has its).
+- Lorebooks. Universal but can be attached to any character/world separately. Narrator use World's lorebook(s).
+- State-tracking of world, characters and players (such as location).
+- SillyTavern character card import support (where you can have it be a world, or a character or both).
+- Export world/character support.
+- Plugin support
+- TTS
+- Image-generation (through other API), + image gallery, and export/import of gallery to a world/character.
 
 ### Terminology:
 - RP - RolePlay / RolePlaying
@@ -49,22 +52,23 @@ Working towards MVP (Progress can be seen on the public [Trello](https://trello.
 1. clone project (see the shiny green button)
 2. ```cd {intoFolder}```
 3. ```dotnet restore```
-4. [Run service](#run-the-service) (or [run tests](#tests))
-5. Open browser and go to [http://localhost:5242/](http://localhost:5242/)
+4. Either [Publish](#publish) for a stand-alone executable or [Run](#run-the-service) from bash.
+5. Go to [http://localhost:5151](http://localhost:5151) in a browser
+6. If you want a different port. Edit the src/Properties/launchSettings.json
 
 # Run The Service
-Type ```dotnet run``` in a terminal/command prompt (bash, powershell, cmd) pointed to the root (where you cloned the project to).
+Type ```dotnet run``` in a terminal/command prompt (bash, powershell, cmd) pointed to the root (where yggdrasil-ai-service.sln is).
 
-# Building (for standalone execution)
-```dotnet publish -c Release -r {OS-Architecture} --self-contained -o publish```
-Replace {OS-architecture} with whatever you have. Example
-- Windows: win-x64
-- Mac: osx-x64
-- Linux: linux-x64
-- RaspberryPi: linux-arm64
+# Publish
+1. Type ```dotnet publish```
+2. Go to ```bin/yggdrasil-ai-service/release/net10.0/win-x64/publish``` and copy all the files there to wherever you want the standalone binary to be.
+3. Run the binary (yggdrasil-ai-service.exe on windows)
+4. Go to [http://localhost:5000](http://localhost:5000) in a browser
+5. If you want a different port, edit the appsettings.json
 
 # Tests
-Run tests with ```dotnet test```
+1. Open the project root(where the yggdrasil-ai-service.sln is)
+2. Run tests with ```dotnet test```
 
 # Project structure
 
@@ -72,17 +76,18 @@ Run tests with ```dotnet test```
 src/
   Controllers/ - API Endpoints
   Data/ - Database Definition
+  Extensions - Extensions or object configurations(mapster)
   Models/
-    /Entities - Database Table
     /DTO - Data Transfer Objects
-	/Enums - Shared enums.
+    /Entities - Database Table
+	  /Enums - Shared enums.
   Pages/ - Razor Pages
+  Properties/ - development settings
   Services/ - Business Logic
-  Utils/ - Utilities.
   wwwroot/ - static files
 Migrations/ - EF Core Migrations. Migrations are auto-ran on dotnet run
-Tests/ - Unit, Integrity and E2E tests.
+Tests/ - Unit, Integration and E2E tests.
 ```
 
 # API Documentation:
-Run the service, then go to [http://localhost:5242/swagger](http://localhost:5242/swagger)
+Run the service, then go to [http://localhost:5151/swagger](http://localhost:5151/swagger)

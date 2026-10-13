@@ -30,7 +30,6 @@ builder.Services.AddRazorPages().AddRazorPagesOptions(options => {
 var app = builder.Build();
 app.Initialize();
 
-
 app.MapControllers();
 
 app.UseStaticFiles();
