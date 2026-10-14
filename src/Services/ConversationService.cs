@@ -50,12 +50,33 @@ public class ConversationService (AppDbContext db){
         db.SaveChanges();
     }
 
+    // Remove Chats after stopAtID
+    private List<Chat> GetChatsForEntity(List<Chat> chats, Guid? stopAtID){
+        if(stopAtID != null){
+            var index = chats.ToList().FindIndex(c => c.ID == stopAtID);
+            if(index >= 0) chats = chats.Take(index + 1).ToList();
+        }
+        return chats;
+    }
+    
     /// <summary>Duplicate a conversation up until <paramref name="StopAtID"/></summary>
     /// <param name="ID">The conversation ID to duplicate</param>
     /// <param name="StopAtID">Chat ID where duplication should stop.</param>
     /// <returns>The new duplicated chat</returns>
-    public Conversation Duplicate(Guid ID, Guid? StopAtID=null){
-        var entity = new Conversation{Title=""};
+    public Conversation? Duplicate(Guid ID, Guid? stopAtID=null){
+        var entity = _conversation.AsNoTracking().Include(c => c.Chats).FirstOrDefault(c => c.ID == ID);
+        if(entity == null) return null;
+
+        entity.Chats = GetChatsForEntity(entity.Chats, stopAtID);
+
+        // Set new IDs
+        entity.ID = Guid.NewGuid();
+        foreach(var chat in entity.Chats){
+            chat.ID = Guid.NewGuid();
+        }
+        
+        _conversation.Add(entity);
+        db.SaveChanges();
         return entity;
     }
 }

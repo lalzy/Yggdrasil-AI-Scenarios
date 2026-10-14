@@ -19,6 +19,12 @@ public class AppDbContext : DbContext{
         foreach(var type in entityTypes){
             modelBuilder.Entity(type);
         }
+
+        // Set up Cascade (for all, including nullable)
+        foreach(var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            fk.DeleteBehavior = DeleteBehavior.Cascade;
+
+        // Make Prompt in System Prompts a Json
         modelBuilder.Entity<SystemPrompt>().OwnsMany(sp => sp.Prompts, p => p.ToJson());
 
         base.OnModelCreating(modelBuilder);
@@ -32,6 +38,22 @@ public class AppDbContext : DbContext{
                 entry.Property("UpdatedAt").CurrentValue = now;
         }
 
-        return base.SaveChanges();
+        // Esnure unique Guid for ID
+        while(true){
+            try{
+                return base.SaveChanges();
+            }catch(DbUpdateException exception){
+                var added = exception.Entries.Where(e => e.State == EntityState.Added).ToList();
+                if(added.Count == 0) throw;
+
+                foreach(var entry in added){
+                    var entity = entry.Entity;
+                    entry.State = EntityState.Detached;
+                    Entry(entity).Property("ID").CurrentValue = Guid.NewGuid();
+                    Add(entity);
+
+                }
+            }
+        }
     }
 }

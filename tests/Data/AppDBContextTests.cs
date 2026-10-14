@@ -85,6 +85,39 @@ public class AppDbContextTests : IDisposable{
         var ex = Record.Exception(() => db.SaveChanges());
         Assert.Null(ex);
     }
+
+    [Fact]
+    public void DeleteCascades_OwnerDeletesOwned(){
+        var db = Db();
+        var owner = new TestEntityOwner {
+            Owned = [new TestEntityOwned(), new TestEntityOwned()]
+        };
+        db.Add(owner);
+        db.SaveChanges();
+
+        db.Remove(owner);
+        db.SaveChanges();
+
+        Assert.Empty(Db().Set<TestEntityOwned>());
+    }
     
+    [Fact]
+    public void SaveChanges_DuplicateGuidGetsNewId(){
+        var id = Guid.NewGuid();
+
+        var first = new TestEntity { ID = id, Name = _faker.Lorem.Word() };
+        var db1 = Db();
+        db1.Add(first);
+        db1.SaveChanges();
+
+        var second = new TestEntity { ID = id, Name = _faker.Lorem.Word() };
+        var db2 = Db();
+        db2.Add(second);
+        db2.SaveChanges();
+
+        Assert.NotEqual(id, second.ID);
+        Assert.Equal(2, Db().Set<TestEntity>().Count());
+    }
+
     public void Dispose() => _connection.Dispose();
 }

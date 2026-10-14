@@ -19,11 +19,24 @@ public class TestEntityNoUpdateAt{
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
+public class TestEntityOwner(){
+    public Guid ID { get; set; }
+    public List<TestEntityOwned>? Owned { get; set; }
+}
+
+public class TestEntityOwned(){
+    public Guid ID { get; set; }
+    public TestEntityOwner? Owner { get; set; }
+}
+
 public class TestDBContext : AppDbContext{
     public TestDBContext(DbContextOptions<AppDbContext> options) :base(options){}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder){
         modelBuilder.Entity<TestEntity>();
         modelBuilder.Entity<TestEntityNoUpdateAt>();
+        modelBuilder.Entity<TestEntityOwned>();
+        modelBuilder.Entity<TestEntityOwner>();
+        base.OnModelCreating(modelBuilder);
     }
 }

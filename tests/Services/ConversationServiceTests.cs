@@ -143,5 +143,61 @@ public class ConversationServiceTests : DatabaseSetup{
     // =======================================
     //                DUPLICATE           
     // =======================================
-    
+    [Fact]
+    public void Duplicate_ReturnsDuplicatedChat(){
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+        conversation.Chats = chats;
+        
+        var duplicatedConversation = _service.Duplicate(conversation.ID);
+        var duplicatedChats = duplicatedConversation.Chats;
+
+        Assert.NotEqual(conversation.ID, duplicatedConversation.ID);
+        Assert.Equal(chats.Count, duplicatedChats.Count);
+
+        for (int i = 0; i < duplicatedChats.Count; i++){
+            Assert.Equal(chats[i].Content, duplicatedChats[i].Content);
+            Assert.NotEqual(chats[i].ID, duplicatedChats[i].ID);
+        }
+    }
+
+    [Fact]
+    public void Duplicate_SavesNewDuplication(){
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+        conversation.Chats = chats;
+        
+        var duplicatedConversation = _service.Duplicate(conversation.ID);
+        Assert.NotNull(Conversation.Find(duplicatedConversation.ID));
+        Assert.All(duplicatedConversation.Chats, c => Assert.NotNull(db.Find<Chat>(c.ID)));
+    }
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(25)]
+    [InlineData(50)]
+    public void Duplicate_OnlyDuplicateUpToRequested(int index){
+        var db = Db();
+        var conversation = ConversationFactory.Create(db);
+        var chats = Enumerable.Range(0, 100).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+
+        var duplicatedConversation = _service.Duplicate(conversation.ID, chats[index].ID);
+
+        var duplicatedChats = duplicatedConversation.Chats;
+
+        Assert.NotEqual(conversation.ID, duplicatedConversation.ID);
+        Assert.Equal(index + 1, duplicatedChats.Count);
+
+        for (int i = 0; i < duplicatedChats.Count; i++){
+            Assert.Equal(chats[i].Content, duplicatedChats[i].Content);
+            Assert.NotEqual(chats[i].ID, duplicatedChats[i].ID);
+        }
+    }
+
+    [Fact]
+    public void Duplicate_InvalidIDDoesNotThrow(){
+        Assert.Null(_service.Duplicate(_faker.Random.Guid()));
+    }
 }
