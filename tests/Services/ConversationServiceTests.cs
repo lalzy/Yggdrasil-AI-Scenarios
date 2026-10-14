@@ -24,21 +24,18 @@ public class ConversationServiceTests : DatabaseSetup{
         _service = new ConversationService(Db());
     }
 
+    // Helper to create a ConversationDTO with empty ChatList
     private ConversationDTO.Request CreateDTORequest(){
-        return new AutoFaker<ConversationDTO.Request>()
-            .RuleFor(x => x.Chats, _ => [])
-            .Generate();
+        return new ConversationDTO.Request(_faker.Lorem.Word());
     }
 
     [Fact]
     public void Create_CreatesConversation(){
         var request = CreateDTORequest();
-        var conversation = ConversationFactory.Create(Db());
         var fetch = _service.Create(request);
         var dbFetch = Conversation.Include(c => c.Chats).FirstOrDefault(c => c.ID == fetch.ID);
         
         Assert.Equivalent(request, fetch);
         Assert.Equivalent(request, dbFetch);
     }
-
 }

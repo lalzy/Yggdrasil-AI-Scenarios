@@ -16,7 +16,7 @@ public class ConversationService (AppDbContext db){
     /// <param name="request">The ConversationDTO request</param>
     /// <returns>The created Conversation object</returns>
     public Conversation Create(ConversationDTO.Request request){
-        var entity = new Conversation{Title = request.Title, Chats = request.Chats};
+        var entity = new Conversation{Title = request.Title};
         _conversation.Add(entity);
         db.SaveChanges();
         return entity;
@@ -42,4 +42,13 @@ public class ConversationService (AppDbContext db){
     /// <summary>Delete the Conversation</summary>
     /// <param name="ID">ID of the conversation to delete</param>
     public void Delete(Guid ID){}
+
+    /// <summary>Duplicate a conversation up until <paramref name="StopAtID"/></summary>
+    /// <param name="ID">The conversation ID to duplicate</param>
+    /// <param name="StopAtID">Chat ID where duplication should stop.</param>
+    /// <returns>The new duplicated chat</returns>
+    public Conversation Duplicate(Guid ID, Guid? StopAtID=null){
+        var entity = new Conversation{Title=""};
+        return entity;
+    }
 }

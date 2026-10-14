@@ -7,7 +7,6 @@ namespace Yggdrasil.Models.DTO;
 
 public class ConversationDTO{
     public record Request(
-        List<Chat> Chats,
         [Required] string Title
     );
 }
