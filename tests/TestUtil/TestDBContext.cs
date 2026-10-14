@@ -22,11 +22,16 @@ public class TestEntityNoUpdateAt{
 public class TestEntityOwner(){
     public Guid ID { get; set; }
     public List<TestEntityOwned>? Owned { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class TestEntityOwned(){
     public Guid ID { get; set; }
+    public String Name { get; set; }
     public TestEntityOwner? Owner { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class TestDBContext : AppDbContext{

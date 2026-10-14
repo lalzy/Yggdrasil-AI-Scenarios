@@ -2,6 +2,8 @@
 
 using System.Reflection;
 using Yggdrasil.Models.Entities;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Data.Sqlite;
 
 namespace Yggdrasil.Data;
 
@@ -30,21 +32,36 @@ public class AppDbContext : DbContext{
         base.OnModelCreating(modelBuilder);
     }
 
-    public override int SaveChanges(){
-        var now = _time.GetUtcNow().UtcDateTime;
-
-        foreach(var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Modified)){
-            if(entry.Metadata.FindProperty("UpdatedAt") != null)
-                entry.Property("UpdatedAt").CurrentValue = now;
+    private void UpdateUpdatedAt(EntityEntry entry, DateTime now){
+        if(entry.Metadata.FindProperty("UpdatedAt") != null){
+            entry.Property("UpdatedAt").CurrentValue = now;
         }
 
+        foreach(var owner in GetOwners(entry)){
+            UpdateUpdatedAt(owner, now);
+        }
+    }
+
+    private IEnumerable<EntityEntry> GetOwners(EntityEntry entry){
+        foreach(var foreignKey in entry.Metadata.GetForeignKeys().Where(fk => fk.DeleteBehavior == DeleteBehavior.Cascade)){
+            var keys = foreignKey.Properties.Select(p => entry.Property(p.Name).CurrentValue).ToList();
+
+            var owner = ChangeTracker.Entries().FirstOrDefault(e => foreignKey.PrincipalEntityType.IsAssignableFrom(e.Metadata) &&
+                                                               foreignKey.PrincipalKey.Properties.Select(p => e.Property(p.Name).CurrentValue).SequenceEqual(keys));
+
+            if (owner != null)
+                yield return owner;
+        }
+    }
+
+    private int SaveWithUniqueGuid(){
         // Esnure unique Guid for ID
         while(true){
             try{
                 return base.SaveChanges();
             }catch(DbUpdateException exception){
                 var added = exception.Entries.Where(e => e.State == EntityState.Added).ToList();
-                if(added.Count == 0) throw;
+                if(added.Count == 0 || exception.InnerException is not SqliteException {SqliteExtendedErrorCode: 1555}) throw;
 
                 foreach(var entry in added){
                     var entity = entry.Entity;
@@ -55,5 +72,16 @@ public class AppDbContext : DbContext{
                 }
             }
         }
+    }
+
+    public override int SaveChanges(){
+        var now = _time.GetUtcNow().UtcDateTime;
+
+        foreach(var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList()){
+            UpdateUpdatedAt(entry, now);
+        }
+
+        return SaveWithUniqueGuid();
+
     }
 }

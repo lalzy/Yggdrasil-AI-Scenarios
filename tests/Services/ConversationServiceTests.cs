@@ -128,8 +128,8 @@ public class ConversationServiceTests : DatabaseSetup{
         var conversations =  Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(Db())).ToList();
         _service.Delete(conversations[index].ID);
 
-        var actual = conversations.Where(c => c.ID != conversations[index].ID).ToList();
-        var expected = conversations.ToList();
+        var expected = conversations.Where(c => c.ID != conversations[index].ID).ToList();
+        var actual = Conversation.Include(c => c.Chats).ToList();
 
         Assert.Equivalent(actual, expected, strict:true);
     }

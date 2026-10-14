@@ -90,7 +90,10 @@ public class AppDbContextTests : IDisposable{
     public void DeleteCascades_OwnerDeletesOwned(){
         var db = Db();
         var owner = new TestEntityOwner {
-            Owned = [new TestEntityOwned(), new TestEntityOwned()]
+            Owned = [
+                new TestEntityOwned { Name = _faker.Lorem.Word() },
+                new TestEntityOwned { Name = _faker.Lorem.Word() }
+            ]
         };
         db.Add(owner);
         db.SaveChanges();
@@ -119,5 +122,18 @@ public class AppDbContextTests : IDisposable{
         Assert.Equal(2, Db().Set<TestEntity>().Count());
     }
 
+    [Fact]
+    public void SaveChanges_ModifiedOwnedUpdatesOwnerUpdatedAt(){
+        var db = Db();
+        var owned = new TestEntityOwned { Name = _faker.Lorem.Word() };
+        var owner = new TestEntityOwner { UpdatedAt = _old, Owned = [owned] };
+        db.Add(owner);
+        db.SaveChanges();
+
+        owned.Name += "x";
+        db.SaveChanges();
+        Assert.True(Db().Find<TestEntityOwner>(owner.ID)!.UpdatedAt > _old);
+    }
+    
     public void Dispose() => _connection.Dispose();
 }
