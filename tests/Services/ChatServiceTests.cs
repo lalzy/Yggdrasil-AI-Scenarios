@@ -25,6 +25,10 @@ public class ChatServiceTests : DatabaseSetup{
         _service = new ChatService(Db());
     }
 
+    // =======================================
+    //                 CREATE            
+    // =======================================
+
     [Fact]
     public void Create_CreatesChat(){
         var request = AutoFaker.Generate<ChatDTO.Request>();
@@ -53,15 +57,22 @@ public class ChatServiceTests : DatabaseSetup{
         Assert.Throws<KeyNotFoundException>(()=> _service.Create(_faker.Random.Guid(), AutoFaker.Generate<ChatDTO.Request>()));  
     }
 
-    [Fact]
-    public void Get_RetrieveRequested(){
+    // =======================================
+    //                  GET              
+    // =======================================
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Get_RetrieveRequested(int index){
         var db = Db();
         var conversation = ConversationFactory.Create(db);
-        var chat = ChatFactory.Create(db, conversation);
-        var fetch = _service.Get(chat.ID);
+        var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+        var fetch = _service.Get(chats[index].ID);
 
-        Assert.EquivalentWithExclusions(chat, fetch, x => x.Conversation);
-        Assert.EquivalentWithExclusions(chat.Conversation, fetch.Conversation, x => x.Chats);
+        Assert.EquivalentWithExclusions(chats[index], fetch, x => x.Conversation);
+        Assert.EquivalentWithExclusions(chats[index].Conversation, fetch.Conversation, x => x.Chats);
     }
 
     [Fact]
@@ -69,6 +80,10 @@ public class ChatServiceTests : DatabaseSetup{
         var fetch = _service.Get(_faker.Random.Guid());
         Assert.Null(fetch);
     }
+
+    // =======================================
+    //                 UPDATE              
+    // =======================================
 
     [Fact]
     public void Update_SuccessfullChangeMessage(){
@@ -113,6 +128,10 @@ public class ChatServiceTests : DatabaseSetup{
     public void Update_ReturnNullOnInvalidID(){
         Assert.Null(_service.Get(_faker.Random.Guid()));
     }
+
+    // =======================================
+    //                 DELETE              
+    // =======================================
 
     [Fact]
     public void Delete_DeletesChat(){

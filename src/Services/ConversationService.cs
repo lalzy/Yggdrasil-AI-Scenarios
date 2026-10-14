@@ -27,7 +27,7 @@ public class ConversationService (AppDbContext db){
     /// <returns>The requested Conversation object</returns>
     public Conversation Get(Guid ID){
         var conv = new Conversation{Title=""};
-        return conv;
+        return _conversation.Include(c => c.Chats).FirstOrDefault(c => c.ID == ID)!;
     }
 
     /// <summary>Rename the Conversation title</summary>
@@ -35,13 +35,20 @@ public class ConversationService (AppDbContext db){
     /// <param name="newName">The new title</param>
     /// <returns>The modified conversation object</returns>
     public Conversation Rename(Guid ID, string newName){
-        var conv = new Conversation{Title=""};
-        return conv;
+        var entity = _conversation.Find(ID)!;
+        entity.Title = newName;
+        db.SaveChanges();
+        return entity;
     }
 
     /// <summary>Delete the Conversation</summary>
     /// <param name="ID">ID of the conversation to delete</param>
-    public void Delete(Guid ID){}
+    public void Delete(Guid ID){
+        var entity = _conversation.Find(ID)!;
+        if(entity == null) return;
+        _conversation.Remove(entity);
+        db.SaveChanges();
+    }
 
     /// <summary>Duplicate a conversation up until <paramref name="StopAtID"/></summary>
     /// <param name="ID">The conversation ID to duplicate</param>
