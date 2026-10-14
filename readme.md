@@ -57,7 +57,7 @@ Working towards MVP (Progress can be seen on the public [Trello](https://trello.
 6. If you want a different port. Edit the src/Properties/launchSettings.json
 
 # Run The Service
-Type ```dotnet run``` in a terminal/command prompt (bash, powershell, cmd) pointed to the root (where yggdrasil-ai-service.sln is).
+Type ```dotnet run --project src/yggdrasil-ai-service.csproj``` in a terminal/command prompt (bash, powershell, cmd) pointed to the root (where yggdrasil-ai-service.sln is).
 
 # Publish
 1. Type ```dotnet publish```
@@ -87,6 +87,13 @@ src/
   wwwroot/ - static files
 Migrations/ - EF Core Migrations. Migrations are auto-ran on dotnet run
 Tests/ - Unit, Integration and E2E tests.
+  /Controllers - Controller tests,
+  /Data - Database Tests
+  /E2E - E2E tests of frontend
+  /Factories - Helpers to generate database data
+  /Services - Service tests
+  /TestUtil - testing utilities.
+  
 ```
 
 # API Documentation:
