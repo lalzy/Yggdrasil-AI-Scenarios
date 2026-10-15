@@ -7,7 +7,7 @@ namespace Yggdrasil.Models.Entities;
 
 public class Conversation{
     public Guid ID { get; set; }
-    public World? World {get; set;}
+    public required WorldInstance World {get; set;}
     public List<Chat> Chats { get; set; }
     public required string Title { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

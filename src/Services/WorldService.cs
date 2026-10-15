@@ -16,7 +16,6 @@ public class WorldService (AppDbContext db){
         var entity = new World
         {
             Description = "",
-            Scenario = ""
         };
         return entity;
     }
@@ -25,7 +24,6 @@ public class WorldService (AppDbContext db){
         var entity = new World
         {
             Description = "",
-            Scenario = ""
         };
         return entity;
     }
@@ -34,7 +32,6 @@ public class WorldService (AppDbContext db){
         var entity = new World
         {
             Description = "",
-            Scenario = ""
         };
         return entity;
     }

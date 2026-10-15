@@ -33,7 +33,7 @@ public class ChatServiceTests : DatabaseSetup{
     public void Create_CreatesChat(){
         var request = AutoFaker.Generate<ChatDTO.Request>();
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var fetch = _service.Create(conversation.ID, request);
         var dbFetch = Chat.Include(c => c.Conversation).First(c => c.ID == fetch.ID);
@@ -48,7 +48,7 @@ public class ChatServiceTests : DatabaseSetup{
     public void Create_ChatAddedToConversation(){
         var request = AutoFaker.Generate<ChatDTO.Request>();
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var fetch = _service.Create(conversation.ID, request);
         var dbFetch = Conversation.Include(c => c.Chats).First(c => c.ID == conversation.ID);
@@ -71,7 +71,7 @@ public class ChatServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Get_RetrieveRequested(int index){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
         var fetch = _service.Get(chats[index].ID);
@@ -93,7 +93,7 @@ public class ChatServiceTests : DatabaseSetup{
     [Fact]
     public void Update_SuccessfullChangeMessage(){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chat = ChatFactory.Create(db, conversation);
         string newMessage = "";
@@ -114,7 +114,7 @@ public class ChatServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Update_OnlyRequestedMessageIsChanged(int index){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
 
@@ -143,7 +143,7 @@ public class ChatServiceTests : DatabaseSetup{
     [Fact]
     public void Delete_DeletesChat(){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chat = ChatFactory.Create(db, conversation);
 
@@ -159,7 +159,7 @@ public class ChatServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Delete_DeleteOnlyRequested(int index){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
         _service.Delete(chats[index].ID);

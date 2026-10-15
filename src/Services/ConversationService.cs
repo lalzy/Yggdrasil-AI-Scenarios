@@ -16,8 +16,8 @@ public class ConversationService (AppDbContext db){
     /// <param name="request">The ConversationDTO request</param>
     /// <returns>The created Conversation object</returns>
     public Conversation Create(ConversationDTO.Request request){
-        var entity = new Conversation{Title = request.Title};
-        var world = db.Set<World>().Find(request.WorldID);
+        var world = db.Set<WorldInstance>().Find(request.WorldID);
+        var entity = new Conversation{Title = request.Title, World=world!};
         entity.World = world;
         _conversation.Add(entity);
         db.SaveChanges();
@@ -28,7 +28,6 @@ public class ConversationService (AppDbContext db){
     /// <param name="ID">ID of the conversation to get</param>
     /// <returns>The requested Conversation object</returns>
     public Conversation Get(Guid ID){
-        var conv = new Conversation{Title=""};
         return _conversation.Include(c => c.Chats).Include(c => c.World).FirstOrDefault(c => c.ID == ID)!;
     }
 

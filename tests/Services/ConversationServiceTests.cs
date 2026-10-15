@@ -36,7 +36,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     // Single test because there really isn't anything else to test
     public void Create_CreatesConversation(){
-        var world = WorldFactory.Create(Db());
+        var world = WorldFactory.CreateInstance(Db());
         var request = CreateDTORequest(world.ID);
         var fetch = _service.Create(request);
         var dbFetch = Conversation.Include(c => c.World).FirstOrDefault(c => c.ID == fetch.ID);
@@ -56,7 +56,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Get_RetrieveRequested(int index){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(db, world)).ToList();
         var fetch = _service.Get(conversations[index].ID);
 
@@ -76,7 +76,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     public void Rename_SuccessfullyRename(){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         string newTitle = "";
         do{
@@ -96,7 +96,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Rename_OnlyRequestedIsChanged(int index){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(db, world)).ToList();
         var newTitle = "";
         do{
@@ -126,7 +126,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     public void Delete_DeletesConversation(){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         
         _service.Delete(conversation.ID);
@@ -141,7 +141,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Delete_DeleteOnlyRequested(int index){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(db, world)).ToList();
         _service.Delete(conversations[index].ID);
 
@@ -165,7 +165,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     public void Duplicate_ReturnsDuplicatedChat(){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
         conversation.Chats = chats;
@@ -185,7 +185,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     public void Duplicate_SavesNewDuplication(){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
         conversation.Chats = chats;
@@ -201,7 +201,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(50)]
     public void Duplicate_OnlyDuplicateUpToRequested(int index){
         var db = Db();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 100).Select(_ => ChatFactory.Create(db, conversation)).ToList();
 

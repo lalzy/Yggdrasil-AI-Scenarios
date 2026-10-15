@@ -140,7 +140,7 @@ public class AppDbContextTests : IDisposable{
     [Fact]
     public void SaveChanges_ModifiedConversationDoesNotChangeWorldUpdatedAt(){
         var db = AppDb();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         var before = AppDb().Find<World>(world.ID)!.UpdatedAt;
 
@@ -153,7 +153,7 @@ public class AppDbContextTests : IDisposable{
     [Fact]
     public void SaveChanges_NewChatUpdatesWorldLastUsed(){
         var db = AppDb();
-        var world = WorldFactory.Create(db);
+        var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
         world.LastUsed = _old;
         db.SaveChanges();
