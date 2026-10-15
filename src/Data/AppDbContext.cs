@@ -40,7 +40,7 @@ public class AppDbContext : DbContext{
 
         foreach(var owner in GetOwners(entry)){
             if(owner.Entity is WorldInstance){
-                if(isChat) owner.Property(nameof(World.UpdatedAt)).CurrentValue = now;
+                if(isChat) owner.Property(nameof(WorldInstance.LastUsed)).CurrentValue = now;
             }else{
                 UpdateUpdatedAt(owner, now, isChat);
             }

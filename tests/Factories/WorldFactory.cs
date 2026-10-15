@@ -28,6 +28,7 @@ public static class WorldFactory{
         var entity = new AutoFaker<WorldInstance>()
             .BaseRules()
             .RuleFor(x => x.Conversations, _ => [])
+            .RuleFor(x => x.LastUsed, _ => DateTime.Now)
             .Generate();
         db.Set<WorldInstance>().Add(entity);
         db.SaveChanges();
