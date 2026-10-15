@@ -25,8 +25,8 @@ public class ConversationServiceTests : DatabaseSetup{
     }
 
     // Helper to create a ConversationDTO with empty ChatList
-    private ConversationDTO.Request CreateDTORequest(){
-        return new ConversationDTO.Request(_faker.Lorem.Word());
+    private ConversationDTO.Request CreateDTORequest(Guid worldID){
+        return new ConversationDTO.Request(_faker.Lorem.Word(), worldID);
     }
 
     // =======================================
@@ -36,12 +36,15 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     // Single test because there really isn't anything else to test
     public void Create_CreatesConversation(){
-        var request = CreateDTORequest();
+        var world = WorldFactory.Create(Db());
+        var request = CreateDTORequest(world.ID);
         var fetch = _service.Create(request);
-        var dbFetch = Conversation.FirstOrDefault(c => c.ID == fetch.ID);
-        
-        Assert.Equivalent(request, fetch);
-        Assert.Equivalent(request, dbFetch);
+        var dbFetch = Conversation.Include(c => c.World).FirstOrDefault(c => c.ID == fetch.ID);
+
+        Assert.EquivalentWithExclusions(request, fetch, "WorldID");
+        Assert.EquivalentWithExclusions(request, dbFetch, "WorldID");
+        Assert.Equal(request.WorldID, fetch.World!.ID);
+        Assert.Equal(request.WorldID, dbFetch!.World!.ID);
     }
     
     // =======================================
@@ -52,9 +55,12 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(3)]
     [InlineData(5)]
     public void Get_RetrieveRequested(int index){
-        var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(Db())).ToList();
+        var db = Db();
+        var world = WorldFactory.Create(db);
+        var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(db, world)).ToList();
         var fetch = _service.Get(conversations[index].ID);
-        Assert.Equivalent(conversations[index], fetch);
+
+        Assert.EquivalentWithExclusions(conversations[index], fetch, c => c.World.Conversations);
     }
 
     [Fact]
@@ -69,7 +75,9 @@ public class ConversationServiceTests : DatabaseSetup{
 
     [Fact]
     public void Rename_SuccessfullyRename(){
-        var conversation = ConversationFactory.Create(Db());
+        var db = Db();
+        var world = WorldFactory.Create(db);
+        var conversation = ConversationFactory.Create(db, world);
         string newTitle = "";
         do{
             newTitle = _faker.Lorem.Word();
@@ -87,7 +95,9 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(3)]
     [InlineData(5)]
     public void Rename_OnlyRequestedIsChanged(int index){
-        var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(Db())).ToList();
+        var db = Db();
+        var world = WorldFactory.Create(db);
+        var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(db, world)).ToList();
         var newTitle = "";
         do{
             newTitle = _faker.Lorem.Word();
@@ -96,9 +106,12 @@ public class ConversationServiceTests : DatabaseSetup{
         _service.Rename(conversations[index].ID, newTitle);
 
         var expected = conversations.Where(c => c.ID != conversations[index].ID).ToList();
-        var actual = Conversation.Include(c => c.Chats).Where(c => c.ID != conversations[index].ID).ToList();
-
-        Assert.Equivalent(expected, actual);
+        var actual = Conversation.Include(c => c.Chats).Include(c => c.World).Where(c => c.ID != conversations[index].ID).ToList();
+        
+        Assert.Equal(expected.Count, actual.Count);
+        foreach (var e in expected){
+            Assert.EquivalentWithExclusions(e, actual.Single(a => a.ID == e.ID), c => c.World.Conversations, c => c.World.UpdatedAt);
+        }
     }
 
     [Fact]
@@ -112,7 +125,9 @@ public class ConversationServiceTests : DatabaseSetup{
 
     [Fact]
     public void Delete_DeletesConversation(){
-        var conversation = ConversationFactory.Create(Db());
+        var db = Db();
+        var world = WorldFactory.Create(db);
+        var conversation = ConversationFactory.Create(db, world);
         
         _service.Delete(conversation.ID);
 
@@ -125,13 +140,17 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(3)]
     [InlineData(5)]
     public void Delete_DeleteOnlyRequested(int index){
-        var conversations =  Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(Db())).ToList();
+        var db = Db();
+        var world = WorldFactory.Create(db);
+        var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(db, world)).ToList();
         _service.Delete(conversations[index].ID);
 
         var expected = conversations.Where(c => c.ID != conversations[index].ID).ToList();
-        var actual = Conversation.Include(c => c.Chats).ToList();
+        var actual = Conversation.Include(c => c.Chats).Include(c => c.World).ToList();
 
-        Assert.Equivalent(actual, expected, strict:true);
+        foreach (var a in actual){
+            Assert.EquivalentWithExclusions(a, expected.Single(e => e.ID == a.ID), true, c => c.World.Conversations);
+        }
     }
 
     [Fact]
@@ -146,7 +165,8 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     public void Duplicate_ReturnsDuplicatedChat(){
         var db = Db();
-        var conversation = ConversationFactory.Create(db);
+        var world = WorldFactory.Create(db);
+        var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
         conversation.Chats = chats;
         
@@ -165,7 +185,8 @@ public class ConversationServiceTests : DatabaseSetup{
     [Fact]
     public void Duplicate_SavesNewDuplication(){
         var db = Db();
-        var conversation = ConversationFactory.Create(db);
+        var world = WorldFactory.Create(db);
+        var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
         conversation.Chats = chats;
         
@@ -180,7 +201,8 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(50)]
     public void Duplicate_OnlyDuplicateUpToRequested(int index){
         var db = Db();
-        var conversation = ConversationFactory.Create(db);
+        var world = WorldFactory.Create(db);
+        var conversation = ConversationFactory.Create(db, world);
         var chats = Enumerable.Range(0, 100).Select(_ => ChatFactory.Create(db, conversation)).ToList();
 
         var duplicatedConversation = _service.Duplicate(conversation.ID, chats[index].ID);

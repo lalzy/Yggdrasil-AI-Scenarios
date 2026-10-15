@@ -28,7 +28,10 @@ public class WorldServiceTests : DatabaseSetup{
 
     [Fact]
     public void Create_CreatesWorld(){
-        
+        var request = AutoFaker.Generate<WorldDTO.Request>();
+        var fetch = _service.Create(request);
+
+        Assert.Equivalent(request, fetch);
     }
     
     // =======================================

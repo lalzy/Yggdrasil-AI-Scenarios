@@ -13,15 +13,30 @@ public class WorldService (AppDbContext db){
     private readonly DbSet<World> _world = db.Set<World>();
 
     public World Create(WorldDTO.Request request){
-        return new();
+        var entity = new World
+        {
+            Description = "",
+            Scenario = ""
+        };
+        return entity;
     }
 
     public World Get(Guid ID){
-        return new();
+        var entity = new World
+        {
+            Description = "",
+            Scenario = ""
+        };
+        return entity;
     }
 
     public World Edit(Guid ID, WorldDTO.Edit request){
-        return new();
+        var entity = new World
+        {
+            Description = "",
+            Scenario = ""
+        };
+        return entity;
     }
 
     public void Delete(Guid ID){}

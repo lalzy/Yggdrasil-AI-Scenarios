@@ -7,6 +7,7 @@ namespace Yggdrasil.Models.DTO;
 
 public class ConversationDTO{
     public record Request(
-        [Required] string Title
+        [Required] string Title,
+        [Required] Guid WorldID
     );
 }

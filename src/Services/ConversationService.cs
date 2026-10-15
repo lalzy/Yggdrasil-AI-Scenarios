@@ -17,6 +17,8 @@ public class ConversationService (AppDbContext db){
     /// <returns>The created Conversation object</returns>
     public Conversation Create(ConversationDTO.Request request){
         var entity = new Conversation{Title = request.Title};
+        var world = db.Set<World>().Find(request.WorldID);
+        entity.World = world;
         _conversation.Add(entity);
         db.SaveChanges();
         return entity;
@@ -27,7 +29,7 @@ public class ConversationService (AppDbContext db){
     /// <returns>The requested Conversation object</returns>
     public Conversation Get(Guid ID){
         var conv = new Conversation{Title=""};
-        return _conversation.Include(c => c.Chats).FirstOrDefault(c => c.ID == ID)!;
+        return _conversation.Include(c => c.Chats).Include(c => c.World).FirstOrDefault(c => c.ID == ID)!;
     }
 
     /// <summary>Rename the Conversation title</summary>
@@ -35,7 +37,7 @@ public class ConversationService (AppDbContext db){
     /// <param name="newName">The new title</param>
     /// <returns>The modified conversation object</returns>
     public Conversation Rename(Guid ID, string newName){
-        var entity = _conversation.Find(ID)!;
+        var entity = _conversation.Include(c => c.World).FirstOrDefault(c => c.ID == ID)!;
         entity.Title = newName;
         db.SaveChanges();
         return entity;
@@ -64,7 +66,7 @@ public class ConversationService (AppDbContext db){
     /// <param name="StopAtID">Chat ID where duplication should stop.</param>
     /// <returns>The new duplicated chat</returns>
     public Conversation? Duplicate(Guid ID, Guid? stopAtID=null){
-        var entity = _conversation.AsNoTracking().Include(c => c.Chats).FirstOrDefault(c => c.ID == ID);
+        var entity = _conversation.AsNoTracking().Include(c => c.Chats).Include(c => c.World).FirstOrDefault(c => c.ID == ID);
         if(entity == null) return null;
 
         entity.Chats = GetChatsForEntity(entity.Chats, stopAtID);

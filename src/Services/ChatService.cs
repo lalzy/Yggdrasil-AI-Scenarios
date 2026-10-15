@@ -34,7 +34,7 @@ public class ChatService (AppDbContext db){
     /// <param name="ID">ID of chatMessage to get</param>
     /// <returns>The requested chat object</returns>
     public Chat Get(Guid ID){
-        return _chat.Include(c => c.Conversation).FirstOrDefault(c => c.ID == ID)!;
+        return _chat.Include(c => c.Conversation).ThenInclude(c => c.World).FirstOrDefault(c => c.ID == ID)!;
     }
 
     /// <summary>Change content of requested Chat Message</summary>
