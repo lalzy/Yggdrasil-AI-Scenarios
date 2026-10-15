@@ -7,7 +7,7 @@ using Yggdrasil.Data;
 namespace Yggdrasil.Tests.Factories;
 
 public static class WorldFactory{
-    private static AutoFaker<T> BaseRules<T>(this AutoFaker<T> faker) where T : World{
+    private static AutoFaker<T> BaseRules<T>(this AutoFaker<T> faker) where T : WorldTemplate{
         faker
             .RuleFor(x => x.CreatedAt, _ => DateTime.UtcNow)
             .RuleFor(x => x.UpdatedAt, _ => DateTime.UtcNow)
@@ -15,11 +15,11 @@ public static class WorldFactory{
         return faker;
     }
 
-    public static World Create(AppDbContext db){
-        var entity = new AutoFaker<World>()
+    public static WorldTemplate Create(AppDbContext db){
+        var entity = new AutoFaker<WorldTemplate>()
             .BaseRules()
             .Generate();
-        db.Set<World>().Add(entity);
+        db.Set<WorldTemplate>().Add(entity);
         db.SaveChanges();
         return entity;
     }

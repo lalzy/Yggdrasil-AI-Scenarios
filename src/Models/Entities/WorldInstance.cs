@@ -2,7 +2,7 @@
 
 namespace Yggdrasil.Models.Entities;
 
-public class WorldInstance : World{
+public class WorldInstance : WorldTemplate{
     /// <summary>A brief summary what the RP is about sent to the LLM</summary>
     public required string Scenario {get; set;}
 

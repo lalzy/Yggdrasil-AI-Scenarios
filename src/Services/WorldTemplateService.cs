@@ -1,4 +1,4 @@
-// WorldService.cs
+// WorldTemplateService.cs
 
 using Yggdrasil.Data;
 using Yggdrasil.Models.Entities;
@@ -9,27 +9,27 @@ using Mapster;
 
 namespace Yggdrasil.Services;
 
-public class WorldService (AppDbContext db){
-    private readonly DbSet<World> _world = db.Set<World>();
+public class WorldTemplateService (AppDbContext db){
+    private readonly DbSet<WorldTemplate> _world = db.Set<WorldTemplate>();
 
-    public World Create(WorldDTO.Request request){
-        var entity = new World
+    public WorldTemplate Create(WorldDTO.Request request){
+        var entity = new WorldTemplate
         {
             Description = "",
         };
         return entity;
     }
 
-    public World Get(Guid ID){
-        var entity = new World
+    public WorldTemplate Get(Guid ID){
+        var entity = new WorldTemplate
         {
             Description = "",
         };
         return entity;
     }
 
-    public World Edit(Guid ID, WorldDTO.Edit request){
-        var entity = new World
+    public WorldTemplate Edit(Guid ID, WorldDTO.Edit request){
+        var entity = new WorldTemplate
         {
             Description = "",
         };

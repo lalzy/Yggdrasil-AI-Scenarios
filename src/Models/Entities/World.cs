@@ -2,7 +2,7 @@
 
 namespace Yggdrasil.Models.Entities;
 
-public class World{
+public class WorldTemplate{
     public Guid ID { get; set; }
 
     /// <summary>Description about this world, not sent to the LLM.</summary>

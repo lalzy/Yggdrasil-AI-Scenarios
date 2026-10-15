@@ -1,4 +1,4 @@
-// WorldServiceTests.cs
+// WorldTemplateServiceTests.cs
 using FluentAssertions;
 using AutoBogus;
 using Bogus;
@@ -14,13 +14,13 @@ using Yggdrasil.Data;
 
 namespace Yggdrasil.Tests.Services;
 
-public class WorldServiceTests : DatabaseSetup{
-    private readonly WorldService _service;
+public class WorldTemplateServiceTests : DatabaseSetup{
+    private readonly WorldTemplateService _service;
     private readonly Faker _faker = new();
-    private DbSet<World> World => Db().Set<World>();
+    private DbSet<WorldTemplate> World => Db().Set<WorldTemplate>();
 
-    public WorldServiceTests(){
-        _service = new WorldService(Db());
+    public WorldTemplateServiceTests(){
+        _service = new WorldTemplateService(Db());
     }
     // =======================================
     //                 CREATE            
