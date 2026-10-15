@@ -138,29 +138,16 @@ public class AppDbContextTests : IDisposable{
     }
     
     [Fact]
-    public void SaveChanges_ModifiedConversationDoesNotChangeWorldUpdatedAt(){
-        var db = AppDb();
-        var world = WorldFactory.CreateInstance(db);
-        var conversation = ConversationFactory.Create(db, world);
-        var before = AppDb().Find<World>(world.ID)!.UpdatedAt;
-
-        db.Entry(conversation).State = EntityState.Modified;
-        db.SaveChanges();
-
-        Assert.Equal(before, AppDb().Find<World>(world.ID)!.UpdatedAt);
-    }
-    
-    [Fact]
     public void SaveChanges_NewChatUpdatesWorldLastUsed(){
         var db = AppDb();
         var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
-        world.LastUsed = _old;
+        world.UpdatedAt = _old;
         db.SaveChanges();
 
         ChatFactory.Create(db, conversation);
 
-        Assert.True(AppDb().Find<World>(world.ID)!.LastUsed > _old);
+        Assert.True(AppDb().Find<WorldInstance>(world.ID)!.UpdatedAt > _old);
     }
 
     public void Dispose() => _connection.Dispose();

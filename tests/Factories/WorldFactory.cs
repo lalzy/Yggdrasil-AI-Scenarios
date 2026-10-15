@@ -11,7 +11,6 @@ public static class WorldFactory{
         faker
             .RuleFor(x => x.CreatedAt, _ => DateTime.UtcNow)
             .RuleFor(x => x.UpdatedAt, _ => DateTime.UtcNow)
-            .RuleFor(x => x.LastUsed, _ => DateTime.UtcNow)
             .RuleFor(x => x.ID, _ => Guid.Empty);
         return faker;
     }
