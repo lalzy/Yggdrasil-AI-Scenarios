@@ -5,8 +5,10 @@ using System;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Data;
+using Yggdrasil.Tests.Factories;
 using Yggdrasil.Test.TestUtil;
 using Yggdrasil.Models.Entities;
+using AutoBogus;
 
 namespace Yggdrasil.Tests.Data;
 
@@ -135,5 +137,31 @@ public class AppDbContextTests : IDisposable{
         Assert.True(Db().Find<TestEntityOwner>(owner.ID)!.UpdatedAt > _old);
     }
     
+    [Fact]
+    public void SaveChanges_ModifiedConversationDoesNotChangeWorldUpdatedAt(){
+        var db = AppDb();
+        var world = WorldFactory.Create(db);
+        var conversation = ConversationFactory.Create(db, world);
+        var before = AppDb().Find<World>(world.ID)!.UpdatedAt;
+
+        db.Entry(conversation).State = EntityState.Modified;
+        db.SaveChanges();
+
+        Assert.Equal(before, AppDb().Find<World>(world.ID)!.UpdatedAt);
+    }
+    
+    [Fact]
+    public void SaveChanges_NewChatUpdatesWorldLastUsed(){
+        var db = AppDb();
+        var world = WorldFactory.Create(db);
+        var conversation = ConversationFactory.Create(db, world);
+        world.LastUsed = _old;
+        db.SaveChanges();
+
+        ChatFactory.Create(db, conversation);
+
+        Assert.True(AppDb().Find<World>(world.ID)!.LastUsed > _old);
+    }
+
     public void Dispose() => _connection.Dispose();
 }

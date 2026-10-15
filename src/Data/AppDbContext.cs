@@ -4,6 +4,7 @@ using System.Reflection;
 using Yggdrasil.Models.Entities;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Yggdrasil.Data;
 
@@ -32,24 +33,30 @@ public class AppDbContext : DbContext{
         base.OnModelCreating(modelBuilder);
     }
 
-    private void UpdateUpdatedAt(EntityEntry entry, DateTime now){
+    private void UpdateUpdatedAt(EntityEntry entry, DateTime now, bool isChat){
         if(entry.Metadata.FindProperty("UpdatedAt") != null){
             entry.Property("UpdatedAt").CurrentValue = now;
         }
 
         foreach(var owner in GetOwners(entry)){
-            UpdateUpdatedAt(owner, now);
+            if(owner.Entity is World){
+                if(isChat) owner.Property(nameof(World.LastUsed)).CurrentValue = now;
+            }else{
+                UpdateUpdatedAt(owner, now, isChat);
+            }
         }
     }
 
+    
     private IEnumerable<EntityEntry> GetOwners(EntityEntry entry){
         foreach(var foreignKey in entry.Metadata.GetForeignKeys().Where(fk => fk.DeleteBehavior == DeleteBehavior.Cascade)){
-            var keys = foreignKey.Properties.Select(p => entry.Property(p.Name).CurrentValue).ToList();
+            var keys = foreignKey.Properties
+                            .Select(p => entry.Property(p.Name).CurrentValue).ToList();
 
             var owner = ChangeTracker.Entries().FirstOrDefault(e => foreignKey.PrincipalEntityType.IsAssignableFrom(e.Metadata) &&
                                                                foreignKey.PrincipalKey.Properties.Select(p => e.Property(p.Name).CurrentValue).SequenceEqual(keys));
 
-            if (owner != null)
+            if(owner != null)
                 yield return owner;
         }
     }
@@ -77,11 +84,10 @@ public class AppDbContext : DbContext{
     public override int SaveChanges(){
         var now = _time.GetUtcNow().UtcDateTime;
 
-        foreach(var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Modified).ToList()){
-            UpdateUpdatedAt(entry, now);
+        foreach(var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Modified || (e.Entity is Chat && e.State == EntityState.Added)).ToList()){
+            UpdateUpdatedAt(entry, now, entry.Entity is Chat);
         }
 
         return SaveWithUniqueGuid();
-
     }
 }
