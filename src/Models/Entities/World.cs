@@ -5,11 +5,12 @@ namespace Yggdrasil.Models.Entities;
 public class WorldTemplate{
     public Guid ID { get; set; }
 
+    public required string Name {get; set;}
+    
     /// <summary>Description about this world, not sent to the LLM.</summary>
     public required string Description {get; set;}
 
     public List<string> OpeningMessages {get; set;} = [];
-    public List<Conversation>? Conversations {get; set;}
 
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

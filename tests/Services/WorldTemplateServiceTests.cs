@@ -31,13 +31,25 @@ public class WorldTemplateServiceTests : DatabaseSetup{
         var request = AutoFaker.Generate<WorldDTO.Request>();
         var fetch = _service.Create(request);
 
-        Assert.Equivalent(request, fetch);
+        Assert.EquivalentWithExclusions(request, fetch, "OpeningMessage");
+        Assert.True(fetch.OpeningMessages.Contains(request.OpeningMessage));
+
+        var dbFetch = World.Find(fetch.ID);
+        Assert.EquivalentWithExclusions(request, dbFetch, "OpeningMessage");
+        Assert.True(dbFetch!.OpeningMessages.Contains(request.OpeningMessage));
+    }
+
+    [Fact]
+    public void Create_DoesNotAddNullMessage(){
+        var request = new AutoFaker<WorldDTO.Request>().RuleFor(x => x.OpeningMessage, _ => null).Generate();
+        var fetch = _service.Create(request);
+        Assert.Empty(fetch.OpeningMessages);
     }
     
     // =======================================
     //                  GET              
     // =======================================
-
+    
     // =======================================
     //                  EDIT              
     // =======================================

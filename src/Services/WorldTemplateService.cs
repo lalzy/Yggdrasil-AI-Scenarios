@@ -13,16 +13,19 @@ public class WorldTemplateService (AppDbContext db){
     private readonly DbSet<WorldTemplate> _world = db.Set<WorldTemplate>();
 
     public WorldTemplate Create(WorldDTO.Request request){
-        var entity = new WorldTemplate
-        {
-            Description = "",
-        };
+        var entity = request.Adapt<WorldTemplate>();// new WorldTemplate
+        if(request.OpeningMessage != null)
+            entity.OpeningMessages.Add(request.OpeningMessage);
+        _world.Add(entity);
+        db.SaveChanges();
+        
         return entity;
     }
 
     public WorldTemplate Get(Guid ID){
         var entity = new WorldTemplate
         {
+            Name = "",
             Description = "",
         };
         return entity;
@@ -31,6 +34,7 @@ public class WorldTemplateService (AppDbContext db){
     public WorldTemplate Edit(Guid ID, WorldDTO.Edit request){
         var entity = new WorldTemplate
         {
+            Name = "",
             Description = "",
         };
         return entity;
