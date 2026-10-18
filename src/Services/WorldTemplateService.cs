@@ -5,6 +5,7 @@ using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Extensions;
+using System.Linq.Dynamic.Core;
 using Mapster;
 
 namespace Yggdrasil.Services;
@@ -35,8 +36,8 @@ public class WorldTemplateService (AppDbContext db){
     /// <param name="page">Which page to fetch</param>
     /// <param name="sortBy">Sort Order</param>
     /// <returns>Paginated worldTemplate records</returns>
-    public List<WorldTemplate> GetAll(int? count=null, int? page=1, SortOrder? sortBy=SortOrder.NameAsc){
-        return [];
+    public List<WorldTemplate> GetAll(int? count=null, int? page=1, string sortOrder=null){
+        return _world.OrderBy(sortOrder).ToList();
     }
 
     /// <summary>Update the requested WorldTemplate</summary>

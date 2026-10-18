@@ -77,6 +77,44 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     }
     
     // =======================================
+    //               GET ALL             
+    // =======================================
+
+    [Fact]
+    public void GetAll_GetAllWorlds(){
+        var worlds = Enumerable.Range(0, 100).Select(_ => WorldFactory.Create(Db())).ToList();
+        var fetch = _service.GetAll();
+        Assert.Equivalent(worlds, fetch, strict:true);
+    }
+
+    public static TheoryData<string, string, bool> SortCases => new(){
+        {WorldSortOrder.IDAsc, "ID", false},
+        {WorldSortOrder.IDDesc, "ID", true},
+        {WorldSortOrder.NameAsc, "Name", false},
+        {WorldSortOrder.NameDesc, "Name", true},
+        {WorldSortOrder.ModifiedAsc, "UpdatedAt", false},
+        {WorldSortOrder.ModifiedDesc, "UpdatedAt", true},
+        {WorldSortOrder.CreatedAsc, "CreatedAt", false},
+        {WorldSortOrder.CreatedDesc, "CreatedAt", true},
+        {WorldSortOrder.DescriptionAsc, "Description", false},
+        {WorldSortOrder.DescriptionDesc, "Description", true},
+    };
+
+    [Theory]
+    [MemberData(nameof(SortCases))]
+    public void GetAll_SortOrderReturned(string order, string propertyToSortBy, bool descendingFlag){
+        var worlds = Enumerable.Range(0, 100).Select(_=> WorldFactory.Create(Db())).ToList();
+        var property = typeof(WorldTemplate).GetProperty(propertyToSortBy);
+
+        var comparer = Comparer<object>.Create(StringComparer.OrdinalIgnoreCase.Compare);
+
+        var expected = descendingFlag ? worlds.OrderByDescending(w => property.GetValue(w), comparer!).ThenBy(w => w.ID) : worlds.OrderBy(w => property!.GetValue(w), comparer!).ThenBy(w => w.ID);
+
+        var fetch = _service.GetAll(sortOrder:order);
+        Assert.Equal(expected.Select(w => w.ID), fetch.Select(w => w.ID));
+    }
+    
+    // =======================================
     //                UPDATE              
     // =======================================
     [Fact]
