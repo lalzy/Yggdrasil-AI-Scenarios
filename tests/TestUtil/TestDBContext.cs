@@ -4,7 +4,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Data;
 
-namespace Yggdrasil.Test.TestUtil;
+namespace Yggdrasil.Tests.TestUtil;
 
 public class TestEntity{
     public Guid ID { get; set; }

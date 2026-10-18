@@ -11,7 +11,7 @@ public class WorldTemplate{
     public required string Description {get; set;}
 
     public List<string> OpeningMessages {get; set;} = [];
-
+    public List<string> Tags {get; set;} = [];
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

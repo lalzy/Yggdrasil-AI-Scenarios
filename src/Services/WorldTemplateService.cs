@@ -12,32 +12,32 @@ namespace Yggdrasil.Services;
 public class WorldTemplateService (AppDbContext db){
     private readonly DbSet<WorldTemplate> _world = db.Set<WorldTemplate>();
 
-    public WorldTemplate Create(WorldDTO.Request request){
-        var entity = request.Adapt<WorldTemplate>();// new WorldTemplate
-        if(request.OpeningMessage != null)
-            entity.OpeningMessages.Add(request.OpeningMessage);
+    public WorldTemplate Create(WorldTemplateDTO.Request request){
+        var entity = request.Patch<WorldTemplate>();
         _world.Add(entity);
         db.SaveChanges();
         
         return entity;
     }
 
-    public WorldTemplate Get(Guid ID){
-        var entity = new WorldTemplate
-        {
-            Name = "",
-            Description = "",
-        };
-        return entity;
+    public WorldTemplate? Get(Guid ID){
+        return _world.Find(ID)!;
     }
 
-    public WorldTemplate Edit(Guid ID, WorldDTO.Edit request){
-        var entity = new WorldTemplate
-        {
-            Name = "",
-            Description = "",
-        };
-        return entity;
+    public WorldTemplate Update(Guid ID, WorldTemplateDTO.Update request){
+        var entity = _world.Find(ID);
+        var entry = _world.Entry(entity);
+
+        foreach(var property in request.GetType().GetProperties()){
+            var value = property.GetValue(request);
+            if(value != null){
+                entry.Property(property.Name).CurrentValue = value;
+            }
+        }
+        
+        db.SaveChanges();
+        
+        return entity!;
     }
 
     public void Delete(Guid ID){}

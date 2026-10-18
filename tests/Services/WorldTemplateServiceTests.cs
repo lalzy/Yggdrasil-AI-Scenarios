@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Data;
+using System.Runtime.CompilerServices;
 
 namespace Yggdrasil.Tests.Services;
 
@@ -28,32 +29,104 @@ public class WorldTemplateServiceTests : DatabaseSetup{
 
     [Fact]
     public void Create_CreatesWorld(){
-        var request = AutoFaker.Generate<WorldDTO.Request>();
+        var request = AutoFaker.Generate<WorldTemplateDTO.Request>();
         var fetch = _service.Create(request);
 
-        Assert.EquivalentWithExclusions(request, fetch, "OpeningMessage");
-        Assert.True(fetch.OpeningMessages.Contains(request.OpeningMessage));
+        Assert.Equivalent(request, fetch);
 
         var dbFetch = World.Find(fetch.ID);
-        Assert.EquivalentWithExclusions(request, dbFetch, "OpeningMessage");
-        Assert.True(dbFetch!.OpeningMessages.Contains(request.OpeningMessage));
+        Assert.Equivalent(request, dbFetch);
     }
 
     [Fact]
-    public void Create_DoesNotAddNullMessage(){
-        var request = new AutoFaker<WorldDTO.Request>().RuleFor(x => x.OpeningMessage, _ => null).Generate();
+    public void Create_TagsAndOpenMessageReturnEmptyIfNotPassed(){
+        var request = new AutoFaker<WorldTemplateDTO.Request>()
+            .RuleFor(x => x.Tags,_=> null)
+            .RuleFor(x => x.OpeningMessages, _ => null).Generate();
         var fetch = _service.Create(request);
+        Assert.Empty(fetch.Tags);
         Assert.Empty(fetch.OpeningMessages);
     }
     
     // =======================================
     //                  GET              
     // =======================================
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Get_RetrieveRequested(int index){
+        var worlds = Enumerable.Range(0, 10).Select(_ => WorldFactory.Create(Db())).ToList();
+        var fetch = _service.Get(worlds[index].ID);
+
+        Assert.Equivalent(worlds[index], fetch);
+    }
+
+    [Fact]
+    public void Get_InvalidIDReturnNull(){
+        Assert.Null(_service.Get(_faker.Random.Guid()));
+    }
+
+    private WorldTemplateDTO.Update EnsureUniqueUpdateRequest(WorldTemplate world){
+        var properties = typeof(WorldTemplateDTO.Update).GetProperties();
+        WorldTemplateDTO.Update request;
+        do{
+            request = AutoFaker.Generate<WorldTemplateDTO.Update>();
+        }while(properties.Any(p => Equals(p.GetValue(request), typeof(WorldTemplate).GetProperty(p.Name)?.GetValue(world))));
+        return request;
+    }
     
     // =======================================
     //                  EDIT              
     // =======================================
+    [Fact]
+    public void Update_SuccessfullyUpdates(){
+        var world = WorldFactory.Create(Db());
+        var request = EnsureUniqueUpdateRequest(world);
+        var fetch = _service.Update(world.ID, request);
+        
+        Assert.Equivalent(request, fetch);
 
+        var dbFetch = World.Find(world.ID);
+        Assert.Equivalent(request, dbFetch);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Update_OnlyChangesRequested(int index){
+        var worlds = Enumerable.Range(0, 10).Select(_ => WorldFactory.Create(Db())).ToList();
+        var request = EnsureUniqueUpdateRequest(worlds[index]);
+        _service.Update(worlds[index].ID, request);
+        var expected = worlds.Where(w => w.ID != worlds[index].ID).ToList();
+        var actual = World.Where(w => w.ID != worlds[index].ID).ToList();
+
+        Assert.Equivalent(expected, actual, strict:true);
+    }
+
+    [Fact]
+    public void Update_OnlyPassedFieldsChanged(){
+        var world = WorldFactory.Create(Db());
+        var fullRequest = EnsureUniqueUpdateRequest(world);
+        var properties = fullRequest.GetType().GetProperties();
+        foreach(var property in properties){
+            var before = properties.ToDictionary(
+                p => p.Name,
+                p => typeof(WorldTemplate).GetProperty(p.Name)!.GetValue(World.Find(world.ID))
+            );
+
+            _service.Update(world.ID, PartialRequest.IsolatedFieldFromDTORecord(fullRequest, property));
+
+            var dbFetch = World.Find(world.ID);
+            foreach(var p in properties){
+                var actual = typeof(WorldTemplate).GetProperty(p.Name)!.GetValue(dbFetch);
+                var expected = p.Name == property.Name ? property.GetValue(fullRequest) : before[p.Name];
+                Assert.Equivalent(expected, actual);
+            }
+        }
+    }
+    
     // =======================================
     //                 DELETE              
     // =======================================

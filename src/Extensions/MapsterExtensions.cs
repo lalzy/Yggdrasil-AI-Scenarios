@@ -14,11 +14,10 @@ public static class MapsterExtensions{
         return config;
     }
 
-    /// <summary>Copies non-null values from <paramref name="source"/> to <paramref name="destination"/> ignoring null values</summary>
-    /// <param name="source">Object holding the new values</param>
-    /// <param name="destination">Existing object to update</param>
-    /// <returns>The updated destination</returns>
-    public static TDestination Patch<TSource, TDestination>(this TSource source, TDestination destination){
-        return source.Adapt(destination, PatchConfig);
+    /// <summary>Creates a new <typeparamref name="TDestination"/> from <paramref name="source"/> ignoring the null values and using destination's default</summary>
+    /// <param name="source">Object holding the values to add to the new adapted object</param>
+    /// <returns>The new adapted object</returns>
+    public static TDestination Patch<TDestination>(this object source){
+        return source.Adapt<TDestination>(PatchConfig);
     }
 }

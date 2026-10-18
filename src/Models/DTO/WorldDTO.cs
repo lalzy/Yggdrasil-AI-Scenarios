@@ -4,14 +4,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Yggdrasil.Models.DTO;
 
-public class WorldDTO{
+public class WorldTemplateDTO{
     public record Request(
         [Required] string Name,
         [Required] string Description,
-        string? OpeningMessage
+        List<string>? OpeningMessages,
+        List<string>? Tags
     );
-    public record Edit(
-        string? name,
-        string? Description
+    public record Update(
+        string? Name = null,
+        string? Description = null,
+        List<string>? OpeningMessages = null,
+        List<string>? Tags = null
     );
 }

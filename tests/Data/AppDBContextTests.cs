@@ -6,7 +6,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Data;
 using Yggdrasil.Tests.Factories;
-using Yggdrasil.Test.TestUtil;
+using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Models.Entities;
 using AutoBogus;
 
