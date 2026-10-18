@@ -73,31 +73,40 @@ Type ```dotnet run --project src/yggdrasil-ai-service.csproj``` in a terminal/co
 # Project structure
 
 ```
-src/
-  Controllers/ - API Endpoints
-  Data/ - Database Definition
-  Extensions - Extensions, wrappers or object configurations(mapster)
-  Models/
-    /DTO - Data Transfer Objects
-    /Entities - Database Table
-      /Instances - Instance models.
-	  /Templates - Template models.
-	/Enums - Shared enums and SmartEnums
-  Pages/ - Razor Pages
-  Properties/ - development settings
-  Services/ - Business Logic
-    /Instances - For The Instance Entities
-	/Templates - For the Template Entities.
-  wwwroot/ - static files
-Migrations/ - EF Core Migrations. Migrations are auto-ran on dotnet run
-Tests/ - Unit, Integration and E2E tests.
-  /Controllers - Controller tests,
-  /Data - Database Tests
-  /E2E - E2E tests of frontend
-  /Factories - Helpers to generate database data
-  /Services - Service tests
-  /TestUtil - testing utilities.
-  
+./
+├── src/
+│   ├── Controllers/       API endpoints
+│   ├── Data/              Database context
+│   ├── Extensions/        Extensions, wrappers, Mapster config
+│   ├── Models/
+│   │   ├── DTO/           Data transfer objects
+│   │   ├── Entities/      Database tables
+│   │   │   ├── Instances/ Instance entities
+│   │   │   └── Templates/ Template entities
+│   │   │   ------------------------------------------------
+│   │   ├── Enums/         Enums and SmartEnums
+│   │   └── ValueObjects/  Complex entity types
+│   │   ----------------------------------------------------
+│   ├── Pages/             Razor Pages
+│   ├── Properties/        Development settings
+│   ├── Services/          Business logic
+│   │   ├── Instances/     Instance services
+│   │   └── Templates/     Template services
+│   │   ----------------------------------------------------
+│   └── wwwroot/           Static files
+│   --------------------------------------------------------
+├── Migrations/            EF Core migrations (run on start)
+└── Tests/
+    ├── Controllers/       Controller tests
+    ├── Data/              Database tests
+    ├── E2E/               Frontend E2E tests
+    ├── Extensions/        Extension tests
+    ├── Factories/         Test data generators
+    ├── Services/          Service tests
+    │   ├── Instances/     Instance service tests
+    │   └── Templates/     Template service tests
+    │   ----------------------------------------------------
+    └── TestUtil/          Utilities for testing
 ```
 
 # API Documentation:
