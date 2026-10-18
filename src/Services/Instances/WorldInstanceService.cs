@@ -69,6 +69,10 @@ public class WorldInstanceService (AppDbContext db){
     /// <summary>Delete a worldInstance</summary>
     /// <param name="ID">ID of the worldInstance to delete</param>
     public void Delete(Guid ID){
+        var entity = _world.Find(ID);
+        if(entity == null) return;
         
+        _world.Remove(entity);
+        db.SaveChanges();
     }
 }
