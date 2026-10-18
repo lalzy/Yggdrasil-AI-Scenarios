@@ -34,14 +34,17 @@ public class SystemPromptServices(AppDbContext db){
     }
 
     /// <summary>Fetch all System prompts</summary>
-    /// <param name="count">How many to fetch per page</param>
+    /// <param name="count">How many to fetch per page. Null or default returns all</param>
     /// <param name="pageIndex">Page index to fetch from</param>
     /// <param name="sortOrder">Sorting order.</param>
     /// <throws cref="ArgumentOutofrangeexception">Thrown if passing an invalid sortOrder</throws>
-    public List<SystemPrompt> GetAll(int count=10, int pageIndex=0, string sortOrder=SortOrder.IDAsc){
+    public List<SystemPrompt> GetAll(int? count=null, int page=1, string sortOrder=SortOrder.IDAsc){
+        IQueryable<SystemPrompt> querry = _systemPrompt.AsNoTracking().OrderBy(sortOrder);
 
-        
-        return _systemPrompt.AsNoTracking().OrderBy(sortOrder).Skip(pageIndex * count).Take(count).ToList();
+        if(count != null){
+            querry = querry.Skip(--page * count.Value).Take(count.Value);
+        }
+        return querry.ToList();
     }
 
     /// <summary>Renames the SystemPrompt's identifying name</summary>
@@ -89,12 +92,11 @@ public class SystemPromptServices(AppDbContext db){
         return entity;
     }
     
-    /// <summary>Remove a prompt to the systemPrompt</summary>
+    /// <summary>Replace the prompts with passed prompts</summary>
     /// <param name="ID">SystemPrompt ID to add to</param>
     /// <param name="prompts">The List of prompts</param>
     /// <returns>The adjusted SystemPrompt</returns>
-    /// <throws cref="ArgumentException">Thrown when passed prompts removed the basePrompts</throws>
-    public SystemPrompt? UpdatePrompts(Guid ID, List<Prompt> prompts){
+    public SystemPrompt? ReplacePrompts(Guid ID, List<Prompt> prompts){
         // Must have the base Prompts in the listing.
         if(!BasePrompts.Create().All(b => prompts.Any(p => p.Name == b.Name))) throw new ArgumentException("BasePrompts were removed");
 

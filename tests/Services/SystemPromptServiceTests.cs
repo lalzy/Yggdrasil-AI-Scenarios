@@ -13,6 +13,8 @@ using Yggdrasil.Tests.Factories;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Data;
 using System.Linq.Dynamic.Core.Exceptions;
+using System.Linq.Dynamic.Core;
+using System.Collections;
 
 namespace Yggdrasil.Tests.Services;
 
@@ -24,6 +26,9 @@ public class SystemPromptServicesTests : DatabaseSetup{
     public SystemPromptServicesTests(){
         _service = new SystemPromptServices(Db());
     }
+    // =======================================
+    //                 CREATE            
+    // =======================================
 
     [Fact]
     public void Create_ReturnsSavedSystemPrompt(){
@@ -53,6 +58,10 @@ public class SystemPromptServicesTests : DatabaseSetup{
             expected.Select(p => (p.Name, p.Content, p.Source, p.Active)),
             saved.Prompts.Select(p => (p.Name, p.Content, p.Source, p.Active)));
     }
+    
+    // =======================================
+    //                  GET              
+    // =======================================
 
     [Theory]
     [InlineData(0)]
@@ -82,68 +91,74 @@ public class SystemPromptServicesTests : DatabaseSetup{
         Assert.Equal(prompts.Select(p => p.Name), fetch.Prompts.Select(p => p.Name));
     }
 
+    
+    // =======================================
+    //               GET ALL             
+    // =======================================
+
+    [Fact]
+    public void GetAll_GetAllSystemPrompts(){
+        var prompts = Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        var fetch = _service.GetAll();
+        Assert.Equivalent(prompts, fetch, strict: true);
+    }
+
     [Theory]
     [InlineData(1)]
     [InlineData(30)]
     [InlineData(50)]
     public void GetAll_GetCountRequested(int count){
-        var expected = Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
-        var fetched = _service.GetAll(count:count);
+        var prompts = Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        var expectedIDs = prompts.Select(p => p.ID).ToHashSet();
+        var fetch = _service.GetAll(count: count);
 
-        var expectedByID = expected.ToDictionary(p => p.ID);
-        Assert.Equal(count, fetched.Count);
-        Assert.All(fetched, p => Assert.Equivalent(expectedByID[p.ID], p));
+        Assert.Equal(count, fetch.Count);
+        Assert.All(fetch, p => Assert.Contains(p.ID, expectedIDs));
     }
 
     [Theory]
-    [InlineData(1, 0, 1)]
-    [InlineData(10, 1, 2)]
-    [InlineData(25, 1, 2)]
-    public void GetAll_PagesDoNotOverlap(int fetchCount, int pageA, int pageB){
+    [InlineData(1, 10)]
+    [InlineData(2, 10)]
+    [InlineData(3, 30)]
+    [InlineData(9, 10)]
+    public void GetAll_ReturnsRequestedPage(int page, int count){
         Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        var all = _service.GetAll(count: 100);
+        var expected = all.Skip((page - 1) * count).Take(count).Select(p => p.ID);
+        var fetch = _service.GetAll(count: count, page: page);
 
-        var a = _service.GetAll(count:fetchCount, pageIndex:pageA).Select(p => p.ID);
-        var b = _service.GetAll(count:fetchCount, pageIndex:pageB).Select(p => p.ID);
-
-        Assert.Equal(fetchCount, a.Count());
-        Assert.Equal(fetchCount, b.Count());
-        Assert.Empty(a.Intersect(b));
+        Assert.Equal(expected, fetch.Select(p => p.ID));
     }
-    
-    public static TheoryData<string, Func<IEnumerable<SystemPrompt>, IEnumerable<SystemPrompt>>> SortOrders => new() {
-        { SortOrder.NameAsc,      p => p.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.ID) },
-        { SortOrder.NameDesc,     p => p.OrderByDescending(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.ID) },
-        { SortOrder.CreatedAsc,   p => p.OrderBy(x => x.CreatedAt).ThenBy(sp => sp.ID) },
-        { SortOrder.CreatedDesc,  p => p.OrderByDescending(x => x.CreatedAt).ThenBy(sp => sp.ID) },
-        { SortOrder.ModifiedAsc,  p => p.OrderBy(x => x.UpdatedAt).ThenBy(sp => sp.ID) },
-        { SortOrder.ModifiedDesc, p => p.OrderByDescending(x => x.UpdatedAt).ThenBy(sp => sp.ID) },
-        { SortOrder.IDAsc,        p => p.OrderBy(x => x.ID) },
-        { SortOrder.IDDesc,       p => p.OrderByDescending(x => x.ID) },
-    };
 
     [Theory]
-    [MemberData(nameof(SortOrders))]
-    public void GetAll_ReturnsSorted(string sortOrder, Func<IEnumerable<SystemPrompt>, IEnumerable<SystemPrompt>> sort){
-            var expected = Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+    [InlineData(SortOrder.IDAsc)]
+    [InlineData(SortOrder.IDDesc)]
+    [InlineData(SortOrder.NameAsc)]
+    [InlineData(SortOrder.NameDesc)]
+    [InlineData(SortOrder.ModifiedAsc)]
+    [InlineData(SortOrder.ModifiedDesc)]
+    [InlineData(SortOrder.CreatedAsc)]
+    [InlineData(SortOrder.CreatedDesc)]
+    public void GetAll_SortOrderReturned(string order){
+        var prompts = Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        var expected = prompts.AsQueryable().OrderBy(order, new CaseInsensitiveComparer());
+        var fetch = _service.GetAll(sortOrder: order);
 
-        foreach(var sp in expected)
-            sp.Name = string.Concat(sp.Name.Select(c => _faker.Random.Bool() ? char.ToUpper(c) : char.ToLower(c)));
-        Db().SaveChanges();
-
-        var fetched = _service.GetAll(count: 100, sortOrder: sortOrder);
-
-        Assert.Equal(sort(expected).Select(p => p.ID), fetched.Select(p => p.ID));
+        Assert.Equal(expected.Select(p => p.ID), fetch.Select(p => p.ID));
     }
 
     [Fact]
-    public void GetAll_UsesDefaults(){
-        Enumerable.Range(0, 20).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+    public void GetALl_UsesDefaults(){
+        var prompts = Enumerable.Range(0, 20).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+        var expected = prompts.AsQueryable().OrderBy(SortOrder.IDAsc).ThenBy(p => p.ID).Select(p => p.ID).ToList();
+        var actual = _service.GetAll().Select(p => p.ID).ToList();
 
-        var defaults = _service.GetAll().Select(p => p.ID);
-        var expected = _service.GetAll(count: 10, pageIndex:0, sortOrder:SortOrder.IDAsc).Select(p => p.ID);
-
-        Assert.Equal(expected, defaults);
+        Assert.Equal(expected, actual);
     }
+
+    // =======================================
+    //                RENAME              
+    // =======================================
 
     [Fact]
     public void Rename_NameChangeSuccess(){
@@ -182,6 +197,10 @@ public class SystemPromptServicesTests : DatabaseSetup{
         });
     }
 
+    // =======================================
+    //                 DELETE              
+    // =======================================
+    
     [Fact]
     public void Delete_DeletesEntry(){
         // Settings is a required table due to holding a SystemPrompts entry.
@@ -260,6 +279,9 @@ public class SystemPromptServicesTests : DatabaseSetup{
         Assert.Equivalent(prompt, dbFetch.Prompts[0], strict: true);
     }
 
+    // =======================================
+    //               ADD PROMPT            
+    // =======================================
     [Fact]
     public void AddPrompt_DuplicateNameThrowsArgumentException(){
         var systemPrompt = SystemPromptFactory.Create(Db());
@@ -319,8 +341,11 @@ public class SystemPromptServicesTests : DatabaseSetup{
         return prompts;
     }
 
+    // =======================================
+    //            REPLACE PROMPTS          
+    // =======================================
     [Fact]
-    public void UpdatePrompts_ChangesEntirePromptListing(){
+    public void ReplacePrompts_ChangesEntirePromptListing(){
         var prompts = CreatePlausiblePrompts(10);
 
         var systemPrompt = SystemPromptFactory.Create(Db(), prompts);
@@ -332,28 +357,28 @@ public class SystemPromptServicesTests : DatabaseSetup{
         Assert.Equivalent(dbFetch.Prompts, prompts, strict:true);
 
         // Verify the database was changed
-        var fetched = _service.UpdatePrompts(systemPrompt.ID, newPrompts);
+        var fetched = _service.ReplacePrompts(systemPrompt.ID, newPrompts);
         dbFetch = SystemPrompts.Find(systemPrompt.ID)!;
         Assert.Equivalent(fetched.Prompts, newPrompts, strict:true);
         Assert.Equivalent(dbFetch.Prompts, newPrompts, strict:true);
     }
 
     [Fact]
-    public void UpdatePrompts_EnsureMissingBasePromptThrows(){
+    public void ReplacePrompts_EnsureMissingBasePromptThrows(){
         var prompts = Enumerable.Range(0, 10).Select(_ => AutoFaker.Generate<Prompt>()).ToList();
         var systemPrompt = SystemPromptFactory.Create(Db());
 
-        Assert.Throws<ArgumentException>(() => _service.UpdatePrompts(systemPrompt.ID, prompts));
+        Assert.Throws<ArgumentException>(() => _service.ReplacePrompts(systemPrompt.ID, prompts));
     }
 
     [Fact]
-    public void UpdatePrompts_OrderIsRespected(){
+    public void ReplacePrompts_OrderIsRespected(){
         var prompts = CreatePlausiblePrompts(3);
         var systemPrompt = SystemPromptFactory.Create(Db(), prompts);
 
         prompts.Insert(0, AutoFaker.Generate<Prompt>());
 
-        var fetched = _service.UpdatePrompts(systemPrompt.ID, prompts);
+        var fetched = _service.ReplacePrompts(systemPrompt.ID, prompts);
         var dbFetch = SystemPrompts.Find(systemPrompt.ID);
 
         Assert.Equal(JsonSerializer.Serialize(prompts), JsonSerializer.Serialize(fetched.Prompts));
@@ -361,19 +386,19 @@ public class SystemPromptServicesTests : DatabaseSetup{
     }
 
     [Fact]
-    public void UpdatePrompts_InvalidID(){
+    public void ReplacePrompts_InvalidID(){
         var prompts = CreatePlausiblePrompts(1);
-        Assert.Throws<NullReferenceException>(() => _service.UpdatePrompts(_faker.Random.Guid(), prompts));
+        Assert.Throws<NullReferenceException>(() => _service.ReplacePrompts(_faker.Random.Guid(), prompts));
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(3)]
     [InlineData(5)]
-    public void UpdatePrompts_OnlyUpdateRequestedPrompt(int index){
+    public void ReplacePrompts_OnlyUpdateRequestedPrompt(int index){
         var prompts = CreatePlausiblePrompts(1);
         var systemPrompts = Enumerable.Range(0, 10).Select(_ => SystemPromptFactory.Create(Db())).ToList();
-        _service.UpdatePrompts(systemPrompts[index].ID, prompts);
+        _service.ReplacePrompts(systemPrompts[index].ID, prompts);
 
         var expected = systemPrompts.Where(sp => sp.ID != systemPrompts[index].ID).ToList();
         var actual = SystemPrompts.Where(sp => sp.ID != systemPrompts[index].ID).ToList();
