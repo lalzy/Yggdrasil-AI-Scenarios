@@ -71,15 +71,6 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     public void Get_InvalidIDReturnNull(){
         Assert.Null(_service.Get(_faker.Random.Guid()));
     }
-
-    private WorldDTO.Update EnsureUniqueUpdateRequest(WorldTemplate world){
-        var properties = typeof(WorldDTO.Update).GetProperties();
-        WorldDTO.Update request;
-        do{
-            request = AutoFaker.Generate<WorldDTO.Update>();
-        }while(properties.Any(p => Equals(p.GetValue(request), typeof(WorldTemplate).GetProperty(p.Name)?.GetValue(world))));
-        return request;
-    }
     
     // =======================================
     //               GET ALL             
@@ -151,6 +142,17 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     // =======================================
     //                UPDATE              
     // =======================================
+
+    // Helper
+    private WorldDTO.Update EnsureUniqueUpdateRequest(WorldTemplate world){
+        var properties = typeof(WorldDTO.Update).GetProperties();
+        WorldDTO.Update request;
+        do{
+            request = AutoFaker.Generate<WorldDTO.Update>();
+        }while(properties.Any(p => Equals(p.GetValue(request), typeof(WorldTemplate).GetProperty(p.Name)?.GetValue(world))));
+        return request;
+    }
+    
     [Fact]
     public void Update_SuccessfullyUpdates(){
         var world = WorldFactory.Create(Db());

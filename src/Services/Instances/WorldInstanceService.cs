@@ -13,14 +13,21 @@ using Mapster;
 namespace Yggdrasil.Services.Instances;
 
 public class WorldInstanceService (AppDbContext db){
+    private readonly DbSet<WorldTemplate> _template = db.Set<WorldTemplate>();
     private readonly DbSet<WorldInstance> _world = db.Set<WorldInstance>();
     
     /// <summary>Create a world instance</summary>
     /// <param name="request">The WorldInstance's data</param>
     /// <returns>The new created WorldInstance</returns>
-    public WorldInstance Create(Guid ID){
-        var entity = new WorldInstance { Name = "", Description = "", Scenario="" };
-        // Get WorldTemplate by ID. Create a new Intance object from the template and return it.
+    public WorldInstance? Create(Guid ID){
+        var template = _template.Find(ID);
+        if(template == null) return null;
+        
+        var entity = template.Patch<WorldInstance>();
+        entity.ID = Guid.NewGuid();
+        _world.Add(entity);
+        db.SaveChanges();
+        
         return entity;
     }
 
@@ -28,8 +35,7 @@ public class WorldInstanceService (AppDbContext db){
     /// <param name="ID">ID of the WorldInstance to get</param>
     /// <returns>The requested WorldInstance</returns>
     public WorldInstance? Get(Guid ID){
-        var entity = new WorldInstance { Name = "", Description = "", Scenario="" };
-        return entity;
+        return _world.Include(w => w.Conversations).FirstOrDefault(w => w.ID == ID);
     }
 
 
@@ -39,8 +45,12 @@ public class WorldInstanceService (AppDbContext db){
     /// <param name="sortBy">Sort Order</param>
     /// <returns>Paginated WorldInstance records</returns>
     public List<WorldInstance> GetAll(int? count=null, int page=1, string sortOrder=SortOrder.NameAsc){
-        var entity = new WorldInstance { Name = "", Description = "", Scenario="" };
-        return [entity];
+        IQueryable<WorldInstance> querry = _world.Include(w => w.Conversations).OrderBy(sortOrder);
+        if(count != null){
+            querry = querry.Skip(--page * count.Value)
+                .Take(count.Value);
+        }
+        return querry.ToList();
     }
 
     /// <summary>Update the requested WorldInstance</summary>
