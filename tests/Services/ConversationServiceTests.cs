@@ -64,6 +64,22 @@ public class ConversationServiceTests : DatabaseSetup{
     }
 
     [Fact]
+    public void Get_GetsAllChats(){
+        var db = Db();
+        var world = WorldFactory.CreateInstance(db);
+        var conversation = ConversationFactory.Create(db, world);
+        var chats = Enumerable.Range(0, 10).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+
+        var expected = chats.OrderBy(c => c.ID).ToList();
+        var actual = _service.Get(conversation.ID).Chats.OrderBy(c => c.ID).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (int i = 0; i < expected.Count; i++){
+            Assert.EquivalentWithExclusions(expected[i], actual[i], c => c.Conversation);
+        }
+    }
+
+    [Fact]
     public void Get_InvalidIDReturnNull(){
         var fetch = _service.Get(_faker.Random.Guid());
         Assert.Null(fetch);
