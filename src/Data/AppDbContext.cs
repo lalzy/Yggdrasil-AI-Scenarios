@@ -33,6 +33,10 @@ public class AppDbContext : DbContext{
         base.OnModelCreating(modelBuilder);
     }
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder){
+        configurationBuilder.Properties<string>().UseCollation("NOCASE");
+    }
+    
     private void UpdateUpdatedAt(EntityEntry entry, DateTime now, bool isChat){
         if(entry.Metadata.FindProperty("UpdatedAt") != null){
             entry.Property("UpdatedAt").CurrentValue = now;

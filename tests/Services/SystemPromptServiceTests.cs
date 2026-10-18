@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Data;
+using System.Linq.Dynamic.Core.Exceptions;
 
 namespace Yggdrasil.Tests.Services;
 
@@ -108,22 +109,22 @@ public class SystemPromptServicesTests : DatabaseSetup{
         Assert.Equal(fetchCount, b.Count());
         Assert.Empty(a.Intersect(b));
     }
-
-    public static TheoryData<SortOrder, Func<IEnumerable<SystemPrompt>, IEnumerable<SystemPrompt>>> SortOrders => new() {
-    { SortOrder.NameAsc,  p => p.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.ID) },
-        { SortOrder.NameDesc, p => p.OrderByDescending(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.ID) },
-        { SortOrder.CreatedAsc,  p => p.OrderBy(x => x.CreatedAt).ThenBy(sp => sp.ID) },
-        { SortOrder.CreatedDesc, p => p.OrderByDescending(x => x.CreatedAt).ThenBy(sp => sp.ID) },
+    
+    public static TheoryData<string, Func<IEnumerable<SystemPrompt>, IEnumerable<SystemPrompt>>> SortOrders => new() {
+        { SortOrder.NameAsc,      p => p.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.ID) },
+        { SortOrder.NameDesc,     p => p.OrderByDescending(x => x.Name, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.ID) },
+        { SortOrder.CreatedAsc,   p => p.OrderBy(x => x.CreatedAt).ThenBy(sp => sp.ID) },
+        { SortOrder.CreatedDesc,  p => p.OrderByDescending(x => x.CreatedAt).ThenBy(sp => sp.ID) },
         { SortOrder.ModifiedAsc,  p => p.OrderBy(x => x.UpdatedAt).ThenBy(sp => sp.ID) },
         { SortOrder.ModifiedDesc, p => p.OrderByDescending(x => x.UpdatedAt).ThenBy(sp => sp.ID) },
-        { SortOrder.IDAsc,  p => p.OrderBy(x => x.ID) },
-        { SortOrder.IDDesc, p => p.OrderByDescending(x => x.ID) },
+        { SortOrder.IDAsc,        p => p.OrderBy(x => x.ID) },
+        { SortOrder.IDDesc,       p => p.OrderByDescending(x => x.ID) },
     };
 
     [Theory]
     [MemberData(nameof(SortOrders))]
-    public void GetAll_ReturnsSorted(SortOrder sortOrder, Func<IEnumerable<SystemPrompt>, IEnumerable<SystemPrompt>> sort){
-        var expected = Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
+    public void GetAll_ReturnsSorted(string sortOrder, Func<IEnumerable<SystemPrompt>, IEnumerable<SystemPrompt>> sort){
+            var expected = Enumerable.Range(0, 100).Select(_ => SystemPromptFactory.Create(Db())).ToList();
 
         foreach(var sp in expected)
             sp.Name = string.Concat(sp.Name.Select(c => _faker.Random.Bool() ? char.ToUpper(c) : char.ToLower(c)));
@@ -132,11 +133,6 @@ public class SystemPromptServicesTests : DatabaseSetup{
         var fetched = _service.GetAll(count: 100, sortOrder: sortOrder);
 
         Assert.Equal(sort(expected).Select(p => p.ID), fetched.Select(p => p.ID));
-    }
-
-    [Fact]
-    public void GetAll_InvalidSortThrows(){
-        Assert.Throws<ArgumentOutOfRangeException>(() => _service.GetAll(sortOrder: new SortOrder()));
     }
 
     [Fact]

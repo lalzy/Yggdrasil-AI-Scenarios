@@ -3,11 +3,14 @@
 using Bogus;
 using System;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Data;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Models.Entities;
+using System.Linq;
 using AutoBogus;
 
 namespace Yggdrasil.Tests.Data;
@@ -148,6 +151,14 @@ public class AppDbContextTests : IDisposable{
         ChatFactory.Create(db, conversation);
 
         Assert.True(AppDb().Find<WorldInstance>(world.ID)!.UpdatedAt > _old);
+    }
+
+    [Fact]
+    public void ConfigureConventions_StringUseNoCaseCollation(){
+        var properties = AppDb().GetService<IDesignTimeModel>().Model.GetEntityTypes()
+            .SelectMany(e => e.GetProperties())
+            .Where(p => p.ClrType == typeof(string));
+        Assert.All(properties, p => Assert.Equal("NOCASE", p.GetCollation()));
     }
 
     public void Dispose() => _connection.Dispose();

@@ -6,6 +6,7 @@ using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Extensions;
+using System.Linq.Dynamic.Core;
 
 namespace Yggdrasil.Services;
 
@@ -37,9 +38,10 @@ public class SystemPromptServices(AppDbContext db){
     /// <param name="pageIndex">Page index to fetch from</param>
     /// <param name="sortOrder">Sorting order.</param>
     /// <throws cref="ArgumentOutofrangeexception">Thrown if passing an invalid sortOrder</throws>
-    public List<SystemPrompt> GetAll(int count=10, int pageIndex=0, SortOrder sortOrder=null){
-        sortOrder ??= SortOrder.IDAsc;
-        return _systemPrompt.AsNoTracking().SortBy(sortOrder).Skip(pageIndex * count).Take(count).ToList();
+    public List<SystemPrompt> GetAll(int count=10, int pageIndex=0, string sortOrder=SortOrder.IDAsc){
+
+        
+        return _systemPrompt.AsNoTracking().OrderBy(sortOrder).Skip(pageIndex * count).Take(count).ToList();
     }
 
     /// <summary>Renames the SystemPrompt's identifying name</summary>

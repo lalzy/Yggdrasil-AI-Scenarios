@@ -2,21 +2,20 @@
 
 namespace Yggdrasil.Models.Enums;
 
-public class SortOrder
-{
-    private static int _next;
-    public int Value { get; } = _next++;
-
-    public static readonly SortOrder NameAsc = new();
-    public static readonly SortOrder NameDesc = new();
-    public static readonly SortOrder CreatedAsc = new();
-    public static readonly SortOrder CreatedDesc = new();
-    public static readonly SortOrder ModifiedAsc = new();
-    public static readonly SortOrder ModifiedDesc = new();
-    public static readonly SortOrder IDAsc = new();
-    public static readonly SortOrder IDDesc = new();
+/// <summary>Smart enum for EntityFrameworkCore.DynamicLinq</summary>
+public class SortOrder{
+    public const string IDAsc        = "ID";
+    public const string IDDesc       = "ID desc";
+    public const string NameAsc      = "Name, ID";
+    public const string NameDesc     = "Name desc, ID";
+    public const string CreatedAsc   = "CreatedAt, ID";
+    public const string CreatedDesc  = "CreatedAt desc, ID";
+    public const string ModifiedAsc  = "UpdatedAt, ID";
+    public const string ModifiedDesc = "UpdatedAt desc, ID";
 }
 
+/// <inheritdoc/>
 public class WorldSortOrder : SortOrder{
-    public static readonly WorldSortOrder DescriptionAsc = new();
+    public const string DescriptionAsc = "Description, ID";
+    public const string DescriptionDesc = "Description desc, ID";
 }

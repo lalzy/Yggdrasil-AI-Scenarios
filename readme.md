@@ -76,11 +76,11 @@ Type ```dotnet run --project src/yggdrasil-ai-service.csproj``` in a terminal/co
 src/
   Controllers/ - API Endpoints
   Data/ - Database Definition
-  Extensions - Extensions or object configurations(mapster)
+  Extensions - Extensions, wrappers or object configurations(mapster)
   Models/
     /DTO - Data Transfer Objects
     /Entities - Database Table
-	  /Enums - Shared enums.
+	/Enums - Shared enums and SmartEnums
   Pages/ - Razor Pages
   Properties/ - development settings
   Services/ - Business Logic
