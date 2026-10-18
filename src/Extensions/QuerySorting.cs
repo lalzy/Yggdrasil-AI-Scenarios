@@ -30,14 +30,14 @@ public static class QuerySorting{
         var id = BuildKeySelector<T, Guid>("ID");
 
         return sortOrder switch{
-            SortOrder.IDAsc => request.OrderBy(id),
-            SortOrder.IDDesc => request.OrderByDescending(id),
-            SortOrder.NameAsc => request.OrderBy(NoStringCase<T>("Name")).ThenBy(id),
-            SortOrder.NameDesc => request.OrderByDescending(NoStringCase<T>("Name")).ThenBy(id),
-            SortOrder.CreatedAsc => request.OrderBy(BuildKeySelector<T, DateTime>("CreatedAt")).ThenBy(id),
-            SortOrder.CreatedDesc => request.OrderByDescending(BuildKeySelector<T, DateTime>("CreatedAt")).ThenBy(id),
-            SortOrder.ModifiedAsc => request.OrderBy(BuildKeySelector<T, DateTime>("UpdatedAt")).ThenBy(id),
-            SortOrder.ModifiedDesc => request.OrderByDescending(BuildKeySelector<T, DateTime>("UpdatedAt")).ThenBy(id),
+            _ when sortOrder == SortOrder.IDAsc => request.OrderBy(id),
+            _ when sortOrder == SortOrder.IDDesc => request.OrderByDescending(id),
+            _ when sortOrder == SortOrder.NameAsc => request.OrderBy(NoStringCase<T>("Name")).ThenBy(id),
+            _ when sortOrder == SortOrder.NameDesc => request.OrderByDescending(NoStringCase<T>("Name")).ThenBy(id),
+            _ when sortOrder == SortOrder.CreatedAsc => request.OrderBy(BuildKeySelector<T, DateTime>("CreatedAt")).ThenBy(id),
+            _ when sortOrder == SortOrder.CreatedDesc => request.OrderByDescending(BuildKeySelector<T, DateTime>("CreatedAt")).ThenBy(id),
+            _ when sortOrder == SortOrder.ModifiedAsc => request.OrderBy(BuildKeySelector<T, DateTime>("UpdatedAt")).ThenBy(id),
+            _ when sortOrder == SortOrder.ModifiedDesc => request.OrderByDescending(BuildKeySelector<T, DateTime>("UpdatedAt")).ThenBy(id),
             _ => throw new ArgumentOutOfRangeException(nameof(sortOrder), sortOrder, null)
         };
     }

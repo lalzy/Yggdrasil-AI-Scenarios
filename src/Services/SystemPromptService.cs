@@ -37,7 +37,8 @@ public class SystemPromptServices(AppDbContext db){
     /// <param name="pageIndex">Page index to fetch from</param>
     /// <param name="sortOrder">Sorting order.</param>
     /// <throws cref="ArgumentOutofrangeexception">Thrown if passing an invalid sortOrder</throws>
-    public List<SystemPrompt> GetAll(int count=10, int pageIndex=0, SortOrder sortOrder=SortOrder.IDAsc){
+    public List<SystemPrompt> GetAll(int count=10, int pageIndex=0, SortOrder sortOrder=null){
+        sortOrder ??= SortOrder.IDAsc;
         return _systemPrompt.AsNoTracking().SortBy(sortOrder).Skip(pageIndex * count).Take(count).ToList();
     }
 

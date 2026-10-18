@@ -136,8 +136,7 @@ public class SystemPromptServicesTests : DatabaseSetup{
 
     [Fact]
     public void GetAll_InvalidSortThrows(){
-        Assert.Throws<ArgumentOutOfRangeException>(() => {_service.GetAll(sortOrder:(SortOrder)999);
-        });
+        Assert.Throws<ArgumentOutOfRangeException>(() => _service.GetAll(sortOrder: new SortOrder()));
     }
 
     [Fact]

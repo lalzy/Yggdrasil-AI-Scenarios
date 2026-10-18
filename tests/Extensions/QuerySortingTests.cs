@@ -40,21 +40,26 @@ public class QuerySortingTests{
         return calls.ToArray();
     }
     
+
+    public static TheoryData<SortOrder, string[]> SortCases => new(){
+        { SortOrder.IDAsc,        new[]{ "OrderBy(ID)" } },
+        { SortOrder.IDDesc,       new[]{ "OrderByDescending(ID)" } },
+        { SortOrder.NameAsc,      new[]{ "OrderBy(Collate(Name,NOCASE))", "ThenBy(ID)" } },
+        { SortOrder.NameDesc,     new[]{ "OrderByDescending(Collate(Name,NOCASE))", "ThenBy(ID)" } },
+        { SortOrder.CreatedAsc,   new[]{ "OrderBy(CreatedAt)", "ThenBy(ID)" } },
+        { SortOrder.CreatedDesc,  new[]{ "OrderByDescending(CreatedAt)", "ThenBy(ID)" } },
+        { SortOrder.ModifiedAsc,  new[]{ "OrderBy(UpdatedAt)", "ThenBy(ID)" } },
+        { SortOrder.ModifiedDesc, new[]{ "OrderByDescending(UpdatedAt)", "ThenBy(ID)" } },
+    };
+    
     [Theory]
-    [InlineData(SortOrder.IDAsc,        new[]{ "OrderBy(ID)" })]
-    [InlineData(SortOrder.IDDesc,       new[]{ "OrderByDescending(ID)" })]
-    [InlineData(SortOrder.NameAsc,      new[]{ "OrderBy(Collate(Name,NOCASE))", "ThenBy(ID)" })]
-    [InlineData(SortOrder.NameDesc,     new[]{ "OrderByDescending(Collate(Name,NOCASE))", "ThenBy(ID)" })]
-    [InlineData(SortOrder.CreatedAsc,   new[]{ "OrderBy(CreatedAt)", "ThenBy(ID)" })]
-    [InlineData(SortOrder.CreatedDesc,  new[]{ "OrderByDescending(CreatedAt)", "ThenBy(ID)" })]
-    [InlineData(SortOrder.ModifiedAsc,  new[]{ "OrderBy(UpdatedAt)", "ThenBy(ID)" })]
-    [InlineData(SortOrder.ModifiedDesc, new[]{ "OrderByDescending(UpdatedAt)", "ThenBy(ID)" })]
+    [MemberData(nameof(SortCases))]
     public void SortBy_BuildsExpectedExpression(SortOrder sortOrder, string[] expected){
         Assert.Equal(expected, SortCallsToText(Source.SortBy(sortOrder).Expression));
     }
     
     [Fact]
     public void SortBy_UnknownSortOrder_Throws(){
-        Assert.Throws<ArgumentOutOfRangeException>(() => Source.SortBy((SortOrder)999));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Source.SortBy(new SortOrder()));
     }
 }
