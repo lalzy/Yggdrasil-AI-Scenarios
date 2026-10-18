@@ -32,12 +32,16 @@ public class WorldTemplateService (AppDbContext db){
     }
 
     /// <summary>Get all worldTemplates</summary>
-    /// <param name="count">How many to fetch per page</param>
-    /// <param name="page">Which page to fetch</param>
+    /// <param name="count">How many to fetch per page. Null or default returns all</param>
+    /// <param name="page">Which page to fetch. This is absolute page and not index</param>
     /// <param name="sortBy">Sort Order</param>
     /// <returns>Paginated worldTemplate records</returns>
-    public List<WorldTemplate> GetAll(int? count=null, int? page=1, string sortOrder=null){
-        return _world.OrderBy(sortOrder).ToList();
+    public List<WorldTemplate> GetAll(int? count=null, int page=1, string sortOrder=WorldSortOrder.NameAsc){
+        IQueryable<WorldTemplate> querry = _world.OrderBy(sortOrder);
+        if(count != null){
+            querry = querry.Skip(--page * count.Value).Take(count.Value);
+        }
+        return querry.ToList();
     }
 
     /// <summary>Update the requested WorldTemplate</summary>

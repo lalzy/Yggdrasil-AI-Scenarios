@@ -12,6 +12,8 @@ using Yggdrasil.Tests.Factories;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Data;
 using System.Runtime.CompilerServices;
+using System.Linq.Dynamic.Core;
+using System.Collections;
 
 namespace Yggdrasil.Tests.Services;
 
@@ -51,6 +53,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     // =======================================
     //                  GET              
     // =======================================
+    
     [Theory]
     [InlineData(0)]
     [InlineData(3)]
@@ -87,31 +90,60 @@ public class WorldTemplateServiceTests : DatabaseSetup{
         Assert.Equivalent(worlds, fetch, strict:true);
     }
 
-    public static TheoryData<string, string, bool> SortCases => new(){
-        {WorldSortOrder.IDAsc, "ID", false},
-        {WorldSortOrder.IDDesc, "ID", true},
-        {WorldSortOrder.NameAsc, "Name", false},
-        {WorldSortOrder.NameDesc, "Name", true},
-        {WorldSortOrder.ModifiedAsc, "UpdatedAt", false},
-        {WorldSortOrder.ModifiedDesc, "UpdatedAt", true},
-        {WorldSortOrder.CreatedAsc, "CreatedAt", false},
-        {WorldSortOrder.CreatedDesc, "CreatedAt", true},
-        {WorldSortOrder.DescriptionAsc, "Description", false},
-        {WorldSortOrder.DescriptionDesc, "Description", true},
-    };
+    [Theory]
+    [InlineData(1)]
+    [InlineData(30)]
+    [InlineData(50)]
+    public void GetAll_GetCountRequested(int count){
+        var worlds = Enumerable.Range(0, 100).Select(_ => WorldFactory.Create(Db())).ToList();
+        var expectedIDs = worlds.Select(w => w.ID).ToHashSet();
+        var fetch = _service.GetAll(count:count);
+
+        Assert.Equal(count, fetch.Count);
+        Assert.All(fetch, w => Assert.Contains(w.ID, expectedIDs));
+        
+    }
 
     [Theory]
-    [MemberData(nameof(SortCases))]
-    public void GetAll_SortOrderReturned(string order, string propertyToSortBy, bool descendingFlag){
-        var worlds = Enumerable.Range(0, 100).Select(_=> WorldFactory.Create(Db())).ToList();
-        var property = typeof(WorldTemplate).GetProperty(propertyToSortBy);
+    [InlineData(1, 10)]
+    [InlineData(2, 10)]
+    [InlineData(3, 30)]
+    [InlineData(9, 10)]
+    public void GetAll_ReturnsRequestedPage(int page, int count){
+        Enumerable.Range(0, 100).Select(_ => WorldFactory.Create(Db())).ToList();
+        var all = _service.GetAll(count: 100);
+        var expected = all.Skip((page - 1) * count).Take(count).Select(w => w.ID);
+        var fetch = _service.GetAll(count: count, page:page);
 
-        var comparer = Comparer<object>.Create(StringComparer.OrdinalIgnoreCase.Compare);
+        Assert.Equal(expected, fetch.Select(w => w.ID));
+    }
 
-        var expected = descendingFlag ? worlds.OrderByDescending(w => property.GetValue(w), comparer!).ThenBy(w => w.ID) : worlds.OrderBy(w => property!.GetValue(w), comparer!).ThenBy(w => w.ID);
-
-        var fetch = _service.GetAll(sortOrder:order);
+    [Theory]
+    [InlineData(WorldSortOrder.IDAsc)]
+    [InlineData(WorldSortOrder.IDDesc)]
+    [InlineData(WorldSortOrder.NameAsc)]
+    [InlineData(WorldSortOrder.NameDesc)]
+    [InlineData(WorldSortOrder.DescriptionAsc)]
+    [InlineData(WorldSortOrder.DescriptionDesc)]
+    [InlineData(WorldSortOrder.ModifiedAsc)]
+    [InlineData(WorldSortOrder.ModifiedDesc)]
+    [InlineData(WorldSortOrder.CreatedAsc)]
+    [InlineData(WorldSortOrder.CreatedDesc)]
+    public void GetAll_SortOrderReturned(string order){
+        var worlds = Enumerable.Range(0, 100).Select(_ => WorldFactory.Create(Db())).ToList();
+        var expected = worlds.AsQueryable().OrderBy(order, new CaseInsensitiveComparer());
+        var fetch = _service.GetAll(sortOrder: order);
+        
         Assert.Equal(expected.Select(w => w.ID), fetch.Select(w => w.ID));
+    }
+
+    [Fact]
+    public void GetAll_UsesDefaults(){
+        var worlds = Enumerable.Range(0, 20).Select(_ => WorldFactory.Create(Db())).ToList();
+        var expected = worlds.AsQueryable().OrderBy(WorldSortOrder.NameAsc).ThenBy(w => w.ID).Select(w => w.ID).ToList();
+        var actual = _service.GetAll().Select(w => w.ID).ToList();
+        
+        Assert.Equal(expected, actual);
     }
     
     // =======================================
