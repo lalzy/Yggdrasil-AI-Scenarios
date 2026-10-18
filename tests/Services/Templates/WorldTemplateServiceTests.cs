@@ -143,20 +143,11 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     //                UPDATE              
     // =======================================
 
-    // Helper
-    private WorldDTO.Update EnsureUniqueUpdateRequest(WorldTemplate world){
-        var properties = typeof(WorldDTO.Update).GetProperties();
-        WorldDTO.Update request;
-        do{
-            request = AutoFaker.Generate<WorldDTO.Update>();
-        }while(properties.Any(p => Equals(p.GetValue(request), typeof(WorldTemplate).GetProperty(p.Name)?.GetValue(world))));
-        return request;
-    }
     
     [Fact]
     public void Update_SuccessfullyUpdates(){
         var world = WorldFactory.Create(Db());
-        var request = EnsureUniqueUpdateRequest(world);
+        var request = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(world);
         var fetch = _service.Update(world.ID, request);
         
         Assert.Equivalent(request, fetch);
@@ -171,7 +162,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Update_OnlyChangesRequested(int index){
         var worlds = Enumerable.Range(0, 10).Select(_ => WorldFactory.Create(Db())).ToList();
-        var request = EnsureUniqueUpdateRequest(worlds[index]);
+        var request = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(worlds[index]);
         _service.Update(worlds[index].ID, request);
         var expected = worlds.Where(w => w.ID != worlds[index].ID).ToList();
         var actual = World.Where(w => w.ID != worlds[index].ID).ToList();
@@ -182,7 +173,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     [Fact]
     public void Update_OnlyPassedFieldsChanged(){
         var world = WorldFactory.Create(Db());
-        var fullRequest = EnsureUniqueUpdateRequest(world);
+        var fullRequest = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(world);
         var properties = fullRequest.GetType().GetProperties();
         foreach(var property in properties){
             var before = properties.ToDictionary(
@@ -202,7 +193,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     }
 
     [Fact]
-    public void Update_InvalidIDReturnNUll(){
+    public void Update_InvalidIDReturnNull(){
         var fetch = _service.Update(_faker.Random.Guid(), AutoFaker.Generate<WorldDTO.Update>());
         Assert.Null(fetch);
     }

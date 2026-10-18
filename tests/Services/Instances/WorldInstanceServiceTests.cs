@@ -138,8 +138,53 @@ public class WorldInstanceServiceTests : DatabaseSetup{
     //                UPDATE              
     // =======================================
 
+    [Fact]
+    public void Update_SuccessfullyUpdates(){
+        var world = WorldFactory.CreateInstance(Db());
+        var request = EnsureUnique.Request<WorldDTO.Update, WorldInstance>(world);
+        var fetch = _service.Update(world.ID, request);
+
+        Assert.Equivalent(request, fetch);
+
+        var dbFetch = World.Find(world.ID);
+        Assert.Equivalent(request, dbFetch);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Update_OnlyChangesRequested(int index) {
+        var worlds = Enumerable.Range(0, 10).Select(_ => WorldFactory.CreateInstance(Db())).ToList();
+        var request = EnsureUnique.Request<WorldDTO.Update, WorldInstance>(worlds[index]);
+        var expected = worlds.Where(w => w.ID != worlds[index].ID).ToList();
+        var actual = World.Include(w => w.Conversations).Where(w => w.ID != worlds[index].ID).ToList();
+
+        Assert.Equivalent(expected, actual, strict:true);
+    }
+
+    [Fact]
+    public void Update_OnlyPassedFieldsChanged() {
+        var world = WorldFactory.CreateInstance(Db());
+        var fullRequest = EnsureUnique.Request<WorldDTO.Update, WorldInstance>(world);
+        var properties = fullRequest.GetType().GetProperties();
+        foreach(var property in properties){
+            var before = properties.ToDictionary(
+                p => p.Name,
+                p => typeof(WorldInstance).GetProperty(p.Name)!.GetValue(World.Find(world.ID))
+            );
+
+            _service.Update(world.ID, PartialRequest.IsolatedFieldFromDTORecord(fullRequest, property));
+        }
+    }
+
+    [Fact]
+    public void Update_InvalidIDReturnNull(){
+        Assert.Null(_service.Update(_faker.Random.Guid(), AutoFaker.Generate<WorldDTO.Update>()));
+    }
+    
     // =======================================
     //                 DELETE              
     // =======================================
-    
+
 }

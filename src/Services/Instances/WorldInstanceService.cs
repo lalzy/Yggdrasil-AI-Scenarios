@@ -57,8 +57,12 @@ public class WorldInstanceService (AppDbContext db){
     /// <param name="ID">ID of the WorldInstance to update</param>
     /// <param name="request">The data to change</param>
     /// <returns>Updated WorldInstance</returns>
-    public WorldInstance Update(Guid ID, WorldDTO.Update request){
-        var entity = new WorldInstance { Name = "", Description = "", Scenario="" };
+    public WorldInstance? Update(Guid ID, WorldDTO.Update request){
+        var entity = _world.Include(w => w.Conversations).FirstOrDefault(w => w.ID == ID);
+
+        if(entity == null) return null;
+        request.Patch(entity);
+        db.SaveChanges();
         return entity;
     }
 
