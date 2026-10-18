@@ -20,4 +20,12 @@ public static class MapsterExtensions{
     public static TDestination Patch<TDestination>(this object source){
         return source.Adapt<TDestination>(PatchConfig);
     }
+
+    /// <summary>Writes the non-null values of <paramref name="source"/> into <paramref name="destination"/></summary>
+    /// <param name="source">Object holding the values to apply</param>
+    /// <param name="destination">Existing object to update</param>
+    /// <returns>The updated destination</returns>
+    public static TDestination Patch<TSource, TDestination>(this TSource source, TDestination destination){
+        return source.Adapt(destination, PatchConfig);
+    }
 }

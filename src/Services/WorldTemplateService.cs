@@ -12,6 +12,9 @@ namespace Yggdrasil.Services;
 public class WorldTemplateService (AppDbContext db){
     private readonly DbSet<WorldTemplate> _world = db.Set<WorldTemplate>();
 
+    /// <summary>Create a world template</summary>
+    /// <param name="request">The worldTemplate's data</param>
+    /// <returns>The new created worldTemplate</returns>
     public WorldTemplate Create(WorldTemplateDTO.Request request){
         var entity = request.Patch<WorldTemplate>();
         _world.Add(entity);
@@ -20,25 +23,37 @@ public class WorldTemplateService (AppDbContext db){
         return entity;
     }
 
+    /// <summary>Get a requested worldTemplate</summary>
+    /// <param name="ID">ID of the worldTemplate to get</param>
+    /// <returns>The requested worldTemplate</returns>
     public WorldTemplate? Get(Guid ID){
         return _world.Find(ID)!;
     }
 
-    public WorldTemplate Update(Guid ID, WorldTemplateDTO.Update request){
-        var entity = _world.Find(ID);
-        var entry = _world.Entry(entity);
+    /// <summary>Get all worldTemplates</summary>
+    /// <param name="count">How many to fetch per page</param>
+    /// <param name="page">Which page to fetch</param>
+    /// <param name="sortBy">Sort Order</param>
+    /// <returns>Paginated worldTemplate records</returns>
+    public List<WorldTemplate> GetAll(int? count=null, int? page=1, SortOrder? sortBy=SortOrder.NameAsc){
+        return [];
+    }
 
-        foreach(var property in request.GetType().GetProperties()){
-            var value = property.GetValue(request);
-            if(value != null){
-                entry.Property(property.Name).CurrentValue = value;
-            }
-        }
+    /// <summary>Update the requested WorldTemplate</summary>
+    /// <param name="ID">ID of the worldTemplate to update</param>
+    /// <param name="request">The data to change</param>
+    /// <returns>Updated WorldTemplate</returns>
+    public WorldTemplate? Update(Guid ID, WorldTemplateDTO.Update request){
+        var entity = _world.Find(ID);
+        
+        request.Patch(entity);
         
         db.SaveChanges();
         
-        return entity!;
+        return entity;
     }
 
+    /// <summary>Delete a worldTemplate</summary>
+    /// <param name="ID">ID of the worldTempalte to delete</param>
     public void Delete(Guid ID){}
 }

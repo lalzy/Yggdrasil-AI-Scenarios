@@ -77,7 +77,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     }
     
     // =======================================
-    //                  EDIT              
+    //                UPDATE              
     // =======================================
     [Fact]
     public void Update_SuccessfullyUpdates(){
@@ -125,6 +125,12 @@ public class WorldTemplateServiceTests : DatabaseSetup{
                 Assert.Equivalent(expected, actual);
             }
         }
+    }
+
+    [Fact]
+    public void Update_InvalidIDReturnNUll(){
+        var fetch = _service.Update(_faker.Random.Guid(), AutoFaker.Generate<WorldTemplateDTO.Update>());
+        Assert.Null(fetch);
     }
     
     // =======================================

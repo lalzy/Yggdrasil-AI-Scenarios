@@ -20,4 +20,15 @@ public class MapsterExtensionsTests{
         var result = source.Patch<Destination>();
         Assert.Equal(new[] { "default" }, result.Tags);
     }
+
+    [Fact]
+    public void Patch_IntoExisting_KeepsInstanceAndValue(){
+        var existing = new Destination { Tags = ["existing"] };
+        var source = new Source { Tags = null };
+
+        var result = source.Patch(existing);
+
+        Assert.Same(existing, result);
+        Assert.Equal(new[] { "existing" }, existing.Tags);
+    }
 }
