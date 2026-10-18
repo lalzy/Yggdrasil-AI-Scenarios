@@ -1,11 +1,12 @@
 // Prompts.cs
 
 using Yggdrasil.Models.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Yggdrasil.Models.Entities;
+namespace Yggdrasil.Models.ValueObjects;
 
+[ComplexType]
 public class Prompt{
-    
     /// <summary>Human readable identifier.</summary>
     public string? Name { get; set; }
     /// <summary>Prompts content</summary>

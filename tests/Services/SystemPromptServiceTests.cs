@@ -15,6 +15,7 @@ using Yggdrasil.Data;
 using System.Linq.Dynamic.Core.Exceptions;
 using System.Linq.Dynamic.Core;
 using System.Collections;
+using Yggdrasil.Models.ValueObjects;
 
 namespace Yggdrasil.Tests.Services;
 

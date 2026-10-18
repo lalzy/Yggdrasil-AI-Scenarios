@@ -2,6 +2,7 @@
 
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.ValueObjects;
 
 namespace Yggdrasil.Data;
 
@@ -18,6 +19,6 @@ public static class BasePrompts{
 
     public static List<Prompt> Create() => [
         new Prompt { Name = "Main", Content = MAINCONTENT, Source = SourceType.User, Active = true },
-        new Prompt { Name = "ChatHistory", Source = SourceType.History, Active = true },
+        new Prompt { Name = "ChatHistory", Source = SourceType.ChatMessages, Active = true },
     ];
 }

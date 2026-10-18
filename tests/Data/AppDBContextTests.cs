@@ -10,9 +10,16 @@ using Yggdrasil.Data;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.ValueObjects;
 using Yggdrasil.Models.Entities.Instances;
 using System.Linq;
 using AutoBogus;
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
 namespace Yggdrasil.Tests.Data;
 
@@ -58,26 +65,12 @@ public class AppDbContextTests : IDisposable{
     }
 
     [Fact]
-    public void OnModelCreating_RegistersAllEntities(){
+    public void OnModelCreating_RegistersAllDesiredEntities(){
         var model = AppDb().Model;
-        var expected = typeof(AppDbContext).Assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract
-                                                                      && t.Namespace == "Yggdrasil.Models.Entities"
-                                                                      && t != typeof(Prompt));
+        var expected = typeof(AppDbContext).Assembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract
+                && AppDbContext.IsInNamespace(t) && AppDbContext.IsNotDataOnly(t));
         Assert.All(expected, t => Assert.NotNull(model.FindEntityType(t)));
-    }
-
-    [Fact]
-    public void OnModelCreating_PromptIsNotATable(){
-        var model = AppDb().Model;
-        Assert.DoesNotContain(model.GetEntityTypes(), e => e.ClrType == typeof(Prompt) && !e.IsOwned());
-    }
-
-    [Fact]
-    public void OnModelCreating_PromptsStoredAsJson(){
-        var nav = AppDb().Model.FindEntityType(typeof(SystemPrompt))!
-            .FindNavigation(nameof(SystemPrompt.Prompts))!;
-
-        Assert.True(nav.TargetEntityType.IsMappedToJson());
     }
 
     [Fact]
@@ -160,6 +153,37 @@ public class AppDbContextTests : IDisposable{
             .SelectMany(e => e.GetProperties())
             .Where(p => p.ClrType == typeof(string));
         Assert.All(properties, p => Assert.Equal("NOCASE", p.GetCollation()));
+    }
+
+    [Fact]
+    public void OnModelCreating_ComplexTypesAreNotTables(){
+        var model = AppDb().Model;
+        var valueObjects = typeof(AppDbContext).Assembly.GetTypes()
+            .Where(t => t.IsClass && t.Namespace == "Yggdrasil.Models.ValueObjects");
+        Assert.All(valueObjects, t => Assert.Null(model.FindEntityType(t)));
+    }
+
+    [Fact]
+    public void OnModelCreating_ComplexCollectionsStoredAsJson(){
+        var entities = AppDb().Model.GetEntityTypes();
+        var props = entities
+            .SelectMany(e => e.ClrType.GetProperties(), (e, p) => (e, p))
+            .Where(x => x.p.PropertyType.IsGenericType
+                && x.p.PropertyType.GetGenericArguments()[0].GetCustomAttribute<ComplexTypeAttribute>() is not null);
+
+        Assert.All(props, x =>
+            Assert.True(x.e.FindComplexProperty(x.p.Name)?.ComplexType.IsMappedToJson() == true,
+                $"{x.e.ClrType.Name}.{x.p.Name}"));
+    }
+
+    [Fact]
+    public void OnModelCreating_SingleComplexTypesNotJson(){
+        var props = AppDb().Model.GetEntityTypes()
+            .SelectMany(e => e.GetComplexProperties())
+            .Where(p => !p.IsCollection);
+
+        Assert.All(props, p =>
+            Assert.False(p.ComplexType.IsMappedToJson(), $"{p.DeclaringType.ClrType.Name}.{p.Name}"));
     }
 
     public void Dispose() => _connection.Dispose();

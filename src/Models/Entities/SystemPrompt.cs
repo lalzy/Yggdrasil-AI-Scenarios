@@ -1,5 +1,7 @@
 // SystemPrompt.cs
 
+using Yggdrasil.Models.ValueObjects;
+
 namespace Yggdrasil.Models.Entities;
 
 public class SystemPrompt{

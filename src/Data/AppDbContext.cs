@@ -16,30 +16,52 @@ public class AppDbContext : DbContext{
         _time = time ?? TimeProvider.System;
     }
 
-    private static bool IsInNamespace(Type t) => t.Namespace switch
-    {
+    /// <summary>If in the entities namespaces</summary>
+    public static bool IsInNamespace(Type t) => t.Namespace switch{
         "Yggdrasil.Models.Entities" => true,
         "Yggdrasil.Models.Entities.Instances" => true,
         "Yggdrasil.Models.Entities.Templates" => true,
         _ => false
     };
 
+    /// <summary> Skips these entities when creating EFCore tables</summary>
+    public static bool IsNotDataOnly(Type t) => t.Name switch{ 
+        nameof(Agent) => false,
+        _ => true
+    };
+
+    /// <summary>Store valueObjects as Json</summary>
+    private void StoreValueObjectsAsJson(ModelBuilder modelBuilder){
+        var collections = modelBuilder.Model.GetEntityTypes()
+            .SelectMany(e => e.GetComplexProperties())
+            .Where(p => p.IsCollection && p.ComplexType.ClrType.Namespace == "Yggdrasil.Models.ValueObjects")
+            .ToList();
+
+        foreach(var property in collections){
+            var entity = modelBuilder.Entity(property.DeclaringType.ClrType);
+            if(property.IsCollection) entity.ComplexCollection(property.ClrType, property.Name).ToJson();
+            else entity.ComplexProperty(property.ClrType, property.Name).ToJson();
+        }
+    }
+    
     ///<summary>Register all Models as DB Tables automatically</summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder){
         var entityTypes = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && IsInNamespace(t) && t != typeof(Prompt));
+            .Where(t => t.IsClass && !t.IsAbstract && IsInNamespace(t) && IsNotDataOnly(t));
         foreach(var type in entityTypes){
             modelBuilder.Entity(type);
         }
 
+        StoreValueObjectsAsJson(modelBuilder);
+        
         // Set up Cascade (for all, including nullable)
         foreach(var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             fk.DeleteBehavior = DeleteBehavior.Cascade;
 
-        // Make Prompt in System Prompts a Json
-        modelBuilder.Entity<SystemPrompt>().OwnsMany(sp => sp.Prompts, p => p.ToJson());
-
+modelBuilder.Entity<SystemPrompt>()
+    .ComplexCollection(e => e.Prompts, b => b.ToJson());
+        
         base.OnModelCreating(modelBuilder);
     }
 
@@ -59,6 +81,7 @@ public class AppDbContext : DbContext{
                 UpdateUpdatedAt(owner, now, isChat);
             }
         }
+
     }
 
     

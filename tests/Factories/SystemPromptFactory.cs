@@ -4,6 +4,7 @@ using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
 using AutoBogus;
 using Yggdrasil.Data;
+using Yggdrasil.Models.ValueObjects;
 
 namespace Yggdrasil.Tests.Factories;
 

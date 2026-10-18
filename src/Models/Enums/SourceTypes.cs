@@ -2,6 +2,9 @@
 
 namespace Yggdrasil.Models.Enums;
 
+/// <summary>Used when building the Prompt to send to the LLM. Reads the user's made
+/// SystemPrompt and inject the relevant sources where the source-types exist
+/// </summary>
 public enum SourceType {
-    User, World, Characters, Persona,History
+    User, World, Narrator, Character, Persona, ChatMessages
 }
