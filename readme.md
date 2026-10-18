@@ -80,10 +80,14 @@ src/
   Models/
     /DTO - Data Transfer Objects
     /Entities - Database Table
+      /Instances - Instance models.
+	  /Templates - Template models.
 	/Enums - Shared enums and SmartEnums
   Pages/ - Razor Pages
   Properties/ - development settings
   Services/ - Business Logic
+    /Instances - For The Instance Entities
+	/Templates - For the Template Entities.
   wwwroot/ - static files
 Migrations/ - EF Core Migrations. Migrations are auto-ran on dotnet run
 Tests/ - Unit, Integration and E2E tests.
