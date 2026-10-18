@@ -33,7 +33,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
 
     [Fact]
     public void Create_CreatesWorld(){
-        var request = AutoFaker.Generate<WorldTemplateDTO.Request>();
+        var request = AutoFaker.Generate<WorldDTO.Request>();
         var fetch = _service.Create(request);
 
         Assert.Equivalent(request, fetch);
@@ -44,7 +44,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
 
     [Fact]
     public void Create_TagsAndOpenMessageReturnEmptyIfNotPassed(){
-        var request = new AutoFaker<WorldTemplateDTO.Request>()
+        var request = new AutoFaker<WorldDTO.Request>()
             .RuleFor(x => x.Tags,_=> null)
             .RuleFor(x => x.OpeningMessages, _ => null).Generate();
         var fetch = _service.Create(request);
@@ -72,11 +72,11 @@ public class WorldTemplateServiceTests : DatabaseSetup{
         Assert.Null(_service.Get(_faker.Random.Guid()));
     }
 
-    private WorldTemplateDTO.Update EnsureUniqueUpdateRequest(WorldTemplate world){
-        var properties = typeof(WorldTemplateDTO.Update).GetProperties();
-        WorldTemplateDTO.Update request;
+    private WorldDTO.Update EnsureUniqueUpdateRequest(WorldTemplate world){
+        var properties = typeof(WorldDTO.Update).GetProperties();
+        WorldDTO.Update request;
         do{
-            request = AutoFaker.Generate<WorldTemplateDTO.Update>();
+            request = AutoFaker.Generate<WorldDTO.Update>();
         }while(properties.Any(p => Equals(p.GetValue(request), typeof(WorldTemplate).GetProperty(p.Name)?.GetValue(world))));
         return request;
     }
@@ -201,7 +201,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
 
     [Fact]
     public void Update_InvalidIDReturnNUll(){
-        var fetch = _service.Update(_faker.Random.Guid(), AutoFaker.Generate<WorldTemplateDTO.Update>());
+        var fetch = _service.Update(_faker.Random.Guid(), AutoFaker.Generate<WorldDTO.Update>());
         Assert.Null(fetch);
     }
     

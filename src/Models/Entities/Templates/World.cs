@@ -9,6 +9,9 @@ public class WorldTemplate{
     
     /// <summary>Description about this world, not sent to the LLM.</summary>
     public required string Description {get; set;}
+    
+    /// <summary>A brief summary what the RP is about sent to the LLM</summary>
+    public required string Scenario {get; set;}
 
     public List<string> OpeningMessages {get; set;} = [];
     public List<string> Tags {get; set;} = [];

@@ -16,7 +16,7 @@ public class WorldTemplateService (AppDbContext db){
     /// <summary>Create a world template</summary>
     /// <param name="request">The worldTemplate's data</param>
     /// <returns>The new created worldTemplate</returns>
-    public WorldTemplate Create(WorldTemplateDTO.Request request){
+    public WorldTemplate Create(WorldDTO.Request request){
         var entity = request.Patch<WorldTemplate>();
         _world.Add(entity);
         db.SaveChanges();
@@ -48,7 +48,7 @@ public class WorldTemplateService (AppDbContext db){
     /// <param name="ID">ID of the worldTemplate to update</param>
     /// <param name="request">The data to change</param>
     /// <returns>Updated WorldTemplate</returns>
-    public WorldTemplate? Update(Guid ID, WorldTemplateDTO.Update request){
+    public WorldTemplate? Update(Guid ID, WorldDTO.Update request){
         var entity = _world.Find(ID);
         
         request.Patch(entity);
