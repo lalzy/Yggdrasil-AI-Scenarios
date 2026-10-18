@@ -1,6 +1,6 @@
 // World.cs
 
-namespace Yggdrasil.Models.Entities;
+namespace Yggdrasil.Models.Entities.Templates;
 
 public class WorldTemplate{
     public Guid ID { get; set; }

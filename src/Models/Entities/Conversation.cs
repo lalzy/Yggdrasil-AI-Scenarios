@@ -1,6 +1,6 @@
 // Conversation.cs
 
-using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Models.Enums;
 
 namespace Yggdrasil.Models.Entities;

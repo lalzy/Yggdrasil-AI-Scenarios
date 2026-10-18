@@ -10,6 +10,7 @@ using Yggdrasil.Data;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Instances;
 using System.Linq;
 using AutoBogus;
 

@@ -2,6 +2,8 @@
 
 using System.Reflection;
 using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Templates;
+using Yggdrasil.Models.Entities.Instances;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -14,11 +16,19 @@ public class AppDbContext : DbContext{
         _time = time ?? TimeProvider.System;
     }
 
+    private static bool IsInNamespace(Type t) => t.Namespace switch
+    {
+        "Yggdrasil.Models.Entities" => true,
+        "Yggdrasil.Models.Entities.Instances" => true,
+        "Yggdrasil.Models.Entities.Templates" => true,
+        _ => false
+    };
+
     ///<summary>Register all Models as DB Tables automatically</summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder){
         var entityTypes = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.Namespace == "Yggdrasil.Models.Entities" && t != typeof(Prompt));
+            .Where(t => t.IsClass && !t.IsAbstract && IsInNamespace(t) && t != typeof(Prompt));
         foreach(var type in entityTypes){
             modelBuilder.Entity(type);
         }

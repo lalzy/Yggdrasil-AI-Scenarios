@@ -1,7 +1,8 @@
 // WorldFactory.cs
 
 using AutoBogus;
-using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Instances;
+using Yggdrasil.Models.Entities.Templates;
 using Yggdrasil.Data;
 
 namespace Yggdrasil.Tests.Factories;

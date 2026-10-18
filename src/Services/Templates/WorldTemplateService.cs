@@ -1,14 +1,14 @@
 // WorldTemplateService.cs
 
 using Yggdrasil.Data;
-using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Templates;
 using Yggdrasil.Models.DTO;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 using Mapster;
 
-namespace Yggdrasil.Services;
+namespace Yggdrasil.Services.Templates;
 
 public class WorldTemplateService (AppDbContext db){
     private readonly DbSet<WorldTemplate> _world = db.Set<WorldTemplate>();

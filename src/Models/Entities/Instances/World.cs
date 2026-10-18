@@ -1,6 +1,8 @@
 // WorldInstance.cs
 
-namespace Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Templates;
+
+namespace Yggdrasil.Models.Entities.Instances;
 
 public class WorldInstance : WorldTemplate{
     /// <summary>A brief summary what the RP is about sent to the LLM</summary>

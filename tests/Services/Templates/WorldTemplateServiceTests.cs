@@ -5,9 +5,11 @@ using Bogus;
 using System.Text.Json;
 using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Services;
-using Yggdrasil.Models.Entities;
+using Yggdrasil.Services.Templates;
+using Yggdrasil.Models.Entities.Templates;
+using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Models.DTO;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore; 
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Models.Enums;
 using Yggdrasil.Data;
@@ -15,7 +17,7 @@ using System.Runtime.CompilerServices;
 using System.Linq.Dynamic.Core;
 using System.Collections;
 
-namespace Yggdrasil.Tests.Services;
+namespace Yggdrasil.Tests.Services.Templates;
 
 public class WorldTemplateServiceTests : DatabaseSetup{
     private readonly WorldTemplateService _service;
