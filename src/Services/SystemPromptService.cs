@@ -5,6 +5,7 @@ using Yggdrasil.Data;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
 using Yggdrasil.Models.Enums;
+using Yggdrasil.Extensions;
 
 namespace Yggdrasil.Services;
 
@@ -37,20 +38,7 @@ public class SystemPromptServices(AppDbContext db){
     /// <param name="sortOrder">Sorting order.</param>
     /// <throws cref="ArgumentOutofrangeexception">Thrown if passing an invalid sortOrder</throws>
     public List<SystemPrompt> GetAll(int count=10, int pageIndex=0, SortOrder sortOrder=SortOrder.IDAsc){
-        var request = _systemPrompt.AsNoTracking();
-
-        request = sortOrder switch{
-            SortOrder.IDAsc => request.OrderBy(sp => sp.ID),
-            SortOrder.IDDesc => request.OrderByDescending(sp => sp.ID),
-            SortOrder.NameAsc => request.OrderBy(sp => EF.Functions.Collate(sp.Name, "NOCASE")).ThenBy(sp => sp.ID),
-            SortOrder.NameDesc => request.OrderByDescending(sp => EF.Functions.Collate(sp.Name, "NOCASE")).ThenBy(sp => sp.ID),
-            SortOrder.CreatedAsc => request.OrderBy(sp => sp.CreatedAt).ThenBy(sp => sp.ID),
-            SortOrder.CreatedDesc => request.OrderByDescending(sp => sp.CreatedAt).ThenBy(sp => sp.ID),
-            SortOrder.ModifiedAsc => request.OrderBy(sp => sp.UpdatedAt).ThenBy(sp => sp.ID),
-            SortOrder.ModifiedDesc => request.OrderByDescending(sp => sp.UpdatedAt).ThenBy(sp => sp.ID),
-            _ => throw new ArgumentOutOfRangeException(nameof(sortOrder), sortOrder, null)
-        };
-        return request.Skip(pageIndex * count).Take(count).ToList();
+        return _systemPrompt.AsNoTracking().SortBy(sortOrder).Skip(pageIndex * count).Take(count).ToList();
     }
 
     /// <summary>Renames the SystemPrompt's identifying name</summary>
