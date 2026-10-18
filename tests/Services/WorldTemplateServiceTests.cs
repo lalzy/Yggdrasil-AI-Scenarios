@@ -206,5 +206,30 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     // =======================================
     //                 DELETE              
     // =======================================
+    
+    [Fact]
+    public void Delete_Successfull(){
+        var world = WorldFactory.Create(Db());
+        _service.Delete(world.ID);
+        Assert.Null(World.Find(world.ID));
+    }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void Delete_OnlyRequestedDeleted(int index){
+        var worlds = Enumerable.Range(0, 10).Select(_ => WorldFactory.Create(Db())).ToList();
+        _service.Delete(worlds[index].ID);
+
+        var expected = worlds.Where(w => w.ID != worlds[index].ID).ToList();
+        var actual = World.Where(w => w.ID != worlds[index].ID).ToList();
+
+        Assert.Equivalent(expected, actual, strict:true);
+    }
+
+    [Fact]
+    public void Delete_InvalidIDDoesNotThrow(){
+        Assert.Null(Record.Exception(() => _service.Delete(_faker.Random.Guid())));
+    }
 }

@@ -60,5 +60,11 @@ public class WorldTemplateService (AppDbContext db){
 
     /// <summary>Delete a worldTemplate</summary>
     /// <param name="ID">ID of the worldTempalte to delete</param>
-    public void Delete(Guid ID){}
+    public void Delete(Guid ID){
+        var entity = _world.Find(ID);
+        if(entity == null) return;
+        
+        _world.Remove(entity);
+        db.SaveChanges();
+    }
 }
