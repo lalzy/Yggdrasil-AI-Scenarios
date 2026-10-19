@@ -62,7 +62,19 @@ public class ConversationServiceTests : DatabaseSetup{
         var conversations = Enumerable.Range(0, 10).Select(_ => ConversationFactory.Create(db, world)).ToList();
         var fetch = _service.Get(conversations[index].ID);
 
-        Assert.EquivalentWithExclusions(conversations[index], fetch, c => c.World.Conversations);
+        Assert.EquivalentWithExclusions(conversations[index], fetch,
+                                        c => c.World.Conversations,
+                                        // Does not return Narrator
+                                        c => c.World.Narrator);
+    }
+
+    [Fact]
+    public void Get_DoesNotReturnNarrator(){
+        var db = Db();
+        var world = WorldFactory.CreateInstance(db);
+        var conversation = ConversationFactory.Create(db, world);
+        var fetch = _service.Get(conversation.ID);
+        Assert.Null(fetch.World.Narrator);
     }
 
     [Fact]
@@ -128,8 +140,21 @@ public class ConversationServiceTests : DatabaseSetup{
         
         Assert.Equal(expected.Count, actual.Count);
         foreach (var e in expected){
-            Assert.EquivalentWithExclusions(e, actual.Single(a => a.ID == e.ID), c => c.World.Conversations, c => c.World.UpdatedAt);
+            Assert.EquivalentWithExclusions(e, actual.Single(a => a.ID == e.ID),
+                                            c => c.World.Conversations,
+                                            c => c.World.UpdatedAt,
+                                            // Narrator is not included
+                                            c => c.World.Narrator);
         }
+    }
+
+    [Fact]
+    public void Rename_DoesNotReturnNarrator(){
+        var db = Db();
+        var world = WorldFactory.CreateInstance(db);
+        var conversation = ConversationFactory.Create(db, world);
+        var fetch = _service.Rename(conversation.ID, _faker.Lorem.Word());
+        Assert.Null(fetch.World.Narrator);
     }
 
     [Fact]
@@ -167,7 +192,9 @@ public class ConversationServiceTests : DatabaseSetup{
         var actual = Conversation.Include(c => c.Chats).Include(c => c.World).ToList();
 
         foreach (var a in actual){
-            Assert.EquivalentWithExclusions(a, expected.Single(e => e.ID == a.ID), true, c => c.World.Conversations);
+            Assert.EquivalentWithExclusions(a, expected.Single(e => e.ID == a.ID), true,
+                                            c => c.World.Conversations,
+                                            c => c.World.Narrator);
         }
     }
 

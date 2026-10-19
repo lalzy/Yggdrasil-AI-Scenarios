@@ -77,7 +77,22 @@ public class ChatServiceTests : DatabaseSetup{
         var fetch = _service.Get(chats[index].ID);
 
         Assert.EquivalentWithExclusions(chats[index], fetch, x => x.Conversation);
-        Assert.EquivalentWithExclusions(chats[index].Conversation, fetch.Conversation, x => x.Chats, x => x.World!.Conversations);
+        Assert.EquivalentWithExclusions(chats[index].Conversation, fetch.Conversation,
+                                        x => x.Chats,
+                                        x => x.World!.Conversations,
+                                        //Conversation should not hold Narrator object
+                                        x => x.World!.Narrator);
+    }
+
+    [Fact]
+    public void Get_DoesNotIncludeNarrator(){
+        var db = Db();
+        var world = WorldFactory.CreateInstance(db);
+        var conversation = ConversationFactory.Create(db, world);
+        var chat = ChatFactory.Create(db, conversation);
+
+        var fetch = _service.Get(chat.ID);
+        Assert.Null(fetch.Conversation.World.Narrator);
     }
 
     [Fact]
