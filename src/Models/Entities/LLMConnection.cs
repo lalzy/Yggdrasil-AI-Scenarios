@@ -6,7 +6,7 @@ public class LLMConnection{
     public Guid ID {get; set;}
 
     /// <sumamry>Identifier for the LLMCOnnection listing</summary>
-    public required string name {get; set;}
+    public required string Name {get; set;}
 
     /// <summary>URL to the provider</summary>
     public required string URL {get; set;}
@@ -28,4 +28,7 @@ public class LLMConnection{
     
     /// <summary>The Authorization key</summary>
     public string? APIKey {get; set;}
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

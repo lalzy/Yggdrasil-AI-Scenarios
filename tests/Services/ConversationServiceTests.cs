@@ -217,7 +217,7 @@ public class ConversationServiceTests : DatabaseSetup{
     [InlineData(5)]
     [InlineData(25)]
     [InlineData(50)]
-    public void Duplicate_OnlyDuplicateUpToRequested(int index){
+    public void Duplicate_OnlyDuplicateUpToRequestedChat(int index){
         var db = Db();
         var world = WorldFactory.CreateInstance(db);
         var conversation = ConversationFactory.Create(db, world);
@@ -234,6 +234,19 @@ public class ConversationServiceTests : DatabaseSetup{
             Assert.Equal(chats[i].Content, duplicatedChats[i].Content);
             Assert.NotEqual(chats[i].ID, duplicatedChats[i].ID);
         }
+    }
+
+    [Fact]
+    public void Duplicate_DoesNotDuplicateWorld() {
+        var db = Db();
+        var world = WorldFactory.CreateInstance(db);
+        var conversation = ConversationFactory.Create(db, world);
+        var chats = Enumerable.Range(0, 5).Select(_ => ChatFactory.Create(db, conversation)).ToList();
+        
+        _service.Duplicate(conversation.ID, chats[2].ID);
+
+        // Should only hold 1 world
+        Assert.Equal(1, Db().Set<WorldInstance>().ToList().Count);
     }
 
     [Fact]

@@ -5,6 +5,7 @@ using Yggdrasil.Models.DTO;
 using AutoBogus;
 using Yggdrasil.Data;
 using Yggdrasil.Models.ValueObjects;
+using Yggdrasil.Tests.Factories.BaseRules;
 
 namespace Yggdrasil.Tests.Factories;
 
@@ -15,7 +16,8 @@ public static class SystemPromptFactory
         prompt ??= [new AutoFaker<Prompt>().Generate()];
 
         var entity = new AutoFaker<SystemPrompt>()
-            .RuleFor(x => x.ID, _ => Guid.Empty)
+            .IDRule()
+            .CreateAndUpdateAtRule()
             .RuleFor(x => x.Prompts, _ => prompt)
             .Generate();
 

@@ -67,6 +67,7 @@ public class ConversationService (AppDbContext db){
     /// <returns>The new duplicated chat</returns>
     public Conversation? Duplicate(Guid ID, Guid? stopAtID=null){
         var entity = _conversation.AsNoTracking().Include(c => c.Chats).Include(c => c.World).FirstOrDefault(c => c.ID == ID);
+        
         if(entity == null) return null;
 
         entity.Chats = GetChatsForEntity(entity.Chats, stopAtID);
@@ -76,7 +77,8 @@ public class ConversationService (AppDbContext db){
         foreach(var chat in entity.Chats){
             chat.ID = Guid.NewGuid();
         }
-        
+
+        db.Entry(entity.World).State = EntityState.Unchanged; // Stop duplication of world
         _conversation.Add(entity);
         db.SaveChanges();
         return entity;
