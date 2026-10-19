@@ -12,7 +12,7 @@ using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Models.DTO;
 using Microsoft.EntityFrameworkCore; 
 using Yggdrasil.Tests.Factories;
-using Yggdrasil.Models.Enums;
+using Yggdrasil.Models.Enums.SortOrders;
 using Yggdrasil.Data;
 using System.Runtime.CompilerServices;
 using System.Linq.Dynamic.Core;
@@ -34,23 +34,37 @@ public class WorldTemplateServiceTests : DatabaseSetup{
 
     [Fact]
     public void Create_CreatesWorld(){
-        var request = AutoFaker.Generate<WorldDTO.Request>();
+        var narrator = NarratorFactory.Create(Db());
+        var request = new AutoFaker<WorldDTO.Request>().RuleFor(x=>x.NarratorID, _ => narrator.ID).Generate();
+        
+        // var request = AutoFaker.Generate<WorldDTO.Request>();
         var fetch = _service.Create(request);
 
-        Assert.Equivalent(request, fetch);
+        Assert.EquivalentWithExclusions(request, fetch, "NarratorID", "Narrator");
 
-        var dbFetch = World.Find(fetch.ID);
-        Assert.Equivalent(request, dbFetch);
+        var dbFetch = World.Include(w => w.Narrator).ThenInclude(n => n.Connection).First(w => w.ID == fetch.ID);
+        Assert.EquivalentWithExclusions(request, dbFetch, "NarratorID", "Narrator");
+        
+        // Has Narrator
+        Assert.Equivalent(narrator, fetch.Narrator);
+        Assert.Equivalent(narrator, dbFetch.Narrator);
     }
 
     [Fact]
     public void Create_TagsAndOpenMessageReturnEmptyIfNotPassed(){
-        var request = new AutoFaker<WorldDTO.Request>()
+        var narrator = NarratorFactory.Create(Db());
+        var request = new AutoFaker<WorldDTO.Request>().RuleFor(x=>x.NarratorID, _ => narrator.ID)
             .RuleFor(x => x.Tags,_=> null)
             .RuleFor(x => x.OpeningMessages, _ => null).Generate();
         var fetch = _service.Create(request);
         Assert.Empty(fetch.Tags);
         Assert.Empty(fetch.OpeningMessages);
+    }
+
+    [Fact]
+    public void Create_InvalidNarratorThrows(){
+        var request = AutoFaker.Generate<WorldDTO.Request>();
+        Assert.Throws<KeyNotFoundException>(() => _service.Create(request));
     }
     
     // =======================================
@@ -148,13 +162,24 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     [Fact]
     public void Update_SuccessfullyUpdates(){
         var world = WorldFactory.Create(Db());
-        var request = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(world);
+        var request = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(world) with {NarratorID = null};
         var fetch = _service.Update(world.ID, request);
         
-        Assert.Equivalent(request, fetch);
+        Assert.EquivalentWithExclusions(request, fetch, "Narrator", "NarratorID");
 
-        var dbFetch = World.Find(world.ID);
-        Assert.Equivalent(request, dbFetch);
+        var dbFetch = World.First(w => w.ID == world.ID);
+        Assert.EquivalentWithExclusions(request, dbFetch, "Narrator", "NarratorID");
+
+        Assert.Equal(dbFetch.Narrator, fetch.Narrator);
+    }
+
+    [Fact]
+    public void Update_ReturnsNarrator(){
+        var world = WorldFactory.Create(Db());
+        var request = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(world) with {NarratorID = null};
+        var fetch = _service.Update(world.ID, request);
+        var dbFetch = World.Include(w => w.Narrator).ThenInclude(n => n.Connection).First(w => w.ID == world.ID);
+        Assert.Equivalent(dbFetch, fetch, strict:true);
     }
 
     [Theory]
@@ -163,10 +188,11 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     [InlineData(5)]
     public void Update_OnlyChangesRequested(int index){
         var worlds = Enumerable.Range(0, 10).Select(_ => WorldFactory.Create(Db())).ToList();
-        var request = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(worlds[index]);
+        var request = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(worlds[index]) with {NarratorID = null};
+
         _service.Update(worlds[index].ID, request);
         var expected = worlds.Where(w => w.ID != worlds[index].ID).ToList();
-        var actual = World.Where(w => w.ID != worlds[index].ID).ToList();
+        var actual = World.Include(w => w.Narrator).ThenInclude(n => n.Connection).Where(w => w.ID != worlds[index].ID).ToList();
 
         Assert.Equivalent(expected, actual, strict:true);
     }
@@ -175,7 +201,9 @@ public class WorldTemplateServiceTests : DatabaseSetup{
     public void Update_OnlyPassedFieldsChanged(){
         var world = WorldFactory.Create(Db());
         var fullRequest = EnsureUnique.Request<WorldDTO.Update, WorldTemplate>(world);
-        var properties = fullRequest.GetType().GetProperties();
+        var properties = fullRequest.GetType().GetProperties()
+            .Where(p => p.Name != nameof(WorldDTO.Update.NarratorID)) // Skip narrator
+            .ToArray();
         foreach(var property in properties){
             var before = properties.ToDictionary(
                 p => p.Name,
@@ -191,6 +219,25 @@ public class WorldTemplateServiceTests : DatabaseSetup{
                 Assert.Equivalent(expected, actual);
             }
         }
+    }
+
+    [Fact]
+    public void Update_ChangeNarrator(){
+        var db = Db();
+        var oldNarrator = NarratorFactory.Create(db);
+        var newNarrator = NarratorFactory.Create(db);
+        var world = WorldFactory.Create(db, oldNarrator);
+        var request = new WorldDTO.Update{NarratorID = newNarrator.ID};
+        _service.Update(world.ID, request);
+        var dbFetch = World.Include(w => w.Narrator).ThenInclude(n => n.Connection).First(w => w.ID == world.ID);
+        Assert.Equal(dbFetch.Narrator.ID, newNarrator.ID);
+    }
+
+    [Fact]
+    public void Update_InvalidNarratorThrows(){
+        var world = WorldFactory.Create(Db());
+        var request = new WorldDTO.Update{NarratorID = _faker.Random.Guid()};
+        Assert.Throws<KeyNotFoundException>(() => _service.Update(world.ID, request));
     }
 
     [Fact]
@@ -219,7 +266,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
         _service.Delete(worlds[index].ID);
 
         var expected = worlds.Where(w => w.ID != worlds[index].ID).ToList();
-        var actual = World.Where(w => w.ID != worlds[index].ID).ToList();
+        var actual = World.Include(w => w.Narrator).ThenInclude(n => n.Connection).Where(w => w.ID != worlds[index].ID).ToList();
 
         Assert.Equivalent(expected, actual, strict:true);
     }

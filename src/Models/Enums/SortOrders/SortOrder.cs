@@ -1,6 +1,6 @@
 // SortOrder.cs
 
-namespace Yggdrasil.Models.Enums;
+namespace Yggdrasil.Models.Enums.SortOrders;
 
 /// <summary>Smart enum for EntityFrameworkCore.DynamicLinq</summary>
 public class SortOrder{
@@ -12,18 +12,4 @@ public class SortOrder{
     public const string CreatedDesc  = "CreatedAt desc, ID";
     public const string ModifiedAsc  = "UpdatedAt, ID";
     public const string ModifiedDesc = "UpdatedAt desc, ID";
-}
-
-/// <inheritdoc/>
-public class WorldSortOrder : SortOrder{
-    public const string DescriptionAsc = "Description, ID";
-    public const string DescriptionDesc = "Description desc, ID";
-}
-
-
-public class LLMConnectionSortOrder : SortOrder{
-    public const string URLAsc = "URL, ID";
-    public const string URLDesc = "URL desc, ID";
-    public const string ModelAsc = "URL, Name, ID";
-    public const string ModelDesc = "URL, Name, ID";
 }

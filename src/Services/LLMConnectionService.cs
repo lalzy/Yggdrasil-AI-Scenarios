@@ -3,7 +3,7 @@
 using Yggdrasil.Data;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
-using Yggdrasil.Models.Enums;
+using Yggdrasil.Models.Enums.SortOrders;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 

@@ -11,7 +11,7 @@ using Yggdrasil.Services;
 using Yggdrasil.Tests.Factories;
 using Microsoft.EntityFrameworkCore; 
 using Yggdrasil.Data;
-using Yggdrasil.Models.Enums;
+using Yggdrasil.Models.Enums.SortOrders;
 using System.Linq.Dynamic.Core;
 using System.Collections;
 

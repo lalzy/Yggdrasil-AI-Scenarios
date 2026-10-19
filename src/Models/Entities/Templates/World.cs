@@ -12,6 +12,9 @@ public class WorldTemplate{
     
     /// <summary>A brief summary what the RP is about sent to the LLM</summary>
     public required string Scenario {get; set;}
+    
+    /// <summary>Current Narrator Agent</summary>
+    public required Narrator Narrator {get; set;}
 
     public List<string> OpeningMessages {get; set;} = [];
     public List<string> Tags {get; set;} = [];

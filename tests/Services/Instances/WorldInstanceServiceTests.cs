@@ -10,7 +10,7 @@ using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Models.DTO;
 using Microsoft.EntityFrameworkCore; 
 using Yggdrasil.Tests.Factories;
-using Yggdrasil.Models.Enums;
+using Yggdrasil.Models.Enums.SortOrders;
 using System.Linq.Dynamic.Core;
 using System.Collections;
 

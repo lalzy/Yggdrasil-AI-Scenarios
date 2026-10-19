@@ -12,11 +12,16 @@ public static class EnsureUnique{
     /// <param name="entity">The entity whose property values must all differ.</param>
     /// <returns>A generated request with every property value different from <paramref name="entity"/>.</returns>
     public static TRequest Request<TRequest, TEntity>(TEntity entity) where TRequest : class{
-        var properties = typeof(TRequest).GetProperties();
+        var pairs = typeof(TRequest).GetProperties()
+            .Select(p => (Req: p, Ent: typeof(TEntity).GetProperty(p.Name)))
+            .Where(x => x.Ent != null)
+            .ToList();
+        // var properties = typeof(TRequest).GetProperties();
         TRequest request;
         do{
             request = AutoFaker.Generate<TRequest>();
-        }while(properties.Any(p => Equals(p.GetValue(request), typeof(TEntity).GetProperty(p.Name)?.GetValue(entity))));
+        }while(pairs.Any(x => Equals(x.Req.GetValue(request), x.Ent!.GetValue(entity))));
+        // }while(properties.Any(p => Equals(p.GetValue(request), typeof(TEntity).GetProperty(p.Name)?.GetValue(entity))));
         return request;
     }
 }
