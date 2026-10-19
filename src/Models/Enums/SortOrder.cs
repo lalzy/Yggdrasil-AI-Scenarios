@@ -19,3 +19,8 @@ public class WorldSortOrder : SortOrder{
     public const string DescriptionAsc = "Description, ID";
     public const string DescriptionDesc = "Description desc, ID";
 }
+
+
+public class LLMConnectionSortOrder : SortOrder{
+    
+}

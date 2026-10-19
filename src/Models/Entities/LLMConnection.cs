@@ -12,7 +12,7 @@ public class LLMConnection{
     public required string URL {get; set;}
 
     /// <summary>Port number to the LLM if provider uses a dedicated port.</summary>
-    public int? port {get;set;}
+    public int? Port {get;set;}
     
     /// <summary>The Model. Usually a model name, or model identifier.</summary>
     public string? Model {get; set;}
