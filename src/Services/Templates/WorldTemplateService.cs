@@ -14,7 +14,10 @@ namespace Yggdrasil.Services.Templates;
 public class WorldTemplateService (AppDbContext db){
     private readonly DbSet<WorldTemplate> _world = db.Set<WorldTemplate>();
 
-    private string CreateKeyNotFoundString(Guid narratorID){
+    /// <summary>Create error message when Narrator not found</summary>
+    /// <param name="narratorID">The requested narrator ID</param>
+    /// <returns>Error message string</returns>
+    public static string CreateKeyNotFoundString(Guid narratorID){
         return $"Narrator with ID '{narratorID}' was not found.";
     }
     
