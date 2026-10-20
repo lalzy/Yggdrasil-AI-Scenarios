@@ -186,5 +186,19 @@ public class AppDbContextTests : IDisposable{
             Assert.False(p.ComplexType.IsMappedToJson(), $"{p.DeclaringType.ClrType.Name}.{p.Name}"));
     }
 
+    [Fact]
+    public void SaveChanges_ModifiedNarratorDoesNotUpdateConnectionUpdatedAt(){
+        var db = AppDb();
+        var oldConnection = LLMConnectionFactory.Create(db);
+        var newConnection = LLMConnectionFactory.Create(db);
+        var narrator = NarratorFactory.Create(db, oldConnection);
+        var expected = AppDb().Find<LLMConnection>(newConnection.ID)!.UpdatedAt;
+
+        narrator.Connection = newConnection;
+        db.SaveChanges();
+
+        Assert.Equal(expected, AppDb().Find<LLMConnection>(newConnection.ID)!.UpdatedAt);
+    }
+
     public void Dispose() => _connection.Dispose();
 }

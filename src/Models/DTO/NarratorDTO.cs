@@ -10,12 +10,12 @@ public class NarratorDTO{
         [Required] string DisplayName,
         [Required] string Description,
         [Required] string Instruction,
-        [Required] LLMConnection Connection
+        [Required] Guid ConnectionID
     );
     public record Update(
         string? DisplayName=null,
         string? Description=null,
         string? Instruction=null,
-        LLMConnection? Connection=null
+        Guid? ConnectionID=null
     );
 }

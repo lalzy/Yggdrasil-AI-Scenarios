@@ -75,6 +75,9 @@ modelBuilder.Entity<SystemPrompt>()
         }
 
         foreach(var owner in GetOwners(entry)){
+            // Don't update when attaching to connection to narrator
+            if(entry.Entity is Narrator && owner.Entity is LLMConnection) continue;
+            
             if(owner.Entity is WorldInstance){
                 if(isChat) owner.Property(nameof(WorldInstance.LastUsed)).CurrentValue = now;
             }else{
