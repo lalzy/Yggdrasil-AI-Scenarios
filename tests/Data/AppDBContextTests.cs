@@ -69,7 +69,7 @@ public class AppDbContextTests : IDisposable{
         var model = AppDb().Model;
         var expected = typeof(AppDbContext).Assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract
-                && AppDbContext.IsInNamespace(t) && AppDbContext.IsNotDataOnly(t));
+                && AppDbContext.IsInNamespace(t));
         Assert.All(expected, t => Assert.NotNull(model.FindEntityType(t)));
     }
 

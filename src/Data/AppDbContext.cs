@@ -24,12 +24,6 @@ public class AppDbContext : DbContext{
         _ => false
     };
 
-    /// <summary> Skips these entities when creating EFCore tables</summary>
-    public static bool IsNotDataOnly(Type t) => t.Name switch{ 
-        nameof(Agent) => false,
-        _ => true
-    };
-
     /// <summary>Store valueObjects as Json</summary>
     private void StoreValueObjectsAsJson(ModelBuilder modelBuilder){
         var collections = modelBuilder.Model.GetEntityTypes()
@@ -48,7 +42,7 @@ public class AppDbContext : DbContext{
     protected override void OnModelCreating(ModelBuilder modelBuilder){
         var entityTypes = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && IsInNamespace(t) && IsNotDataOnly(t));
+            .Where(t => t.IsClass && !t.IsAbstract && IsInNamespace(t));
         foreach(var type in entityTypes){
             modelBuilder.Entity(type);
         }

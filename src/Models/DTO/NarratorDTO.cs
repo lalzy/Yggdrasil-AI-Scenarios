@@ -7,15 +7,11 @@ namespace Yggdrasil.Models.DTO;
 
 public class NarratorDTO{
     public record Request(
-        [Required] string DisplayName,
-        [Required] string Description,
-        [Required] string Instruction,
+        [Required] AgentDTO.Request Agent,
         [Required] Guid ConnectionID
     );
     public record Update(
-        string? DisplayName=null,
-        string? Description=null,
-        string? Instruction=null,
+        AgentDTO.Update? Agent = null,
         Guid? ConnectionID=null
     );
 }
