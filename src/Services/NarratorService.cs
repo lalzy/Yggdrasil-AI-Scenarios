@@ -21,8 +21,7 @@ public class NarratorService (AppDbContext db){
     /// <param name="request">The worldTemplate's data</param>
     /// <returns>The new created worldTemplate</returns>
     public Narrator Create(NarratorDTO.Request request){
-        var entity = request.Patch<Narrator>();
-        // request.Adapt<Narrator>();
+        var entity = request.Adapt<Narrator>();
         var connection = db.Set<LLMConnection>().Find(request.ConnectionID);
         if(connection == null) throw new KeyNotFoundException(InvalidConnectionError(request.ConnectionID));
         entity.Connection = connection;
