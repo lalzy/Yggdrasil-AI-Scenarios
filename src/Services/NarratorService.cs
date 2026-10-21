@@ -4,6 +4,7 @@ using Yggdrasil.Data;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
 using Yggdrasil.Models.Enums.SortOrders;
+using Yggdrasil.Models.ValueObjects;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 using Mapster;
@@ -22,7 +23,6 @@ public class NarratorService (AppDbContext db){
     /// <returns>The new created worldTemplate</returns>
     public Narrator Create(NarratorDTO.Request request){
         var entity = request.Patch<Narrator>();
-        // request.Adapt<Narrator>();
         var connection = db.Set<LLMConnection>().Find(request.ConnectionID);
         if(connection == null) throw new KeyNotFoundException(InvalidConnectionError(request.ConnectionID));
         entity.Connection = connection;
@@ -71,7 +71,7 @@ public class NarratorService (AppDbContext db){
         
         return entity;
     }
-
+    
     /// <summary>Delete a worldTemplate</summary>
     /// <param name="ID">ID of the worldTempalte to delete</param>
     public void Delete(Guid ID){

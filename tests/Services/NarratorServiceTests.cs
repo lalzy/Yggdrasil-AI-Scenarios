@@ -9,6 +9,7 @@ using Yggdrasil.Services;
 using Yggdrasil.Services.Templates;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
+using Yggdrasil.Models.ValueObjects;
 using Microsoft.EntityFrameworkCore; 
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Models.Enums.SortOrders;
@@ -207,6 +208,29 @@ public class NarratorServiceTests : DatabaseSetup{
             foreach(var p in properties){
                 var actual = typeof(Narrator).GetProperty(p.Name)!.GetValue(dbFetch);
                 var expected = p.Name == property.Name ? property.GetValue(fullRequest) : before[p.Name];
+                Assert.Equivalent(expected, actual);
+            }
+        }
+    }
+
+    [Fact]
+    public void Update_OnlyPassedAgentFieldsChanged(){
+        var narrator = NarratorFactory.Create(Db());
+        var fullAgent = EnsureUnique.Request<NarratorDTO.Update, Narrator>(narrator).Agent!;
+        var properties = fullAgent.GetType().GetProperties();
+        foreach(var property in properties){
+            var json = JsonSerializer.Serialize(Narrators.Find(narrator.ID)!.Agent);
+            var before = JsonSerializer.Deserialize<Agent>(json)!;
+
+            _service.Update(narrator.ID, new NarratorDTO.Update{
+                Agent = PartialRequest.IsolatedFieldFromDTORecord(fullAgent, property)
+            });
+
+            var dbAgent = Narrators.Find(narrator.ID)!.Agent;
+            foreach(var p in properties){
+                var agentProp = typeof(Agent).GetProperty(p.Name)!;
+                var actual = agentProp.GetValue(dbAgent);
+                var expected = p.Name == property.Name ? property.GetValue(fullAgent) : agentProp.GetValue(before);
                 Assert.Equivalent(expected, actual);
             }
         }
