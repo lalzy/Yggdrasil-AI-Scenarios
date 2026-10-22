@@ -7,14 +7,14 @@ namespace Yggdrasil.Tests.TestUtil;
 
 public class TestEntity{
     public Guid ID { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; }="";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; }
 }
 
 public class TestEntityNoUpdateAt{
     public Guid ID { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; }="";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
@@ -27,7 +27,7 @@ public class TestEntityOwner(){
 
 public class TestEntityOwned(){
     public Guid ID { get; set; }
-    public String Name { get; set; }
+    public String Name { get; set; }="";
     public TestEntityOwner? Owner { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; }

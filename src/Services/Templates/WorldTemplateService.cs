@@ -8,18 +8,12 @@ using Yggdrasil.Models.Enums.SortOrders;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 using Mapster;
+using Yggdrasil.Utils;
 
 namespace Yggdrasil.Services.Templates;
 
 public class WorldTemplateService (AppDbContext db){
     private readonly DbSet<WorldTemplate> _world = db.Set<WorldTemplate>();
-
-    /// <summary>Create error message when Narrator not found</summary>
-    /// <param name="narratorID">The requested narrator ID</param>
-    /// <returns>Error message string</returns>
-    public static string CreateKeyNotFoundString(Guid narratorID){
-        return $"Narrator with ID '{narratorID}' was not found.";
-    }
     
     /// <summary>Create a world template</summary>
     /// <param name="request">The worldTemplate's data</param>
@@ -28,7 +22,7 @@ public class WorldTemplateService (AppDbContext db){
     public WorldTemplate Create(WorldDTO.Request request){
         var entity = request.Patch<WorldTemplate>();
         var narrator = db.Set<Narrator>().Include(n => n.Connection).FirstOrDefault(n => n.ID == request.NarratorID);
-        if(narrator == null) throw new KeyNotFoundException(CreateKeyNotFoundString(request.NarratorID));
+        if(narrator == null) throw new KeyNotFoundException(UniversalErrors.CreateKeyNotFoundString("Narrator", request.NarratorID));
         entity.Narrator = narrator!;
         _world.Add(entity);
         db.SaveChanges();
@@ -70,7 +64,7 @@ public class WorldTemplateService (AppDbContext db){
         // Change narrator if passed
         if(request.NarratorID != null){
             var narrator = db.Set<Narrator>().Include(n => n.Connection).FirstOrDefault(n => n.ID == request.NarratorID);
-            if(narrator == null) throw new KeyNotFoundException(CreateKeyNotFoundString(request.NarratorID.Value));
+            if(narrator == null) throw new KeyNotFoundException(UniversalErrors.CreateKeyNotFoundString("Narrator", request.NarratorID.Value));
             entity.Narrator = narrator;
         }
         

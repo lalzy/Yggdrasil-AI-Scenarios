@@ -117,7 +117,7 @@ public class ChatServiceTests : DatabaseSetup{
         var dbFetch = Chat.Find(chat.ID);
         
         Assert.Equal(newMessage, fetch.Content);
-        Assert.Equal(newMessage, dbFetch.Content);
+        Assert.Equal(newMessage, dbFetch!.Content);
     }
 
     [Theory]

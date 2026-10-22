@@ -165,7 +165,7 @@ public class WorldTemplateServiceTests : DatabaseSetup{
         var dbFetch = World.Include(w => w.Narrator).ThenInclude(n => n.Connection).First(w => w.ID == world.ID);
         Assert.EquivalentWithExclusions(request, dbFetch, "Narrator", "NarratorID");
 
-        Assert.Equivalent(dbFetch.Narrator, fetch.Narrator, strict:true);
+        Assert.Equivalent(dbFetch.Narrator, fetch!.Narrator, strict:true);
     }
 
     [Fact]

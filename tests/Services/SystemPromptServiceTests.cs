@@ -359,7 +359,7 @@ public class SystemPromptServicesTests : DatabaseSetup{
         // Verify the database was changed
         var fetched = _service.ReplacePrompts(systemPrompt.ID, newPrompts);
         dbFetch = SystemPrompts.Find(systemPrompt.ID)!;
-        Assert.Equivalent(fetched.Prompts, newPrompts, strict:true);
+        Assert.Equivalent(fetched!.Prompts, newPrompts, strict:true);
         Assert.Equivalent(dbFetch.Prompts, newPrompts, strict:true);
     }
 
@@ -381,8 +381,8 @@ public class SystemPromptServicesTests : DatabaseSetup{
         var fetched = _service.ReplacePrompts(systemPrompt.ID, prompts);
         var dbFetch = SystemPrompts.Find(systemPrompt.ID);
 
-        Assert.Equal(JsonSerializer.Serialize(prompts), JsonSerializer.Serialize(fetched.Prompts));
-        Assert.Equal(JsonSerializer.Serialize(prompts), JsonSerializer.Serialize(dbFetch.Prompts));
+        Assert.Equal(JsonSerializer.Serialize(prompts), JsonSerializer.Serialize(fetched!.Prompts));
+        Assert.Equal(JsonSerializer.Serialize(prompts), JsonSerializer.Serialize(dbFetch!.Prompts));
     }
 
     [Fact]

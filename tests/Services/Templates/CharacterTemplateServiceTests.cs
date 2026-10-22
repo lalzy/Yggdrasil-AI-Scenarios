@@ -165,7 +165,7 @@ public class CharacterTemplateServiceTests : DatabaseSetup{
         var dbFetch = Characters.Include(c => c.Connection).First(w => w.ID == character.ID);
         Assert.EquivalentWithExclusions(request, dbFetch, "Connection", "ConnectionID");
 
-        Assert.Equivalent(dbFetch.Connection, fetch.Connection, strict:true);
+        Assert.Equivalent(dbFetch.Connection, fetch!.Connection, strict:true);
     }
 
     [Theory]
@@ -220,7 +220,7 @@ public class CharacterTemplateServiceTests : DatabaseSetup{
                     () => Characters.Find(character.ID),
                     (CharacterDTO.Update r) => _service.Update(character.ID, r),
                     r => r.Profile!,
-                    c => c.Profile,
+                    c => c!.Profile,
                     d => new CharacterDTO.Update{ Profile = d });
                 break;
                 
@@ -230,7 +230,7 @@ public class CharacterTemplateServiceTests : DatabaseSetup{
                     () => Characters.Find(character.ID),
                     (CharacterDTO.Update r) => _service.Update(character.ID, r),
                     r => r.Agent!,
-                    c => c.Agent,
+                    c => c!.Agent,
                     d => new CharacterDTO.Update {Agent = d});
                 break;
         };
@@ -244,7 +244,7 @@ public class CharacterTemplateServiceTests : DatabaseSetup{
         var request = new CharacterDTO.Update{ConnectionID = connection.ID};
         _service.Update(character.ID, request);
         var dbFetch = Characters.Include(c => c.Connection).First(c => c.ID == character.ID);
-        Assert.Equal(dbFetch.Connection.ID, connection.ID);
+        Assert.Equal(dbFetch.Connection!.ID, connection.ID);
     }
 
     [Fact]

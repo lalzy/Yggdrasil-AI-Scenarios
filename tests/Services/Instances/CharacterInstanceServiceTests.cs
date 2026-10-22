@@ -31,7 +31,7 @@ public class CharacterInstanceServiceTests : DatabaseSetup{
     public void Create_CreatesInstance(){
         var template = CharacterFactory.CreateInstance(Db());
         
-        var fetch = _service.Create(template.ID);
+        var fetch = _service.Create(template.ID)!;
         var dbFetch = Characters.Include(c => c.Connection).First(c => c.ID == fetch.ID);
         
         Assert.NotEqual(template.ID, fetch.ID);
@@ -143,7 +143,7 @@ public class CharacterInstanceServiceTests : DatabaseSetup{
     public void Update_SuccessfullyUpdates(){
         var character = CharacterFactory.CreateInstance(Db());
         var request = EnsureUnique.Request<CharacterDTO.Update, CharacterInstance>(character) with {ConnectionID = null};
-        var fetch = _service.Update(character.ID, request);
+        var fetch = _service.Update(character.ID, request)!;
         
         Assert.EquivalentWithExclusions(request, fetch, "Connection", "ConnectionID");
 
@@ -205,7 +205,7 @@ public class CharacterInstanceServiceTests : DatabaseSetup{
                     () => Characters.Find(character.ID),
                     (CharacterDTO.Update r) => _service.Update(character.ID, r),
                     r => r.Profile!,
-                    c => c.Profile,
+                    c => c!.Profile,
                     d => new CharacterDTO.Update{ Profile = d });
                 break;
                 
@@ -215,7 +215,7 @@ public class CharacterInstanceServiceTests : DatabaseSetup{
                     () => Characters.Find(character.ID),
                     (CharacterDTO.Update r) => _service.Update(character.ID, r),
                     r => r.Agent!,
-                    c => c.Agent,
+                    c => c!.Agent,
                     d => new CharacterDTO.Update {Agent = d});
                 break;
         };
@@ -229,7 +229,7 @@ public class CharacterInstanceServiceTests : DatabaseSetup{
         var request = new CharacterDTO.Update{ConnectionID = connection.ID};
         _service.Update(character.ID, request);
         var dbFetch = Characters.Include(c => c.Connection).First(c => c.ID == character.ID);
-        Assert.Equal(dbFetch.Connection.ID, connection.ID);
+        Assert.Equal(dbFetch.Connection!.ID, connection.ID);
     }
 
     [Fact]

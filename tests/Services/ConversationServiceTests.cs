@@ -1,5 +1,6 @@
 // ConversationServiceTests.cs
 
+using AutoBogus;
 using FluentAssertions;
 using Bogus;
 using Yggdrasil.Tests.TestUtil;
@@ -42,6 +43,12 @@ public class ConversationServiceTests : DatabaseSetup{
         Assert.EquivalentWithExclusions(request, dbFetch, "WorldID");
         Assert.Equal(request.WorldID, fetch.World!.ID);
         Assert.Equal(request.WorldID, dbFetch!.World!.ID);
+    }
+
+    [Fact]
+    public void Create_KeyNotFoundOnInvalidWorld(){
+        var request = AutoFaker.Generate<ConversationDTO.Request>();
+        Assert.Throws<KeyNotFoundException>(()=> _service.Create(request));
     }
     
     // =======================================
@@ -112,7 +119,7 @@ public class ConversationServiceTests : DatabaseSetup{
         var dbFetch = Conversation.Find(conversation.ID);
 
         Assert.Equal(newTitle, fetch.Title);
-        Assert.Equal(newTitle, dbFetch.Title);
+        Assert.Equal(newTitle, dbFetch!.Title);
     }
 
     [Theory]
@@ -211,7 +218,7 @@ public class ConversationServiceTests : DatabaseSetup{
         conversation.Chats = chats;
         
         var duplicatedConversation = _service.Duplicate(conversation.ID);
-        var duplicatedChats = duplicatedConversation.Chats;
+        var duplicatedChats = duplicatedConversation!.Chats;
 
         Assert.NotEqual(conversation.ID, duplicatedConversation.ID);
         Assert.Equal(chats.Count, duplicatedChats.Count);
@@ -231,7 +238,7 @@ public class ConversationServiceTests : DatabaseSetup{
         conversation.Chats = chats;
         
         var duplicatedConversation = _service.Duplicate(conversation.ID);
-        Assert.NotNull(Conversation.Find(duplicatedConversation.ID));
+        Assert.NotNull(Conversation.Find(duplicatedConversation!.ID));
         Assert.All(duplicatedConversation.Chats, c => Assert.NotNull(db.Find<Chat>(c.ID)));
     }
 
@@ -247,7 +254,7 @@ public class ConversationServiceTests : DatabaseSetup{
 
         var duplicatedConversation = _service.Duplicate(conversation.ID, chats[index].ID);
 
-        var duplicatedChats = duplicatedConversation.Chats;
+        var duplicatedChats = duplicatedConversation!.Chats;
 
         Assert.NotEqual(conversation.ID, duplicatedConversation.ID);
         Assert.Equal(index + 1, duplicatedChats.Count);
@@ -268,7 +275,7 @@ public class ConversationServiceTests : DatabaseSetup{
         _service.Duplicate(conversation.ID, chats[2].ID);
 
         // Should only hold 1 world
-        Assert.Equal(1, Db().Set<WorldInstance>().ToList().Count);
+        Assert.Single(Db().Set<WorldInstance>().ToList());
     }
 
     [Fact]

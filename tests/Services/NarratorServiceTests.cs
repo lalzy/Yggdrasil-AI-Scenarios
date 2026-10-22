@@ -216,7 +216,7 @@ public class NarratorServiceTests : DatabaseSetup{
             () => Narrators.Find(narrator.ID),
             (NarratorDTO.Update r) => _service.Update(narrator.ID, r),
             r => r.Agent!,
-            c => c.Agent,
+            c => c!.Agent,
             d => new NarratorDTO.Update {Agent = d});
     }
 

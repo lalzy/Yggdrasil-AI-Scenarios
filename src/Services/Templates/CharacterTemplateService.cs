@@ -8,18 +8,13 @@ using Yggdrasil.Data;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 using Mapster;
-
+using Yggdrasil.Utils;
 
 
 namespace Yggdrasil.Services;
 
 public class CharacterTemplateService (AppDbContext db){
     private readonly DbSet<CharacterTemplate> _characters = db.Set<CharacterTemplate>();
-    
-    /// <returns>Error message string</returns>
-    public static string CreateKeyNotFoundString(Guid narratorID){
-        return $"Narrator with ID '{narratorID}' was not found.";
-    }
     
     /// <summary>Create a world template</summary>
     /// <param name="request">The CharacterTemplate's data</param>
@@ -29,7 +24,7 @@ public class CharacterTemplateService (AppDbContext db){
 
         if(request.ConnectionID != null){
             var connection = db.Set<LLMConnection>().Find(request.ConnectionID.Value);
-            if(connection == null) throw new KeyNotFoundException(CreateKeyNotFoundString(request.ConnectionID.Value));
+            if(connection == null) throw new KeyNotFoundException(UniversalErrors.CreateKeyNotFoundString("Connection", request.ConnectionID.Value));
             entity.Connection = connection;
         }
 
@@ -67,7 +62,7 @@ public class CharacterTemplateService (AppDbContext db){
         if(entity == null) return null;
         if(request.ConnectionID != null){
             var connection = db.Set<LLMConnection>().FirstOrDefault(c => c.ID == request.ConnectionID);
-            if(connection == null) throw new KeyNotFoundException(CreateKeyNotFoundString(request.ConnectionID.Value));
+            if(connection == null) throw new KeyNotFoundException(UniversalErrors.CreateKeyNotFoundString("Connection", request.ConnectionID.Value));
             entity.Connection = connection;
         }
         

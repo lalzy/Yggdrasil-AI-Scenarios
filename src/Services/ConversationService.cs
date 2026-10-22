@@ -4,17 +4,21 @@ using Yggdrasil.Data;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Models.DTO;
+using Yggdrasil.Utils;
 
 namespace Yggdrasil.Services;
 
 public class ConversationService (AppDbContext db){
     private readonly DbSet<Conversation> _conversation = db.Set<Conversation>();
 
+    
     /// <summary>Create a new Conversation</summary>
     /// <param name="request">The ConversationDTO request</param>
     /// <returns>The created Conversation object</returns>
     public Conversation Create(ConversationDTO.Request request){
-        var world = db.Set<WorldInstance>().Find(request.WorldID);
+        var world = db.Set<WorldInstance>().Find(request.WorldID)!;
+        if(world == null) throw new KeyNotFoundException(UniversalErrors.CreateKeyNotFoundString("World", request.WorldID));
+        
         var entity = new Conversation{Title = request.Title, World=world!};
         entity.World = world;
         _conversation.Add(entity);

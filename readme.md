@@ -50,6 +50,7 @@ A scenario based Web-app for running RP Sessions with an LLM (contra companion o
 │   │   ├── Instances/     Instance services
 │   │   └── Templates/     Template services
 │   │   ----------------------------------------------------
+│   │── Utils/             Misc Utilities
 │   └── wwwroot/           Static files
 │   --------------------------------------------------------
 ├── Migrations/            EF Core migrations (run on start)

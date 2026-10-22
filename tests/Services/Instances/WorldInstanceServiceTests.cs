@@ -32,7 +32,7 @@ public class WorldInstanceServiceTests : DatabaseSetup{
     public void Create_CreatesInstance(){
         var template = WorldFactory.Create(Db());
 
-        var fetch = _service.Create(template.ID);
+        var fetch = _service.Create(template.ID)!;
         var dbFetch = World.Include(w=>w.Narrator).ThenInclude(n => n.Connection).First(w => w.ID == fetch.ID);
 
         Assert.NotEqual(template.ID, fetch.ID); // Formality. EFCore throws if the IDs are the same.

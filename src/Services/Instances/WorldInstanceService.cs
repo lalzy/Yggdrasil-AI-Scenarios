@@ -10,6 +10,7 @@ using Yggdrasil.Models.Enums.SortOrders;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 using Mapster;
+using Yggdrasil.Utils;
 
 namespace Yggdrasil.Services.Instances;
 
@@ -69,7 +70,7 @@ public class WorldInstanceService (AppDbContext db){
         if(request.NarratorID != null){
             var narrator = db.Set<Narrator>().Include(n => n.Connection).FirstOrDefault(n => n.ID == request.NarratorID.Value);
             if(narrator == null)
-                throw new KeyNotFoundException(WorldTemplateService.CreateKeyNotFoundString(request.NarratorID.Value));
+                throw new KeyNotFoundException(UniversalErrors.CreateKeyNotFoundString("Narrator", request.NarratorID.Value));
             entity.Narrator = narrator;
         }
         db.SaveChanges();

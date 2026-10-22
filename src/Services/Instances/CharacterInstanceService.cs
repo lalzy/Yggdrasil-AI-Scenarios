@@ -9,18 +9,14 @@ using Yggdrasil.Data;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 using Mapster;
+using Yggdrasil.Utils;
 
 namespace Yggdrasil.Services;
 
 public class CharacterInstanceService (AppDbContext db){
     private readonly DbSet<CharacterInstance> _characters = db.Set<CharacterInstance>();
     private readonly DbSet<CharacterTemplate> _templates = db.Set<CharacterTemplate>();
-    
-    /// <returns>Error message string</returns>
-    public static string CreateKeyNotFoundString(Guid narratorID){
-        return $"Narrator with ID '{narratorID}' was not found.";
-    }
-    
+  
     /// <summary>Create a world template</summary>
     /// <param name="request">The CharacterInstance's data</param>
     /// <returns>The new created CharacterInstance</returns>
@@ -65,7 +61,7 @@ public class CharacterInstanceService (AppDbContext db){
         if(entity == null) return null;
         if(request.ConnectionID != null){
             var connection = db.Set<LLMConnection>().FirstOrDefault(c => c.ID == request.ConnectionID);
-            if(connection == null) throw new KeyNotFoundException(CreateKeyNotFoundString(request.ConnectionID.Value));
+            if(connection == null) throw new KeyNotFoundException(UniversalErrors.CreateKeyNotFoundString("Connection", request.ConnectionID.Value));
             entity.Connection = connection;
         }
         
