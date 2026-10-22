@@ -23,8 +23,9 @@ public class WorldTemplateService (AppDbContext db){
     
     /// <summary>Create a world template</summary>
     /// <param name="request">The worldTemplate's data</param>
+    /// <throws cref="KeyNotFoundException">Thrown if Narrator not found</throws>
     /// <returns>The new created worldTemplate</returns>
-    public WorldTemplate? Create(WorldDTO.Request request){
+    public WorldTemplate Create(WorldDTO.Request request){
         var entity = request.Patch<WorldTemplate>();
         var narrator = db.Set<Narrator>().Include(n => n.Connection).FirstOrDefault(n => n.ID == request.NarratorID);
         if(narrator == null) throw new KeyNotFoundException(CreateKeyNotFoundString(request.NarratorID));
@@ -58,6 +59,7 @@ public class WorldTemplateService (AppDbContext db){
     /// <summary>Update the requested WorldTemplate</summary>
     /// <param name="ID">ID of the worldTemplate to update</param>
     /// <param name="request">The data to change</param>
+    /// <throws cref="KeyNotFoundException">Thrown if Narrator not found</throws>
     /// <returns>Updated WorldTemplate</returns>
     public WorldTemplate? Update(Guid ID, WorldDTO.Update request){
         var entity = _world.Include(w => w.Narrator).ThenInclude(n => n.Connection).FirstOrDefault(w => w.ID == ID);

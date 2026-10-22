@@ -8,13 +8,13 @@ namespace Yggdrasil.Models.DTO;
 
 public class CharacterDTO{
     public record Request(
-        [Required] Agent Agent,
-        [Required] Profile Profile,
-        LLMConnection? Connection = null
+        [Required] AgentDTO.Request Agent,
+        [Required] ProfileDTO.Request Profile,
+        Guid? ConnectionID = null
     );
     public record Update(
-        Agent? A = null,
-        Profile? P = null,
-        LLMConnection? Connection = null
+        AgentDTO.Update? Agent = null,
+        ProfileDTO.Update? Profile = null,
+        Guid? ConnectionID = null
     );
 }

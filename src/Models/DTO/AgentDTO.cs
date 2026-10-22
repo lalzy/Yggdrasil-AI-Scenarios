@@ -1,4 +1,4 @@
-// NarratorDTO.cs
+// AgentDTO.cs
 
 using Yggdrasil.Models.Entities;
 using System.ComponentModel.DataAnnotations;
