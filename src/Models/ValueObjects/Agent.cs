@@ -12,10 +12,9 @@ public class Agent{
 
     /// <summary>Description about the Agent. User facing only</summary>
     public required string Description { get; set; }
-    
-    /// <summary>Unique instruction to the Agent added to the Prompt-Generator</summary>
-    public required string Instruction {get; set;}
 
+    public required List<Prompt> Prompts {get; set;} = [];
+    
     /// <summary>The agent's LLM Connection. If null for characters will use narrator's Connection.</summary>
     public DateTime CreatedAt {get; set;} = DateTime.UtcNow;
     public DateTime UpdatedAt {get; set;} = DateTime.UtcNow;

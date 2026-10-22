@@ -5,6 +5,7 @@ using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.Entities.Instances;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Yggdrasil.Data;
 
@@ -26,7 +27,8 @@ public class AppDbContext : DbContext{
     private void StoreValueObjectsAsJson(ModelBuilder modelBuilder){
         var collections = modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetComplexProperties())
-            .Where(p => p.IsCollection && p.ComplexType.ClrType.Namespace == "Yggdrasil.Models.ValueObjects")
+            .Where(p => p.ComplexType.ClrType.Namespace == "Yggdrasil.Models.ValueObjects"
+                   && (p.IsCollection || p.ComplexType.GetComplexProperties().Any(c => c.IsCollection)))
             .ToList();
 
         foreach(var property in collections){
@@ -51,14 +53,10 @@ public class AppDbContext : DbContext{
         foreach(var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             fk.DeleteBehavior = DeleteBehavior.Cascade;
 
-modelBuilder.Entity<SystemPrompt>()
-    .ComplexCollection(e => e.Prompts, b => b.ToJson());
-        
-        base.OnModelCreating(modelBuilder);
-    }
+        modelBuilder.Entity<SystemPrompt>()
+            .ComplexCollection(e => e.Prompts, b => b.ToJson());
 
-    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder){
-        configurationBuilder.Properties<string>().UseCollation("NOCASE");
+        base.OnModelCreating(modelBuilder);
     }
     
     private void UpdateUpdatedAt(EntityEntry entry, DateTime now, bool isChat){

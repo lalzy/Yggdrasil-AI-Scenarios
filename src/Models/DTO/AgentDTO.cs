@@ -8,11 +8,11 @@ public class AgentDTO{
     public record Request(
         [Required] string DisplayName,
         [Required] string Description,
-        [Required] string Instruction
+        [Required] List<PromptDTO.Request> Prompts
     );
     public record Update(
         string? DisplayName=null,
         string? Description=null,
-        string? Instruction=null
+        List<PromptDTO.Request>? Prompts = null
     );
 }

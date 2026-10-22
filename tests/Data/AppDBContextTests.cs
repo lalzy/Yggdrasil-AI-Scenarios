@@ -140,14 +140,6 @@ public class AppDbContextTests : IDisposable{
     }
 
     [Fact]
-    public void ConfigureConventions_StringUseNoCaseCollation(){
-        var properties = AppDb().GetService<IDesignTimeModel>().Model.GetEntityTypes()
-            .SelectMany(e => e.GetProperties())
-            .Where(p => p.ClrType == typeof(string));
-        Assert.All(properties, p => Assert.Equal("NOCASE", p.GetCollation()));
-    }
-
-    [Fact]
     public void OnModelCreating_ComplexTypesAreNotTables(){
         var model = AppDb().Model;
         var valueObjects = typeof(AppDbContext).Assembly.GetTypes()
@@ -172,7 +164,8 @@ public class AppDbContextTests : IDisposable{
     public void OnModelCreating_SingleComplexTypesNotJson(){
         var props = AppDb().Model.GetEntityTypes()
             .SelectMany(e => e.GetComplexProperties())
-            .Where(p => !p.IsCollection);
+            .Where(p => !p.IsCollection
+                   && !p.ComplexType.GetComplexProperties().Any(c => c.IsCollection));
 
         Assert.All(props, p =>
             Assert.False(p.ComplexType.IsMappedToJson(), $"{p.DeclaringType.ClrType.Name}.{p.Name}"));

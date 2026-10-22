@@ -129,7 +129,7 @@ public class NarratorServiceTests : DatabaseSetup{
         var narrators = Enumerable.Range(0, 20).Select(_ => NarratorFactory.Create(Db())).ToList();
         var expected = narrators.AsQueryable().OrderBy(NarratorSortOrder.NameAsc).ThenBy(w => w.ID).Select(w => w.ID).ToList();
         var actual = _service.GetAll().Select(w => w.ID).ToList();
-        
+
         Assert.Equal(expected, actual);
     }
     

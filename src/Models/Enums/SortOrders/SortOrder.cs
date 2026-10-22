@@ -6,8 +6,8 @@ namespace Yggdrasil.Models.Enums.SortOrders;
 public class SortOrder{
     public const string IDAsc        = "ID";
     public const string IDDesc       = "ID desc";
-    public const string NameAsc      = "Name, ID";
-    public const string NameDesc     = "Name desc, ID desc";
+    public const string NameAsc      = "Name.ToLower(), ID";
+    public const string NameDesc     = "Name.ToLower() desc, ID desc";
     public const string CreatedAsc   = "CreatedAt, ID";
     public const string CreatedDesc  = "CreatedAt desc, ID desc";
     public const string ModifiedAsc  = "UpdatedAt, ID";
