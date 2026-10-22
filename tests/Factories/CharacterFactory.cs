@@ -27,11 +27,13 @@ public static class CharacterFactory{
         return entity;
     }
     
-    public static CharacterTemplate CreateInstance(AppDbContext db){
+    public static CharacterInstance CreateInstance(AppDbContext db){
         var entity = new AutoFaker<CharacterInstance>()
             .SharedRules()
             .Generate();
 
+        db.Set<CharacterInstance>().Add(entity);
+        db.SaveChanges();
         return entity;
     }
 }

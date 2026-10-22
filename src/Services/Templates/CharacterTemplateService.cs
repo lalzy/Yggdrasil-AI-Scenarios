@@ -1,6 +1,5 @@
 // CharacterTemplateService.cs
 
-using Yggdrasil.Models.ValueObjects;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.Entities.Templates;
 using Yggdrasil.Models.DTO;
