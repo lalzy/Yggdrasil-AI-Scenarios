@@ -2,7 +2,6 @@
 
 using AutoBogus;
 using Yggdrasil.Data;
-using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.Entities.Templates;
 using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Tests.Factories.BaseRules;

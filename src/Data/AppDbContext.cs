@@ -2,11 +2,9 @@
 
 using System.Reflection;
 using Yggdrasil.Models.Entities;
-using Yggdrasil.Models.Entities.Templates;
 using Yggdrasil.Models.Entities.Instances;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Yggdrasil.Data;
 

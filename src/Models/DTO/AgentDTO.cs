@@ -1,6 +1,5 @@
 // AgentDTO.cs
 
-using Yggdrasil.Models.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace Yggdrasil.Models.DTO;

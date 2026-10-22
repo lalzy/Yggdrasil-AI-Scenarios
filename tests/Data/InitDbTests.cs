@@ -1,11 +1,6 @@
 // InitDbTests.cs
 
-using System.Linq;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Yggdrasil.Data;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Tests.TestUtil;

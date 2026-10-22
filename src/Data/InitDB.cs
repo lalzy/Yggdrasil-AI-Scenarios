@@ -1,10 +1,6 @@
 // InitDb.cs
 
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Yggdrasil.Models.Entities;
-using Yggdrasil.Services;
 
 namespace Yggdrasil.Data;
 

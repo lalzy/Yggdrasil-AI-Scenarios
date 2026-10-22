@@ -1,6 +1,5 @@
 // EnsureUniques.cs
 
-using System.Linq;
 using AutoBogus;
 
 namespace Yggdrasil.Tests.TestUtil;

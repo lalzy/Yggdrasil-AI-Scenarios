@@ -7,7 +7,6 @@ using Yggdrasil.Models.Enums.SortOrders;
 using Yggdrasil.Extensions;
 using System.Linq.Dynamic.Core;
 
-
 namespace Yggdrasil.Services;
 
 public class LLMConnectionService (AppDbContext db){

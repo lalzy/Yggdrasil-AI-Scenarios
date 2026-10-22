@@ -3,15 +3,12 @@
 using FluentAssertions;
 using AutoBogus;
 using Bogus;
-using System.Text.Json;
 using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Services;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Tests.Factories;
-using Yggdrasil.Models.Enums.SortOrders;
-using Yggdrasil.Data;
 
 namespace Yggdrasil.Tests.Services;
 

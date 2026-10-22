@@ -1,6 +1,5 @@
 // ServiceExtensions.cs
 
-using Yggdrasil.Services;
 using System.Reflection;
 
 namespace Yggdrasil.Extensions;

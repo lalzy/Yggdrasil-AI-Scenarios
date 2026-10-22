@@ -1,7 +1,6 @@
 // Character.cs
 
 using Yggdrasil.Models.ValueObjects;
-using Yggdrasil.Models.Enums;
 
 namespace Yggdrasil.Models.Entities.Templates;
 

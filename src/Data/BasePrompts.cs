@@ -1,7 +1,6 @@
 // BasePrompts.cs
 
 using Yggdrasil.Models.Enums;
-using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.ValueObjects;
 
 namespace Yggdrasil.Data;

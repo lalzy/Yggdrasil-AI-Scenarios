@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Yggdrasil.Tests.Factories;
 using Yggdrasil.Models.Enums.SortOrders;
 using Yggdrasil.Data;
-using System.Linq.Dynamic.Core.Exceptions;
 using System.Linq.Dynamic.Core;
 using System.Collections;
 using Yggdrasil.Models.ValueObjects;

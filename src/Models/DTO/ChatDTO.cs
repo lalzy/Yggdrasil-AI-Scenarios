@@ -1,7 +1,6 @@
 // ChatDTO.cs
 
 using System.ComponentModel.DataAnnotations;
-using Yggdrasil.Models.Entities;
 using Yggdrasil.Models.Enums;
 
 namespace Yggdrasil.Models.DTO;

@@ -1,6 +1,5 @@
 // Narrator.cs
 
-using Yggdrasil.Models.Enums;
 using Yggdrasil.Models.ValueObjects;
 
 namespace Yggdrasil.Models.Entities; 
