@@ -1,5 +1,7 @@
 // LLMConnection.cs
 
+using Yggdrasil.Models.ValueObjects;
+
 namespace Yggdrasil.Models.Entities;
 
 public class LLMConnection{
@@ -14,9 +16,6 @@ public class LLMConnection{
     /// <summary>Port number to the LLM if provider uses a dedicated port.</summary>
     public int? Port {get;set;}
     
-    /// <summary>The Model. Usually a model name, or model identifier.</summary>
-    public string? Model {get; set;}
-
     /// <summary>Json request format, must match the provider used</summary>
     public required string RequestFormat {get; set;}
     
@@ -29,6 +28,8 @@ public class LLMConnection{
     /// <summary>The Authorization key</summary>
     public string? APIKey {get; set;}
 
+    public required LLMSettings Settings {get; set;}
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

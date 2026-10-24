@@ -6,6 +6,7 @@ using AutoBogus;
 using Yggdrasil.Models.Entities;
 using Yggdrasil.Data;
 using Yggdrasil.Tests.Factories.BaseRules;
+using Yggdrasil.Models.DTO;
 
 namespace Yggdrasil.Tests.Factories;
 
@@ -56,13 +57,13 @@ public static class LLMConnectionFactory{
         return JsonSerializer.Serialize(request);
     }
     
-    public static LLMConnection Create(AppDbContext db){
+    public static LLMConnection Create(AppDbContext db, string? requestFormat=null, string? responseFormat=null){
         var model = _faker.Lorem.Word();
         var entity = new AutoFaker<LLMConnection>()
             .IDRule()
             .CreateAndUpdateAtRule()
-            .RuleFor(x => x.RequestFormat, _ => GenerateRequestJson(model))
-            .RuleFor(x => x.ResponseFormat, _ => GenerateResponseJson(model))
+            .RuleFor(x => x.RequestFormat, _ => requestFormat ?? GenerateRequestJson(model))
+            .RuleFor(x => x.ResponseFormat, _ => responseFormat ?? GenerateResponseJson(model))
             .Generate();
         db.Set<LLMConnection>().Add(entity);
         db.SaveChanges();

@@ -1,7 +1,8 @@
 // Agent.cs
 
-namespace Yggdrasil.Models.ValueObjects;
 using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Yggdrasil.Models.ValueObjects;
 
 [ComplexType]
 public class Agent{
