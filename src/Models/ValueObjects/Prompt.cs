@@ -16,4 +16,5 @@ public class Prompt{
     public SourceType Source { get; set; }
     /// <summary>If it should be sent to the LLM or not</summary>
     public bool Active { get; set; }
+    public ChatRole ChatPosition {get; set;}
 }

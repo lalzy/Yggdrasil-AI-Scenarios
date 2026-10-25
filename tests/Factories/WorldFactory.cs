@@ -10,20 +10,20 @@ using Yggdrasil.Tests.Factories.BaseRules;
 namespace Yggdrasil.Tests.Factories;
 
 public static class WorldFactory{
-    public static WorldTemplate Create(AppDbContext db, Narrator? narrator=null){
-        narrator ??= NarratorFactory.Create(db);
-        
+    
+    public static WorldTemplate Create(AppDbContext db, Narrator? narrator=null, List<CharacterTemplate>? characters=null){
         var entity = new AutoFaker<WorldTemplate>()
             .IDRule()
             .CreateAndUpdateAtRule()
-            .RuleFor(x => x.Narrator, _ => narrator)
+            .RuleFor(x => x.Narrator, _ => narrator ?? NarratorFactory.Create(db))
+            .RuleFor(x => x.Characters, _ => characters ?? [])
             .Generate();
         db.Set<WorldTemplate>().Add(entity);
         db.SaveChanges();
         return entity;
     }
 
-    public static WorldInstance CreateInstance(AppDbContext db, Narrator? narrator=null){
+    public static WorldInstance CreateInstance(AppDbContext db, Narrator? narrator=null, List<CharacterInstance>? characters=null){
         narrator ??= NarratorFactory.Create(db);
         
         var entity = new AutoFaker<WorldInstance>()
@@ -31,7 +31,9 @@ public static class WorldFactory{
             .CreateAndUpdateAtRule()
             .RuleFor(x => x.Conversations, _ => [])
             .RuleFor(x => x.LastUsed, _ => DateTime.Now)
-            .RuleFor(x => x.Narrator, _ => narrator)
+            .RuleFor(x => x.Narrator, _ =>  narrator ?? NarratorFactory.Create(db)
+            )
+            .RuleFor(x => x.Characters, _=> characters ?? [])
             .Generate();
         db.Set<WorldInstance>().Add(entity);
         db.SaveChanges();

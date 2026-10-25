@@ -53,9 +53,6 @@ public class AppDbContext : DbContext{
         foreach(var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             fk.DeleteBehavior = DeleteBehavior.Cascade;
 
-        modelBuilder.Entity<SystemPrompt>()
-            .ComplexCollection(e => e.Prompts, b => b.ToJson());
-
         base.OnModelCreating(modelBuilder);
     }
     

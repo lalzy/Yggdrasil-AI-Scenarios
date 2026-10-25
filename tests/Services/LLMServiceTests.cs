@@ -24,6 +24,10 @@ public class LLMServiceTests : DatabaseSetup{
         _service = new LLMService(Db());
     }
     
+    // =======================================
+    //             CREATEREQUEST            
+    // =======================================
+
     public static TheoryData<string, string> RequestFormats => new(){
         {
             "LlamaCpp",

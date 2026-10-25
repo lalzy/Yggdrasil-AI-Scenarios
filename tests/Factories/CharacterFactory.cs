@@ -19,6 +19,7 @@ public static class CharacterFactory{
     public static CharacterTemplate Create(AppDbContext db){
         var entity = new AutoFaker<CharacterTemplate>()
             .SharedRules()
+            .RuleFor(x => x.Worlds, [])
             .Generate();
 
         db.Set<CharacterTemplate>().Add(entity);
@@ -26,9 +27,10 @@ public static class CharacterFactory{
         return entity;
     }
     
-    public static CharacterInstance CreateInstance(AppDbContext db){
+    public static CharacterInstance CreateInstance(AppDbContext db, WorldInstance? world = null){
         var entity = new AutoFaker<CharacterInstance>()
             .SharedRules()
+            .RuleFor(x => x.World, world ?? null)
             .Generate();
 
         db.Set<CharacterInstance>().Add(entity);

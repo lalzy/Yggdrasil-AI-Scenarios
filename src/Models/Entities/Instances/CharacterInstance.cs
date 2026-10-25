@@ -1,8 +1,9 @@
 // CharacterInstance.cs
 
-
-using Yggdrasil.Models.Entities.Templates;
+using Yggdrasil.Models.Abstracts;
 
 namespace Yggdrasil.Models.Entities.Instances;
 
-public class CharacterInstance : CharacterTemplate{}
+public class CharacterInstance : CharacterBase{
+    public required WorldInstance World { get; set; }
+}

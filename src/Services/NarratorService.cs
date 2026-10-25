@@ -2,6 +2,7 @@
 
 using Yggdrasil.Data;
 using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Models.DTO;
 using Yggdrasil.Models.Enums.SortOrders;
 using Yggdrasil.Extensions;

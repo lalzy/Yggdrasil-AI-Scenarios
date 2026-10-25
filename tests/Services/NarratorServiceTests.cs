@@ -6,6 +6,7 @@ using Bogus;
 using Yggdrasil.Tests.TestUtil;
 using Yggdrasil.Services.Templates;
 using Yggdrasil.Models.Entities;
+using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Models.DTO;
 using Microsoft.EntityFrameworkCore; 
 using Yggdrasil.Tests.Factories;
@@ -23,6 +24,7 @@ public class NarratorServiceTests : DatabaseSetup{
     public NarratorServiceTests(){
         _service = new NarratorService(Db());
     }
+    
     // =======================================
     //                 CREATE            
     // =======================================
