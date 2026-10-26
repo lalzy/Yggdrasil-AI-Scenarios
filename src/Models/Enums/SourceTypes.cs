@@ -6,5 +6,5 @@ namespace Yggdrasil.Models.Enums;
 /// SystemPrompt and inject the relevant sources where the source-types exist
 /// </summary>
 public enum SourceType {
-    User, World, Narrator, Character, Persona, ChatMessages
+    FreeText, World, Narration, Characters, CharacterAgent, Persona, ChatMessages
 }

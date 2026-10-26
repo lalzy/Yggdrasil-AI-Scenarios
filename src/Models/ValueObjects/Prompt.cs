@@ -17,4 +17,6 @@ public class Prompt{
     /// <summary>If it should be sent to the LLM or not</summary>
     public bool Active { get; set; }
     public ChatRole ChatPosition {get; set;}
+    /// <summary>How deep down from recent message (0) the prompt should be added.</summary>
+    public int Depth {get; set;}
 }
