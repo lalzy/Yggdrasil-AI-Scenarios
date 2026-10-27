@@ -2,6 +2,7 @@
 
 using AutoBogus;
 using Yggdrasil.Data;
+using Yggdrasil.Models.ValueObjects;
 using Yggdrasil.Models.Entities.Templates;
 using Yggdrasil.Models.Entities.Instances;
 using Yggdrasil.Tests.Factories.BaseRules;
@@ -27,12 +28,12 @@ public static class CharacterFactory{
         return entity;
     }
     
-    public static CharacterInstance CreateInstance(AppDbContext db, WorldInstance? world = null){
+    public static CharacterInstance CreateInstance(AppDbContext db, WorldInstance? world = null, List<Prompt>? prompts=null){
         var entity = new AutoFaker<CharacterInstance>()
             .SharedRules()
             .RuleFor(x => x.World, world ?? null)
             .Generate();
-
+        entity.Agent.Prompts = prompts ?? [];
         db.Set<CharacterInstance>().Add(entity);
         db.SaveChanges();
         return entity;
