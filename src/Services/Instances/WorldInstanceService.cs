@@ -19,7 +19,7 @@ public class WorldInstanceService (AppDbContext db){
     private readonly DbSet<WorldInstance> _world = db.Set<WorldInstance>();
     
     /// <summary>Create a world instance</summary>
-    /// <param name="request">The WorldInstance's data</param>
+    /// <param name="request">The worldTemplate ID to build the instance from</param>
     /// <returns>The new created WorldInstance</returns>
     public WorldInstance? Create(Guid ID){
         var template = _template.Include(w => w.Narrator).ThenInclude(n => n.Connection).FirstOrDefault(w => w.ID == ID);

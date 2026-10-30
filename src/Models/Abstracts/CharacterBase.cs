@@ -13,6 +13,6 @@ public abstract class CharacterBase : IAgent{
     
     /// <summary>Character's character details</summary>
     public required Profile Profile { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

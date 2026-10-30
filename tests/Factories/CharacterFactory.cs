@@ -25,6 +25,7 @@ public static class CharacterFactory{
 
         db.Set<CharacterTemplate>().Add(entity);
         db.SaveChanges();
+        
         return entity;
     }
     
