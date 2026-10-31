@@ -4,6 +4,7 @@ using Yggdrasil.Data;
 using Yggdrasil.Models.DTO;
 using Yggdrasil.Models.Entities.Templates;
 using Yggdrasil.Models.Enums.SortOrders;
+using Yggdrasil.Extensions;
 using Mapster;
 using System.Linq.Dynamic.Core;
 
@@ -47,10 +48,20 @@ public class PersonaService (AppDbContext db){
     /// <param name="request">The data to change</param>
     /// <returns>Updated PersonaTemplate</returns>
     public PersonaTemplate? Update(Guid ID, PersonaDTO.Update request){
-        return null;
+        var entity = _templates.Find(ID);
+        request.Patch(entity);
+        db.SaveChanges();
+        
+        return entity;
     }
 
     /// <summary>Delete a PersonaTemplate</summary>
     /// <param name="ID">ID of the PersonaTemplate to delete</param>
-    public void Delete(Guid ID){}
+    public void Delete(Guid ID){
+        var entity = _templates.Find(ID)!;
+        if(entity != null){
+            _templates.Remove(entity);
+            db.SaveChanges();
+        }
+    }
 }

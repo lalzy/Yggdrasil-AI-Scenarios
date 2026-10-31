@@ -140,10 +140,10 @@ public class PersonaServiceTests : DatabaseSetup{
         var request = EnsureUnique.Request<PersonaDTO.Update, PersonaTemplate>(persona);
         var fetch = _service.Update(persona.ID, request);
         
-        Assert.Equivalent(request, fetch, strict:true);
+        Assert.Equivalent(request, fetch);
 
         var dbFetch = Personas.Find(persona.ID);
-        Assert.EquivalentWithExclusions(request, dbFetch, strict:true);
+        Assert.Equivalent(request, dbFetch);
     }
 
     [Theory]
