@@ -190,7 +190,7 @@ public class PlayerServiceTests : DatabaseSetup{
     }
 
     [Fact]
-    public void Update_OnlyPassedNestedFieldsChanged(string nestedProperty){
+    public void Update_OnlyPassedNestedFieldsChanged(){
         var player = PlayerFactory.Create(Db());
         Nesting.AssertOnlyPassedFieldsChanged(
             player,

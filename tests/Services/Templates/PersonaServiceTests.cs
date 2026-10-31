@@ -28,16 +28,16 @@ public class PersonaServiceTests : DatabaseSetup{
     //                 CREATE            
     // =======================================
 
-    [Fact]
+        [Fact]
     public void Create_CreatesPersona(){
         var request = AutoFaker.Generate<PersonaDTO.Request>();
         
         var fetch = _service.Create(request);
 
-        Assert.EquivalentWithExclusions(request, fetch, "ConnectionID", "Connection");
+        Assert.Equivalent(request, fetch);
 
         var dbFetch = Personas.Find(fetch!.ID);
-        Assert.EquivalentWithExclusions(request, dbFetch, "ConnectionID", "Connection");
+        Assert.Equivalent(request, dbFetch);
     }
     
     // =======================================
@@ -100,14 +100,18 @@ public class PersonaServiceTests : DatabaseSetup{
     }
 
     [Theory]
-    [InlineData(SortOrder.IDAsc)]
-    [InlineData(SortOrder.IDDesc)]
-    [InlineData(SortOrder.NameAsc)]
-    [InlineData(SortOrder.NameDesc)]
-    [InlineData(SortOrder.ModifiedAsc)]
-    [InlineData(SortOrder.ModifiedDesc)]
-    [InlineData(SortOrder.CreatedAsc)]
-    [InlineData(SortOrder.CreatedDesc)]
+    [InlineData(PersonaSortOrder.IDAsc)]
+    [InlineData(PersonaSortOrder.IDDesc)]
+    [InlineData(PersonaSortOrder.DisplayNameAsc)]
+    [InlineData(PersonaSortOrder.DisplayNameDesc)]
+    [InlineData(PersonaSortOrder.NameAsc)]
+    [InlineData(PersonaSortOrder.NameDesc)]
+    [InlineData(PersonaSortOrder.DescriptionAsc)]
+    [InlineData(PersonaSortOrder.DescriptionDesc)]
+    [InlineData(PersonaSortOrder.ModifiedAsc)]
+    [InlineData(PersonaSortOrder.ModifiedDesc)]
+    [InlineData(PersonaSortOrder.CreatedAsc)]
+    [InlineData(PersonaSortOrder.CreatedDesc)]
     public void GetAll_SortOrderReturned(string order){
         var personas = Enumerable.Range(0, 100).Select(_ => PersonaFactory.Create(Db())).ToList();
         var expected = personas.AsQueryable().OrderBy(order, new CaseInsensitiveComparer());
@@ -119,7 +123,7 @@ public class PersonaServiceTests : DatabaseSetup{
     [Fact]
     public void GetAll_UsesDefaults(){
         var personas = Enumerable.Range(0, 20).Select(_ => PersonaFactory.Create(Db())).ToList();
-        var expected = personas.AsQueryable().OrderBy(SortOrder.IDAsc).ThenBy(w => w.ID).Select(w => w.ID).ToList();
+        var expected = personas.AsQueryable().OrderBy(PersonaSortOrder.DisplayNameAsc).ThenBy(w => w.ID).Select(w => w.ID).ToList();
         var actual = _service.GetAll().Select(w => w.ID).ToList();
         
         Assert.Equal(expected, actual);
@@ -180,7 +184,7 @@ public class PersonaServiceTests : DatabaseSetup{
     }
 
     [Fact]
-    public void Update_OnlyPassedNestedFieldsChanged(string nestedProperty){
+    public void Update_OnlyPassedNestedFieldsChanged(){
         var persona = PersonaFactory.Create(Db());
         Nesting.AssertOnlyPassedFieldsChanged(
             persona,
